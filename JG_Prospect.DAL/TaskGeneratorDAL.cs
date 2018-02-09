@@ -1521,6 +1521,27 @@ namespace JG_Prospect.DAL
 
         }
 
+        public DataSet GetDesignationCode(int Key)
+        {
+            DataSet result = new DataSet();
+            try
+            {
+                SqlDatabase database = MSSQLDataBase.Instance.GetDefaultDatabase();
+                {
+                    DbCommand command = database.GetStoredProcCommand("UDP_GetDesignationCode");
+                    command.CommandType = CommandType.StoredProcedure;
+                    database.AddInParameter(command, "@Key", DbType.Int16, Key);
+                    result = database.ExecuteDataSet(command);
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+        }
+
         public DataSet GetInstallUserswithIds(int Key, string Designastion, string TaskId)
         {
             DataSet result = new DataSet();
