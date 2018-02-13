@@ -827,7 +827,7 @@ namespace JG_Prospect.App_Code
         {
             string strCode = string.Empty;
 
-            DataSet dsUsers = TaskGeneratorBLL.Instance.GetDesignationCode((int)objDesignationType));
+            DataSet dsUsers = TaskGeneratorBLL.Instance.GetDesignationCode((int)objDesignationType);
             strCode = Convert.ToString(dsUsers.Tables[0].Rows[0]["DesignationCode"]);
             //switch (objDesignationType)
             //{
