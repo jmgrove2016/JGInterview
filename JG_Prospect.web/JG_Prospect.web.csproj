@@ -2532,8 +2532,6 @@
     <Content Include="TestGoogleMap.aspx" />
     <Content Include="updateuserdetails.aspx" />
     <Content Include="upload.aspx" />
-    <Content Include="UploadedFiles\7162015111634AMKoala.jpg" />
-    <Content Include="UploadedFiles\7162015111655AMJellyfish.jpg" />
     <Content Include="UploadeProfile\default.jpg" />
     <Content Include="UserControl\UCAddress.ascx" />
     <Content Include="UserControl\ucAuditTrailByUser.ascx" />
@@ -3713,6 +3711,7 @@
     <Folder Include="signalr\" />
     <Folder Include="Sr_App\MailDocument\MailAttachments\" />
     <Folder Include="Sr_App\UploadedFile\" />
+    <Folder Include="UploadedFiles\" />
     <Folder Include="UserImages\" />
   </ItemGroup>
   <ItemGroup>
