@@ -22,6 +22,24 @@ namespace JG_Prospect.Sr_App {
         protected global::JG_Prospect.Sr_App.Controls.TaskGenerator TaskGenerator;
         
         /// <summary>
+        /// imgProfile control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Image imgProfile;
+        
+        /// <summary>
+        /// hLnkEditProfil control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HyperLink hLnkEditProfil;
+        
+        /// <summary>
         /// lbluser control.
         /// </summary>
         /// <remarks>
@@ -40,6 +58,15 @@ namespace JG_Prospect.Sr_App {
         protected global::System.Web.UI.WebControls.Button btnlogout;
         
         /// <summary>
+        /// lblDesignation control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblDesignation;
+        
+        /// <summary>
         /// hypEmail control.
         /// </summary>
         /// <remarks>
@@ -56,24 +83,6 @@ namespace JG_Prospect.Sr_App {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlAnchor idPhoneLink;
-        
-        /// <summary>
-        /// imgProfile control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Image imgProfile;
-        
-        /// <summary>
-        /// hLnkEditProfil control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.HyperLink hLnkEditProfil;
         
         /// <summary>
         /// Li_Jr_app control.

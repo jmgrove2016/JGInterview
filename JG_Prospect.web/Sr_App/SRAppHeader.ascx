@@ -35,13 +35,7 @@
         color: red;
     }
 
-    .ProfilImg {
-        left: 1px;
-        top: 5px;
-        position: absolute;
-        margin-left: -58px;
-        width: 181px;
-    }
+    
 
     .img-Profile {
         border-radius: 50%;
@@ -50,22 +44,22 @@
     }
 
     .ProfilImg .caption {
-        opacity: 0;
-        position: absolute;
-        height: 28px;
-        width: 75px;
-        bottom: 0px;
-        padding: 2px 0px;
-        color: #ffffff;
-        background: #1f211f;
-        text-align: center;
-        font-weight: bold;
-        left: 2px;
-    }
+    opacity: 0.6;
+    position: absolute;
+    /* height: 28px; */
+    width: 75px;
+    bottom: 3px;
+    padding: 1px 0px;
+    color: #ffffff;
+    background: #1f211f;
+    text-align: center;
+    font-weight: normal;
+    left: 1px;
+}
 
-    .ProfilImg:hover .caption {
+    /*.ProfilImg:hover .caption {
         opacity: 0.6;
-    }
+    }*/
 </style>
 <script>
 
@@ -76,41 +70,38 @@
         <uc1:TaskGenerator runat="server" ID="TaskGenerator" />
     </div>
     <div class="user_panel">
-        Welcome! <span>
-            <asp:Label ID="lbluser" runat="server" Text="User"></asp:Label>
-            <asp:Button ID="btnlogout" runat="server" Text="Logout" CssClass="cancel" ValidationGroup="header" OnClick="btnlogout_Click" />
-        </span>&nbsp;<div class="clr">
+        <div class="ProfilImg">
+            <asp:Image CssClass="img-Profile" ID="imgProfile" runat="server" />
+            <asp:HyperLink class="caption" runat="server" ID="hLnkEditProfil" Text="Edit"></asp:HyperLink>
         </div>
+            Welcome! 
+        <span>
+            <asp:Label ID="lbluser" runat="server" Text="User"></asp:Label>
+            
+            <asp:Button ID="btnlogout" runat="server" Text="Logout" CssClass="cancel" ValidationGroup="header" OnClick="btnlogout_Click" />
+        </span>
+        <span><asp:Label ID="lblDesignation" runat="server" Text="" CssClass="designation-container"></asp:Label></span>
         <ul>
             <li><a href="home.aspx">Home</a></li>
             <li>|</li>
             <li><a href='<%=Page.ResolveUrl("~/changepassword.aspx")%>'>Change Password</a></li>
+            <li>|</li>
+            <li><input type="text" placeholder="Search" class="search-box"/></li>
         </ul>
-        <div class="clr">
-        </div>
-        <%--<ul>
-            <li><a id="idPhoneLink" class="clsPhoneLink" onclick="GetPhoneDiv()">Phone Dashboard</a></li>
-        </ul>
-        <div class="clr">
-        </div>--%>
-        <ul>
+        <ul style="margin-top: 14px;">
+            <li><a href="#" class="red-text">All</a></li>
+            <li>&nbsp;&nbsp;|&nbsp;&nbsp;</li>
             <!--Email with # of unread msgs and new font-->
-            <li id="test"><a id="hypEmail" runat="server" style="color: white;" target="_blank">Emails<label id="lblNewCounter" class="badge badge-error hide"></label><label id="lblUnRead" class="badge badge-error hide"></label></a></li>
-            <li>|</li>
-            <li><a id="idPhoneLink" runat="server" class="clsPhoneLink" onclick="GetPhoneDiv()">Phone / Vmail(0)</a></li>
-            <li>|</li>
-            <li><a id="hypChat" href="#" onclick="javascript:OpenChatWindow();">Chat </a></li>
+            <li id="test"><a id="hypEmail" runat="server" style="color: white;" target="_blank">Emails<label id="lblNewCounter" class="badge badge-error">0</label><label id="lblUnRead" class="badge badge-error hide"></label></a></li>
+            <li>&nbsp;&nbsp;|&nbsp;&nbsp;</li>
+            <li><a id="idPhoneLink" runat="server" class="clsPhoneLink" onclick="GetPhoneDiv()">Phone / Vmail(0)<label id="lblNewCounter" class="badge badge-error">10</label><label id="lblUnRead" class="badge badge-error hide"></label></a></a></li>
+            <li>&nbsp;&nbsp;|&nbsp;&nbsp;</li>
+            <li><a id="hypChat" href="#" onclick="javascript:OpenChatWindow();">Chat <label id="lblNewCounter" class="badge badge-error">10</label><label class="badge badge-error hide"></label></a></a></li>
         </ul>
-        <div class="ProfilImg" style="width: 90px;">
-            <asp:Image CssClass="img-Profile" ID="imgProfile" runat="server" />
-            <asp:HyperLink class="caption" runat="server" ID="hLnkEditProfil" Text="Edit"></asp:HyperLink>
-            <%--<a href="#"><div class="caption">Edit</div></a>--%>
-        </div>
-        <div class="clr">
-        </div>
-
     </div>
-
+    <div class="header-msg">
+        <div class="no-user">Loading Online Users...</div>
+    </div>
 </div>
 <!--nav section-->
 <div class="nav">

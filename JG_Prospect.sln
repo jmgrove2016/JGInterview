@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JG_Prospect.Common", "JG_Pr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JGBulkEmailServices", "JGBulkEmailServices\JGBulkEmailServices.csproj", "{99D91879-7916-45CB-B1D0-143480C31897}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JobScheduler", "JobScheduler\JobScheduler.csproj", "{C6799AA8-F47B-44ED-A8F5-2A9501834B52}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSchedular", "EmailSchedular\EmailSchedular.csproj", "{B88C3223-1198-4356-8FA2-46F20A9F82CA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +43,14 @@ Global
 		{99D91879-7916-45CB-B1D0-143480C31897}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{99D91879-7916-45CB-B1D0-143480C31897}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{99D91879-7916-45CB-B1D0-143480C31897}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6799AA8-F47B-44ED-A8F5-2A9501834B52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6799AA8-F47B-44ED-A8F5-2A9501834B52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6799AA8-F47B-44ED-A8F5-2A9501834B52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6799AA8-F47B-44ED-A8F5-2A9501834B52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B88C3223-1198-4356-8FA2-46F20A9F82CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B88C3223-1198-4356-8FA2-46F20A9F82CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B88C3223-1198-4356-8FA2-46F20A9F82CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B88C3223-1198-4356-8FA2-46F20A9F82CA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

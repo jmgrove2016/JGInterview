@@ -14,9 +14,10 @@ namespace JG_Prospect.Sr_App
 {
     public partial class SR_app : System.Web.UI.MasterPage
     {
+        public string RandomGUID;
         protected void Page_Load(object sender, EventArgs e)
         {
-
+            RandomGUID = SingletonGlobal.Instance.RandomGUID;
             if (Session["loginid"] != null)
             {
 

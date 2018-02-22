@@ -46,9 +46,9 @@ namespace JG_Prospect.BLL
             return TaskGeneratorDAL.Instance.GetAllTaskWithSequence(page, pageSize, DesignationIds, IsTechTask, HighlightedTaskID);
         }
 
-        public DataSet GetAllInProAssReqTaskWithSequence(Int32 page, Int32 pageSize, String DesignationIds, int UserStatus, string StartDate, string EndDate)
+        public DataSet GetAllInProAssReqTaskWithSequence(Int32 page, Int32 pageSize, String DesignationIds, string TaskUserStatus, string UserIds, string StartDate, string EndDate, bool ForInProgress)
         {
-            return TaskGeneratorDAL.Instance.GetAllInProAssReqTaskWithSequence(page, pageSize, DesignationIds, UserStatus, StartDate, EndDate);
+            return TaskGeneratorDAL.Instance.GetAllInProAssReqTaskWithSequence(page, pageSize, DesignationIds, TaskUserStatus, UserIds, StartDate, EndDate, ForInProgress);
         }
 
         public DataSet GetAllPartialFrozenTaskWithSequence(Int32 page, Int32 pageSize, String DesignationIds, bool IsTechTask)
@@ -72,9 +72,9 @@ namespace JG_Prospect.BLL
             return TaskGeneratorDAL.Instance.GetAllNonFrozenUserTaskWithSequence(page, pageSize, IsTechTask, UserId);
         }
 
-        public DataSet GetAllInProAssReqUserTaskWithSequence(Int32 page, Int32 pageSize, bool IsTechTask, string UserId, bool ForDashboard)
+        public DataSet GetAllInProAssReqUserTaskWithSequence(Int32 page, Int32 pageSize, bool IsTechTask, string UserId, bool ForDashboard, string StartDate, string EndDate, bool ForInProgress)
         {
-            return TaskGeneratorDAL.Instance.GetAllInProAssReqUserTaskWithSequence(page, pageSize, IsTechTask, UserId, ForDashboard);
+            return TaskGeneratorDAL.Instance.GetAllInProAssReqUserTaskWithSequence(page, pageSize, IsTechTask, UserId, ForDashboard, StartDate, EndDate, ForInProgress);
         }
 
         public DataSet GetAllPartialFrozenUserTaskWithSequence(Int32 page, Int32 pageSize, bool IsTechTask, string UserId)
@@ -101,6 +101,11 @@ namespace JG_Prospect.BLL
         }
 
         #endregion
+        public bool DeleteSubTaskChild(int Id)
+        {
+            return TaskGeneratorDAL.Instance.DeleteSubTaskChild(Id);
+        }
+
         public Int64 SaveOrDeleteTask(Task objTask, int TaskLevel, int maintaskid)
         {
             return TaskGeneratorDAL.Instance.SaveOrDeleteTask(objTask, TaskLevel, maintaskid);
@@ -203,6 +208,16 @@ namespace JG_Prospect.BLL
             return TaskGeneratorDAL.Instance.GetTaskUserFileByFileName(FileName);
         }
 
+        public DataSet GetTaskMultilevelChildInfo(int TaskId)
+        {
+            return TaskGeneratorDAL.Instance.GetTaskMultilevelChildInfo(TaskId);
+        }
+
+        public DataSet GetCalendarTasksByDate(string StartDate, string EndDate, string userid)
+        {
+            return TaskGeneratorDAL.Instance.GetCalendarTasksByDate(StartDate, EndDate, userid);
+        }
+
         public DataSet GetTaskUserFiles(Int32 TaskId, JGConstant.TaskFileDestination? objTaskFileDestination, Int32? intPageIndex, Int32? intPageSize)
         {
             return TaskGeneratorDAL.Instance.GetTaskUserFiles(TaskId, objTaskFileDestination, intPageIndex, intPageSize);
@@ -218,12 +233,7 @@ namespace JG_Prospect.BLL
             return TaskGeneratorDAL.Instance.GetInstallUsers(key, Designation);
         }
 
-        public DataSet GetDesignationCode(int key)
-        {
-            return TaskGeneratorDAL.Instance.GetDesignationCode(key);
-        }
-
-        public DataSet GetInstallUsers(int key, string Designation, int userstatus)
+        public DataSet GetInstallUsers(int key, string Designation, string userstatus)
         {
             return TaskGeneratorDAL.Instance.GetInstallUsers(key, Designation, userstatus);
         }
@@ -477,9 +487,9 @@ namespace JG_Prospect.BLL
             return TaskGeneratorDAL.Instance.GetInProgressTasks(userid, desigid, vSearch, pageindex, pagesize);
         }
 
-        public DataSet GetClosedTasks(string userid, string desigid, string vSearch, int pageindex, int pagesize)
+        public DataSet GetClosedTasks(string userid, string desigid, string TaskUserStatus, string vSearch, int pageindex, int pagesize)
         {
-            return TaskGeneratorDAL.Instance.GetClosedTasks(userid, desigid, vSearch, pageindex, pagesize);
+            return TaskGeneratorDAL.Instance.GetClosedTasks(userid, desigid, TaskUserStatus, vSearch, pageindex, pagesize);
         }
         //------- End DP ----------
 

@@ -44,6 +44,7 @@ namespace JG_Prospect
     {
         #region '--Members--'
         public string notesUserEmail = "";
+        public int loggedInUserId = 0;
         #endregion
 
         #region '--Properties--'
@@ -151,7 +152,7 @@ namespace JG_Prospect
         protected void Page_Load(object sender, EventArgs e)
         {
             CommonFunction.AuthenticateUser();
-
+            loggedInUserId = JGSession.UserId;
             int x = 0;
 
             if (Convert.ToString(Session["usertype"]).Contains("Admin"))
@@ -621,12 +622,12 @@ namespace JG_Prospect
 
                     if (Status != "")
                     {
-
                         ListItem StatusItem = ddlStatus.Items.FindByValue(Status);
                         if (StatusItem != null)
                         {
                             ddlStatus.SelectedIndex = ddlStatus.Items.IndexOf(StatusItem);
                         }
+
 
                         switch ((JGConstant.InstallUserStatus)Convert.ToByte(Status))
                         {
@@ -1964,6 +1965,9 @@ namespace JG_Prospect
                             case ".xlsx":
                                 Stream objStream = File.OpenRead(strFilePath);
                                 dtExcel = ReadExcelFile(new ExcelPackage(objStream));
+
+                                CommonFunction.RemoveFile(strFilePath);
+
                                 break;
 
                             case ".csv":
@@ -1976,43 +1980,95 @@ namespace JG_Prospect
 
                         //Get duplicate records from Mastertable and remove it.
                         DataTable dtUniqueRecords = GetUniqueRecordsFromUpload(dtExcel);
-                        dtUniqueRecords.PrimaryKey = new DataColumn[] { dtUniqueRecords.Columns["RowNum"] };
 
-                        // Get XML document for from datatable to be imported.
-                        XmlDocument xmlDoc = GetIntsallUsersXmlDoc(dtUniqueRecords);
-
-                        // Check document against database for duplicate records.
-                        DataSet dsDuplicateCheckResult = InstallUserBLL.Instance.BulkIntsallUserDuplicateCheck(xmlDoc.InnerXml);
-
-                        // If duplicate records are found than remove it from current collection.
-                        if (dsDuplicateCheckResult != null && dsDuplicateCheckResult.Tables.Count > 0 && dsDuplicateCheckResult.Tables[0].Rows.Count > 0)
+                        // If unique records are found than process.
+                        if (dtUniqueRecords != null)
                         {
-                            foreach (DataRow duplicateRecordRow in dsDuplicateCheckResult.Tables[0].Rows)
-                            {
-                                Int64 _filterName_needed = Convert.ToInt64(duplicateRecordRow["RowNum"]);
-                                DataRow duplicateRow = dtUniqueRecords.Select("RowNum = " + _filterName_needed).FirstOrDefault();
-                                duplicateRow.Delete();
+                            dtUniqueRecords.PrimaryKey = new DataColumn[] { dtUniqueRecords.Columns["RowNum"] };
 
+                            // Get XML document for from datatable to be imported.
+                            XmlDocument xmlDoc = GetIntsallUsersXmlDoc(dtUniqueRecords);
+
+                            // Check document against database for duplicate records.
+                            DataSet dsDuplicateCheckResult = InstallUserBLL.Instance.BulkIntsallUserDuplicateCheck(xmlDoc.InnerXml);
+
+                            // If duplicate records are found than remove it from current collection.
+                            if (dsDuplicateCheckResult != null && dsDuplicateCheckResult.Tables.Count > 0 && dsDuplicateCheckResult.Tables[0].Rows.Count > 0)
+                            {
+                                foreach (DataRow duplicateRecordRow in dsDuplicateCheckResult.Tables[0].Rows)
+                                {
+                                    Int64 _filterName_needed = Convert.ToInt64(duplicateRecordRow["RowNum"]);
+                                    DataRow duplicateRow = dtUniqueRecords.Select("RowNum = " + _filterName_needed).FirstOrDefault();
+                                    duplicateRow.Delete();
+
+                                }
+
+                                // Make changes into datatable
+                                dtUniqueRecords.AcceptChanges();
                             }
 
-                            // Make changes into datatable
-                            dtUniqueRecords.AcceptChanges();
+                            //Show duplicated and invalid records.
+                            rptIncorrectRecords.DataSource = dtInvalid;
+                            rptIncorrectRecords.DataBind();
+
+                            if (dtInvalid != null)
+                            {
+                                ltlTotalInvalidUser.Text = dtInvalid.Rows.Count.ToString();
+                            }
+                            else
+                            {
+                                ltlTotalInvalidUser.Text = "0";
+                            }
+
+                            rptDuplicateRecords.DataSource = dsDuplicateCheckResult;
+                            rptDuplicateRecords.DataBind();
+                            if (dsDuplicateCheckResult != null && dsDuplicateCheckResult.Tables.Count > 0)
+                            {
+                                ltlTotalDuplicateUsers.Text = dsDuplicateCheckResult.Tables[0].Rows.Count.ToString();
+                            }
+                            else
+                            {
+                                ltlTotalDuplicateUsers.Text = "0";
+                            }
+
+                            rptUserstoBeAdded.DataSource = dtUniqueRecords;
+                            rptUserstoBeAdded.DataBind();
+
+                            if (dtUniqueRecords != null)
+                            {
+                                ltlTotalUserstobeAdded.Text = dtUniqueRecords.Rows.Count.ToString();
+                            }
+                            else
+                            {
+                                ltlTotalUserstobeAdded.Text = "0";
+                            }
+
+                            upnlBulkUploadStatus.Update();
+
+                            // Now all data cleaning operations are done.  can start sending emails and insert into database.
+                            ShowStatisticsAndSendEmails(dtUniqueRecords);
+
+                         
+                        }
+                        else
+                        {
+                            //Show duplicated and invalid records.
+                            rptIncorrectRecords.DataSource = dtInvalid;
+                            rptIncorrectRecords.DataBind();
+
+                            if (dtInvalid != null)
+                            {
+                                ltlTotalInvalidUser.Text = dtInvalid.Rows.Count.ToString();
+                            }
+                            else
+                            {
+                                ltlTotalInvalidUser.Text = "0";
+                            }
+                            upnlBulkUploadStatus.Update();
                         }
 
-                        //Show duplicated and invalid records.
-                        rptIncorrectRecords.DataSource = dtInvalid;
-                        rptIncorrectRecords.DataBind();
+                        
 
-                        rptDuplicateRecords.DataSource = dsDuplicateCheckResult;
-                        rptDuplicateRecords.DataBind();
-
-                        rptUserstoBeAdded.DataSource = dtUniqueRecords;
-                        rptUserstoBeAdded.DataBind();
-
-                        upnlBulkUploadStatus.Update();
-
-                        // Now all data cleaning operations are done.  can start sending emails and insert into database.
-                        ShowStatisticsAndSendEmails(dtUniqueRecords);
 
                         // Old code, Commented due to change in requirements.
                         //if (ValidateUploadedData(dtExcel))
@@ -2027,13 +2083,14 @@ namespace JG_Prospect
                         //    //ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "showStatusChangePopUp();", true);
                         //}
                     }
-                    else
-                    {
-                        UcStatusPopUp.ucPopUpHeader = "";
-                        UcStatusPopUp.ucPopUpMsg = "Please Select xlsx or csv file.";
-                        UcStatusPopUp.changeText();
-                    }
                 }
+                else
+                {
+                    UcStatusPopUp.ucPopUpHeader = "";
+                    UcStatusPopUp.ucPopUpMsg = "Please Select xlsx or csv file.";
+                    UcStatusPopUp.changeText();
+                }
+
             }
             catch (Exception ex)
             {
@@ -2048,11 +2105,11 @@ namespace JG_Prospect
             Dictionary<int, string> dicDesignationTemplate = new Dictionary<int, string>();
             Dictionary<int, string> dicDesignationSubjectString = new Dictionary<int, string>();
 
-            Int64 recordsToProcessed , recordsProcessed = 0;
+            Int64 recordsToProcessed, recordsProcessed = 0;
 
             // Set total number of emails to be sent.
 
-            recordsToProcessed = dtUniqueRecords.Rows.Count; 
+            recordsToProcessed = dtUniqueRecords.Rows.Count;
 
             foreach (DataRow drUser in dtUniqueRecords.Rows)
             {
@@ -2070,7 +2127,7 @@ namespace JG_Prospect
                 }
                 else // Else load template from database.
                 {
-                    
+
                     DesignationHTMLTemplate objHTMLTemplate = HTMLTemplateBLL.Instance.GetDesignationHTMLTemplate(HTMLTemplates.Applicant_Recontact_Auto_Email, DesignationId.ToString());
                     HTMLTemlpate = objHTMLTemplate.Header + objHTMLTemplate.Body + objHTMLTemplate.Footer;
 
@@ -2087,11 +2144,11 @@ namespace JG_Prospect
 
                 recordsProcessed++;
 
-                SendEmail(HTMLTemlpate, Email, strSubject, HTMLTemlpate, null, dtSuccessFullyAdded, drUser,  recordsToProcessed, recordsProcessed, null);
-                
+                SendEmail(HTMLTemlpate, Email, strSubject, HTMLTemlpate, null, dtSuccessFullyAdded, drUser, recordsToProcessed, recordsProcessed, null);
+
             }
 
-           
+
         }
 
         private void SendCompletedCallback(object sender, AsyncCompletedEventArgs e, DataTable dtUniqueRecord, DataRow rowProcessed, Int64 recordsToProcess, Int64 recordsProcess)
@@ -2109,10 +2166,20 @@ namespace JG_Prospect
                 dtUniqueRecord.AcceptChanges();
                 rptSuccessFullyEntered.DataSource = dtUniqueRecord;
                 rptSuccessFullyEntered.DataBind();
+
+                if (dtUniqueRecord != null)
+                {
+                    ltlTotalSuccessfulUsersInserted.Text = dtUniqueRecord.Rows.Count.ToString();
+                }
+                else
+                {
+                    ltlTotalSuccessfulUsersInserted.Text = "0";
+                }
+
                 upnlBulkUploadStatus.Update();
 
             }
-            
+
             // If all emails are sent then process its bulk insert.
             if (recordsToProcess == recordsProcess)
             {
@@ -2208,13 +2275,28 @@ namespace JG_Prospect
         private DataTable GetUniqueRecordsFromUpload(DataTable dtAllRecords)
         {
             //Remove Duplicate Email records from master table
-            DataTable dtUniqueEmailRecords = dtAllRecords.AsEnumerable().GroupBy(x => x.Field<string>("Email")).Select(g => g.First()).CopyToDataTable();
+            DataTable dtUniqueEmailRecords, UniquePhone = null;
 
-            //Remove Duplicate Phone records from master table
-            DataTable UniquePhone = dtUniqueEmailRecords.AsEnumerable().GroupBy(x => x.Field<string>("Phone1")).Select(g => g.First()).CopyToDataTable();
+            var UniqueEmailRecordRows = dtAllRecords.AsEnumerable().GroupBy(x => x.Field<string>("Email")).Select(g => g.First());
+
+
+            if (UniqueEmailRecordRows.Any())
+            {
+                dtUniqueEmailRecords = UniqueEmailRecordRows.CopyToDataTable();
+                //Remove Duplicate Phone records from master table
+
+                var UniquePhoneRows = dtUniqueEmailRecords.AsEnumerable().GroupBy(x => x.Field<string>("Phone1")).Select(g => g.First());
+
+                if (UniquePhoneRows.Any())
+                {
+                    UniquePhone = UniquePhoneRows.CopyToDataTable(); 
+                }
+
+            }
 
             return UniquePhone;
         }
+
 
         protected void btnUpload_Click(object sender, EventArgs e)
         {
@@ -2630,122 +2712,6 @@ namespace JG_Prospect
         //    }
         //}
 
-        protected void ddlEmployeeType_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            GridViewRow grow = (GridViewRow)((Control)sender).NamingContainer;
-
-            string ID = grdUsers.DataKeys[grow.RowIndex]["Id"].ToString();
-            DropDownList ddlEmployeeType = (grow.FindControl("ddlEmployeeType") as DropDownList);//Find the DropDownList in the Row
-            InstallUserBLL.Instance.UpdateEmpType(Convert.ToInt32(ID), ddlEmployeeType.SelectedValue);
-        }
-
-        protected void chkSelected_CheckedChanged(object sender, EventArgs e)
-        {
-            GridViewRow grow = (GridViewRow)((Control)sender).NamingContainer;
-
-            bool chkvalue = (grow.FindControl("chkSelected") as CheckBox).Checked;
-            string lblVal = lblselectedchk.Text.Replace("users selected", "").Replace("user selected", "").Replace(",", "").Trim();
-            int lblCount = 0;
-            if (lblVal != "")
-            {
-                try { lblCount = Convert.ToInt32(lblVal); } catch { }
-            }
-            if (chkvalue == true)
-            {
-                lblCount = lblCount + 1;
-            }
-            else
-            {
-                lblCount = lblCount - 1;
-            }
-            lblselectedchk.Text = lblCount <= 0 ? "" : lblCount == 1 ? ", " + lblCount.ToString() + " user selected" : ", " + lblCount.ToString() + " users selected";
-        }
-
-        protected void PhoneTypeDropdown_PreRender(object sender, EventArgs e)
-        {
-            string imageURL = "";
-
-            DropDownList elePhoneTypeDisplay = (DropDownList)sender;
-
-            if (elePhoneTypeDisplay != null)
-            {
-                for (int i = 0; i < elePhoneTypeDisplay.Items.Count; i++)
-                {
-                    switch (elePhoneTypeDisplay.Items[i].Text.Trim())
-                    {
-                        case "skype":
-                            imageURL = "../Sr_App/img/skype.png";
-                            elePhoneTypeDisplay.Items[i].Attributes["data-image"] = imageURL;
-                            break;
-                        case "whatsapp":
-                            imageURL = "../Sr_App/img/WhatsApp.png";
-                            elePhoneTypeDisplay.Items[i].Attributes["data-image"] = imageURL;
-                            break;
-
-                        case "HousePhone":
-                        case "House Phone":
-                            imageURL = "../Sr_App/img/Phone_home.png";
-                            elePhoneTypeDisplay.Items[i].Attributes["data-image"] = imageURL;
-                            break;
-
-                        case "CellPhone":
-                        case "Cell Phone":
-                            imageURL = "../Sr_App/img/Cell_Phone.png";
-                            elePhoneTypeDisplay.Items[i].Attributes["data-image"] = imageURL;
-                            break;
-
-                        case "WorkPhone":
-                        case "Work Phone":
-                            imageURL = "../Sr_App/img/WorkPhone.png";
-                            elePhoneTypeDisplay.Items[i].Attributes["data-image"] = imageURL;
-                            break;
-
-                        case "AltPhone":
-                        case "Alt. Phone":
-                            imageURL = "../Sr_App/img/AltPhone.png";
-                            elePhoneTypeDisplay.Items[i].Attributes["data-image"] = imageURL;
-                            break;
-
-                        default:
-                            elePhoneTypeDisplay.Items[i].Attributes["data-image"] = "../Sr_App/img/WorkPhone.png";
-                            break;
-                    }
-
-                }
-            }
-        }
-
-        protected void chkPrimary_CheckedChanged(object sender, EventArgs e)
-        {
-            try
-            {
-                CheckBox chk = (CheckBox)sender;
-                int dataType = chk.ClientID.Contains("Email") ? 2 : 1;
-                GridViewRow grow = (GridViewRow)((Control)sender).NamingContainer;
-                DropDownList eleEmail = (DropDownList)grow.FindControl("ddlEmail");
-                DropDownList elePhone = (DropDownList)grow.FindControl("ddlPhone");
-
-                if ((dataType == 2 && eleEmail.SelectedItem.Text != "No Email") || (dataType == 1 && elePhone.SelectedItem.Text != "No Phone"))
-                {
-                    int dataID = 0;
-                    int rowIndex = grow.RowIndex;
-                    int userID = (int)grdUsers.DataKeys[rowIndex]["Id"];
-
-                    if (chk.ClientID.Contains("Email")) { dataID = Convert.ToInt32(eleEmail.SelectedValue); }
-                    else { dataID = Convert.ToInt32(elePhone.SelectedValue); }
-
-                    InstallUserBLL.Instance.SetPrimaryContactOfUser(dataID, userID, dataType, chk.Checked);
-                    GetSalesUsersStaticticsAndData();
-                }
-                else
-                {
-                    ScriptManager.RegisterStartupScript(this, this.GetType(), "noselection", "alert('Invalid. Please add " + (dataType == 2 ? "Email" : "Phone") + " of user.');", true);
-                    chk.Checked = false;
-                }
-            }
-            catch (Exception ex) { Console.Write(ex.Message); }
-        }
-
         #endregion
 
         #region '--Methods--'
@@ -2990,8 +2956,9 @@ namespace JG_Prospect
         protected void DownloadFile(object sender, EventArgs e)
         {
             string filePath = (sender as LinkButton).CommandArgument;
+            string PhysicalMappedPath = Server.MapPath(filePath);
             Response.ContentType = ContentType;
-            Response.AppendHeader("Content-Disposition", "attachment; filename=" + Path.GetFileName(filePath));
+            Response.AppendHeader("Content-Disposition", "attachment; filename=" + Path.GetFileName(PhysicalMappedPath));
             Response.WriteFile(filePath);
             Response.End();
         }
@@ -3069,7 +3036,6 @@ namespace JG_Prospect
         {
             DataTable objDataTable = new DataTable();
 
-
             objDataTable.Columns.Add("Designation", typeof(string));
             objDataTable.Columns.Add("Status", typeof(string));
             objDataTable.Columns.Add("DateSourced", typeof(string));
@@ -3095,7 +3061,6 @@ namespace JG_Prospect
             objDataTable.Columns["RowNum"].AutoIncrementStep = 1;
 
             objDataTable.Columns.Add("DesignationId", typeof(string));
-
 
             return objDataTable;
         }
@@ -3330,9 +3295,9 @@ namespace JG_Prospect
 
             if (!IsValid)
             {
-                //  grdBulkUploadUserErrors.DataSource = dtUserError;
-                // grdBulkUploadUserErrors.DataBind();
-                // upnlBUPError.Update();
+                //grdBulkUploadUserErrors.DataSource = dtUserError;
+                //grdBulkUploadUserErrors.DataBind();
+                //upnlBUPError.Update();
                 ScriptManager.RegisterStartupScript
                     (
                         this,
@@ -3386,7 +3351,6 @@ namespace JG_Prospect
                                                                                     .Trim() == dtExcel.Rows[i]["Designation"]
                                                                                                       .ToString()
                                                                                                       .ToUpper()
-
                                                                                                       .Trim()
                                                                               );
 
@@ -4907,12 +4871,6 @@ namespace JG_Prospect
             }
         }
 
-        private void fullTouchPointLog(string strValueToAdd, int id)
-        {
-            string strUserInstallId = JGSession.Username + " - " + JGSession.LoginUserID;
-            int userID = Convert.ToInt32(JGSession.LoginUserID);
-            InstallUserBLL.Instance.AddTouchPointLogRecord(userID, id, strUserInstallId, DateTime.UtcNow, strValueToAdd, "", (int)TouchPointSource.EditUserPage);
-        }
         public void LabelSet()
         {
             if (grdUsers.PageCount == 0)
@@ -4939,19 +4897,9 @@ namespace JG_Prospect
 
         private DataTable GetInvalidRecordsFromUpload(DataTable dtAllRecords)
         {
-            DataTable dtInvalidRecords = dtAllRecords.AsEnumerable().Where(r => String.IsNullOrEmpty(r.Field<string>("Designation")) == true ||
-            String.IsNullOrEmpty(r.Field<string>("Status")) == true ||
-            String.IsNullOrEmpty(r.Field<string>("Source")) == true ||
-            String.IsNullOrEmpty(r.Field<string>("FirstName")) == true ||
-            String.IsNullOrEmpty(r.Field<string>("LastName")) == true ||
-            String.IsNullOrEmpty(r.Field<string>("Email")) == true ||
-            String.IsNullOrEmpty(r.Field<string>("Phone1")) == true ||
-            String.IsNullOrEmpty(r.Field<string>("Phone1Type")) == true ||
-            String.IsNullOrEmpty(r.Field<string>("Zip")) == true
-            ).CopyToDataTable();
+            DataTable dtInvalidRecords = null;
 
-            //Remove invalid records from old table
-            IEnumerable<DataRow> rows = dtAllRecords.Rows.Cast<DataRow>().Where(r => String.IsNullOrEmpty(r.Field<string>("Designation")) == true ||
+            var Invalidrows = dtAllRecords.AsEnumerable().Where(r => String.IsNullOrEmpty(r.Field<string>("Designation")) == true ||
             String.IsNullOrEmpty(r.Field<string>("Status")) == true ||
             String.IsNullOrEmpty(r.Field<string>("Source")) == true ||
             String.IsNullOrEmpty(r.Field<string>("FirstName")) == true ||
@@ -4962,11 +4910,31 @@ namespace JG_Prospect
             String.IsNullOrEmpty(r.Field<string>("Zip")) == true
             );
 
-            rows.ToList().ForEach(r => r.Delete());
-            dtAllRecords.AcceptChanges();
+            if (Invalidrows.Any())
+            {
+                dtInvalidRecords = Invalidrows.CopyToDataTable();
+
+
+                //Remove invalid records from old table
+                IEnumerable<DataRow> rows = dtAllRecords.Rows.Cast<DataRow>().Where(r => String.IsNullOrEmpty(r.Field<string>("Designation")) == true ||
+                String.IsNullOrEmpty(r.Field<string>("Status")) == true ||
+                String.IsNullOrEmpty(r.Field<string>("Source")) == true ||
+                String.IsNullOrEmpty(r.Field<string>("FirstName")) == true ||
+                String.IsNullOrEmpty(r.Field<string>("LastName")) == true ||
+                String.IsNullOrEmpty(r.Field<string>("Email")) == true ||
+                String.IsNullOrEmpty(r.Field<string>("Phone1")) == true ||
+                String.IsNullOrEmpty(r.Field<string>("Phone1Type")) == true ||
+                String.IsNullOrEmpty(r.Field<string>("Zip")) == true
+                );
+
+                rows.ToList().ForEach(r => r.Delete());
+                dtAllRecords.AcceptChanges();
+
+            }
 
             return dtInvalidRecords;
         }
+
 
         #region 'Assigned Task ToUser'
 
@@ -5126,17 +5094,173 @@ namespace JG_Prospect
             return taskList;
         }
 
+        #endregion
+
+        #endregion
+
+        protected void ddlEmployeeType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            GridViewRow grow = (GridViewRow)((Control)sender).NamingContainer;
+
+            string ID = grdUsers.DataKeys[grow.RowIndex]["Id"].ToString();
+            DropDownList ddlEmployeeType = (grow.FindControl("ddlEmployeeType") as DropDownList);//Find the DropDownList in the Row
+            InstallUserBLL.Instance.UpdateEmpType(Convert.ToInt32(ID), ddlEmployeeType.SelectedValue);
+        }
+
+
+        protected void chkSelected_CheckedChanged(object sender, EventArgs e)
+        {
+            GridViewRow grow = (GridViewRow)((Control)sender).NamingContainer;
+
+            bool chkvalue = (grow.FindControl("chkSelected") as CheckBox).Checked;
+            string lblVal = lblselectedchk.Text.Replace("users selected", "").Replace("user selected", "").Replace(",", "").Trim();
+            int lblCount = 0;
+            if (lblVal != "")
+            {
+                try { lblCount = Convert.ToInt32(lblVal); } catch { }
+            }
+            if (chkvalue == true)
+            {
+                lblCount = lblCount + 1;
+            }
+            else
+            {
+                lblCount = lblCount - 1;
+            }
+            lblselectedchk.Text = lblCount <= 0 ? "" : lblCount == 1 ? ", " + lblCount.ToString() + " user selected" : ", " + lblCount.ToString() + " users selected";
+        }
+
+        protected void PhoneTypeDropdown_PreRender(object sender, EventArgs e)
+        {
+            string imageURL = "";
+
+            DropDownList elePhoneTypeDisplay = (DropDownList)sender;
+
+            if (elePhoneTypeDisplay != null)
+            {
+                for (int i = 0; i < elePhoneTypeDisplay.Items.Count; i++)
+                {
+                    switch (elePhoneTypeDisplay.Items[i].Text.Trim())
+                    {
+                        case "skype":
+                            imageURL = "../Sr_App/img/skype.png";
+                            elePhoneTypeDisplay.Items[i].Attributes["data-image"] = imageURL;
+                            break;
+                        case "whatsapp":
+                            imageURL = "../Sr_App/img/WhatsApp.png";
+                            elePhoneTypeDisplay.Items[i].Attributes["data-image"] = imageURL;
+                            break;
+
+                        case "HousePhone":
+                        case "House Phone":
+                            imageURL = "../Sr_App/img/Phone_home.png";
+                            elePhoneTypeDisplay.Items[i].Attributes["data-image"] = imageURL;
+                            break;
+
+                        case "CellPhone":
+                        case "Cell Phone":
+                            imageURL = "../Sr_App/img/Cell_Phone.png";
+                            elePhoneTypeDisplay.Items[i].Attributes["data-image"] = imageURL;
+                            break;
+
+                        case "WorkPhone":
+                        case "Work Phone":
+                            imageURL = "../Sr_App/img/WorkPhone.png";
+                            elePhoneTypeDisplay.Items[i].Attributes["data-image"] = imageURL;
+                            break;
+
+                        case "AltPhone":
+                        case "Alt. Phone":
+                            imageURL = "../Sr_App/img/AltPhone.png";
+                            elePhoneTypeDisplay.Items[i].Attributes["data-image"] = imageURL;
+                            break;
+
+                        default:
+                            elePhoneTypeDisplay.Items[i].Attributes["data-image"] = "../Sr_App/img/WorkPhone.png";
+                            break;
+                    }
+
+                }
+            }
+        }
+
+        protected void chkPrimary_CheckedChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                CheckBox chk = (CheckBox)sender;
+                int dataType = chk.ClientID.Contains("Email") ? 2 : 1;
+                GridViewRow grow = (GridViewRow)((Control)sender).NamingContainer;
+                DropDownList eleEmail = (DropDownList)grow.FindControl("ddlEmail");
+                DropDownList elePhone = (DropDownList)grow.FindControl("ddlPhone");
+
+                if ((dataType == 2 && eleEmail.SelectedItem.Text != "No Email") || (dataType == 1 && elePhone.SelectedItem.Text != "No Phone"))
+                {
+                    int dataID = 0;
+                    int rowIndex = grow.RowIndex;
+                    int userID = (int)grdUsers.DataKeys[rowIndex]["Id"];
+
+                    if (chk.ClientID.Contains("Email")) { dataID = Convert.ToInt32(eleEmail.SelectedValue); }
+                    else { dataID = Convert.ToInt32(elePhone.SelectedValue); }
+
+                    InstallUserBLL.Instance.SetPrimaryContactOfUser(dataID, userID, dataType, chk.Checked);
+                    GetSalesUsersStaticticsAndData();
+                }
+                else
+                {
+                    ScriptManager.RegisterStartupScript(this, this.GetType(), "noselection", "alert('Invalid. Please add " + (dataType == 2 ? "Email" : "Phone") + " of user.');", true);
+                    chk.Checked = false;
+                }
+            }
+            catch (Exception ex) { Console.Write(ex.Message); }
+        }
+
+        private void fullTouchPointLog(string strValueToAdd, int id)
+        {
+            string strUserInstallId = JGSession.Username + " - " + JGSession.LoginUserID;
+            int userID = Convert.ToInt32(JGSession.LoginUserID);
+            InstallUserBLL.Instance.AddTouchPointLogRecord(userID, id, strUserInstallId, DateTime.UtcNow, strValueToAdd, "", (int)TouchPointSource.EditUserPage);
+        }
 
         [WebMethod]
         public static string GetUserTouchPointLogs(int pageNumber, int pageSize, int userId)
         {
-            PagingResult<Notes> notes = InstallUserBLL.Instance.GetUserTouchPointLogs(pageNumber, pageSize, userId);
+            List<ChatMessage> chatMessages = ChatBLL.Instance.GetChatMessages(JGSession.UserId, userId).Results;
+            PagingResult<Notes> notes = new PagingResult<Notes>();
+            notes.Status = ActionStatus.Successfull;
+            notes.TotalResults = chatMessages.Count();
+            notes.Data = chatMessages.Select(m => new Notes
+            {
+                UserTouchPointLogID = userId,
+                UserID = userId,
+                UpdatedByUserID = m.UserId,
+                UpdatedUserInstallID = m.UserInstallId,
+                ChangeDateTime = m.MessageAt,
+                LogDescription = m.Message,
+                UpdatedByFirstName = m.UserFullname.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[0],
+                UpdatedByLastName = m.UserFullname.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Count() > 1 ? m.UserFullname.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[1] : "",
+                UpdatedByEmail = "",
+                FristName = m.UserFullname.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[0],
+                LastName = m.UserFullname.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Count() > 1 ? m.UserFullname.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[1] : "",
+                Email = "",
+                Phone = "",
+                ChangeDateTimeFormatted = m.MessageAtFormatted,
+                SourceUser = m.UserFullname.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[0],
+                SourceUserInstallId = m.UserInstallId,
+                SourceUsername = m.UserFullname,
+                TouchPointSource = m.ChatSourceId
+            }).OrderByDescending(x => x.ChangeDateTime).OrderByDescending(x => x.ChangeDateTime).Take(5).ToList();
+            //PagingResult<Notes> notes = InstallUserBLL.Instance.GetUserTouchPointLogs(pageNumber, pageSize, userId);
             return new JavaScriptSerializer().Serialize(notes);
         }
 
         [WebMethod]
         public static string AddNotes(int id, string note, int touchPointSource)
         {
+            if (string.IsNullOrEmpty(note))
+            {
+                return new JavaScriptSerializer().Serialize(new ActionOutput { Status = ActionStatus.Successfull });
+            }
             string strUserInstallId = JGSession.Username + " - " + JGSession.LoginUserID;
             int userID = Convert.ToInt32(JGSession.LoginUserID);
             InstallUserBLL.Instance.AddTouchPointLogRecord(userID, id, strUserInstallId, DateTime.UtcNow, "Note : " + note, "", touchPointSource);
@@ -5149,10 +5273,5 @@ namespace JG_Prospect
             ActionOutput<LoginUser> users = InstallUserBLL.Instance.GetUsers(keyword);
             return new JavaScriptSerializer().Serialize(users);
         }
-
-        #endregion
-
-        #endregion
-
     }
 }

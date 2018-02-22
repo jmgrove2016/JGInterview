@@ -9,5 +9,5 @@ CKEDITOR.editorConfig = function( config ) {
     config.uploadUrl = '/ckeditor/plugins/uploadimage/fileuploader.aspx';
     // Define changes to default configuration here. For example:
 	// config.language = 'fr';
-	// config.uiColor = '#AADC6E';    
+	// config.uiColor = '#AADC6E';
 };

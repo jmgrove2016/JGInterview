@@ -24,10 +24,12 @@ namespace JG_Prospect.BLL
             private set {; }
         }
 
-        public ActionOutput<LoginUser> GetUsers(string keyword)
+        public ActionOutput<LoginUser> GetUsers(string keyword, string exceptUserIds = null)
         {
-            return InstallUserDAL.Instance.GetUsers(keyword);
+            return InstallUserDAL.Instance.GetUsers(keyword, exceptUserIds);
         }
+
+        
 
         public void AddUserNotes(string Notes, int UserID, int AddedByID)
         {
@@ -669,7 +671,7 @@ namespace JG_Prospect.BLL
         public string AddUserPhone(bool isPrimaryPhone, string phoneText, int phoneType, int UserID, string PhoneExtNo, string PhoneISDCode, bool ClearDataBeforInsert)
         {
             return InstallUserDAL.Instance.AddUserPhone(isPrimaryPhone, phoneText, phoneType, UserID, PhoneExtNo, PhoneISDCode, ClearDataBeforInsert);
-        }
+        }        
 
         public int AddTouchPointLogRecord(int LoginUserID, int UserID, string LoginUserInstallID, DateTime now, string ChangeLog, string strGUID, int touchPointSource)
         {
@@ -685,7 +687,7 @@ namespace JG_Prospect.BLL
             var sender = getuserdetails(LoginUserID).Tables[0].Rows[0];
             string pic = string.IsNullOrEmpty(sender["Picture"].ToString()) ? "default.jpg"
                                 : sender["Picture"].ToString().Replace("~/UploadeProfile/", "");
-            pic = baseUrl + "UploadeProfile/" + pic;
+            pic = baseUrl + "Employee/ProfilePictures/" + pic;
             html.Body = html.Body.Replace("{ImageUrl}", pic);
             html.Body = html.Body.Replace("{Name}", sender["FristName"].ToString() + " " + sender["LastName"].ToString());
             html.Body = html.Body.Replace("{Designation}", sender["Designation"].ToString());
@@ -702,7 +704,7 @@ namespace JG_Prospect.BLL
             {
                 // send email to recruiter
                 toEmail = "hr@jmgroveconstruction.com";
-                messageUrl = baseUrl + "Sr_App/edituser.aspx?TUID=" + UserID + "&NID=" + UserTouchPointLogID+"&auth="+ loginCode;
+                messageUrl = baseUrl + "Sr_App/edituser.aspx?TUID=" + UserID + "&NID=" + UserTouchPointLogID + "&auth=" + loginCode;
             }
             else if (LastUserTouchPoint != null && LoginUserID == UserID) // send email to receiver
             {
@@ -844,6 +846,16 @@ namespace JG_Prospect.BLL
 
         }
 
+        public int UpdateUsersLastLoginTime(int loginUserID, DateTime LogInTime)
+        {
+            return InstallUserDAL.Instance.UpdateUsersLastLoginTime(loginUserID,LogInTime);
+        }
+
+        public int QuickSaveInstallUser(user objInstallUser)
+        {
+            return InstallUserDAL.Instance.QuickSaveInstallUser(objInstallUser);
+        }
+
         public DataSet BulkIntsallUserDuplicateCheck(string xmlDoc)
         {
             return InstallUserDAL.Instance.BulkIntsallUserDuplicateCheck(xmlDoc);
@@ -855,13 +867,10 @@ namespace JG_Prospect.BLL
 
         }
 
-        public DataSet getInstallUserDetailsById(Int32 UserId) {
+        public DataSet getInstallUserDetailsById(Int32 UserId)
+        {
             return InstallUserDAL.Instance.getInstallUserDetailsById(UserId);
         }
 
-        public int QuickSaveInstallUser(user objInstallUser)
-        {
-            return InstallUserDAL.Instance.QuickSaveInstallUser(objInstallUser);
-        }
     }
 }

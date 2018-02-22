@@ -27,7 +27,7 @@ namespace JG_Prospect.DAL
             private set {; }
         }
 
-        public DataSet returndata;        
+        public DataSet returndata;
 
         public void AddUserNotes(string Notes, int UserID, int AddedByID)
         {
@@ -615,7 +615,7 @@ namespace JG_Prospect.DAL
             }
         }
 
-        public ActionOutput<LoginUser> GetUsers(string keyword)
+        public ActionOutput<LoginUser> GetUsers(string keyword, string exceptUserIds = null)
         {
             try
             {
@@ -625,6 +625,7 @@ namespace JG_Prospect.DAL
                     returndata = new DataSet();
                     DbCommand command = database.GetStoredProcCommand("GetUsersByKeyword");
                     database.AddInParameter(command, "@Keyword", DbType.String, keyword);
+                    database.AddInParameter(command, "@ExceptUserIds", DbType.String, exceptUserIds);
 
                     command.CommandType = CommandType.StoredProcedure;
                     returndata = database.ExecuteDataSet(command);
@@ -636,10 +637,11 @@ namespace JG_Prospect.DAL
                             users.Add(new LoginUser
                             {
                                 ID = Convert.ToInt32(item["Id"].ToString()),
-                                FirstName = item["FristName"].ToString(),
+                                FirstName = item["FirstName"].ToString(),
                                 LastName = item["LastName"].ToString(),
                                 Email = item["Email"].ToString(),
-                                Phone = item["Phone"].ToString()
+                                Phone = item["Phone"].ToString(),
+                                ProfilePic = item["Picture"].ToString()
                             });
                         }
                     }
@@ -648,6 +650,27 @@ namespace JG_Prospect.DAL
                         Results = users,
                         Status = ActionStatus.Successfull
                     };
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        public DataSet GetUsersByIds(List<int> userIds = null)
+        {
+            try
+            {
+                List<LoginUser> users = new List<LoginUser>();
+                SqlDatabase database = MSSQLDataBase.Instance.GetDefaultDatabase();
+                {
+                    returndata = new DataSet();
+                    DbCommand command = database.GetStoredProcCommand("GetUsersByIds");
+                    database.AddInParameter(command, "@UserIds", DbType.String, string.Join(",", userIds));
+
+                    command.CommandType = CommandType.StoredProcedure;
+                    return database.ExecuteDataSet(command);
                 }
             }
             catch (Exception ex)
@@ -674,26 +697,6 @@ namespace JG_Prospect.DAL
             {
                 return null;
             }
-        }
-
-        public DataSet BulkIntsallUserDuplicateCheck(String xmlDoc)
-        {
-            DataSet dsTemp = new DataSet();
-
-            try
-            {
-                SqlDatabase database = MSSQLDataBase.Instance.GetDefaultDatabase();
-                {
-                    DbCommand command = database.GetStoredProcCommand("UDP_BulkInstallUserDuplicateCheck");
-                    database.AddInParameter(command, "@XMLDOC2", SqlDbType.Xml, xmlDoc);
-                    dsTemp = database.ExecuteDataSet(command);
-                    return dsTemp;
-                }
-            }
-            catch (Exception ex)
-            {
-            }
-            return dsTemp;
         }
 
         public string AddUserEmail(bool isPrimaryEmail, string strEmail, int UserID, bool ClearDataBeforInsert)
@@ -2431,29 +2434,6 @@ namespace JG_Prospect.DAL
             }
         }
 
-        public DataSet getInstallUserDetailsById(Int32 UserId)
-        {
-            try
-            {
-                SqlDatabase database = MSSQLDataBase.Instance.GetDefaultDatabase();
-                {
-                    returndata = new DataSet();
-                    DbCommand command = database.GetStoredProcCommand("usp_GetInstallUserDetailsById");
-                    command.CommandType = CommandType.StoredProcedure;
-                    database.AddInParameter(command, "@UserId", DbType.Int32, UserId);
-                    returndata = database.ExecuteDataSet(command);
-
-                    return returndata;
-                }
-            }
-
-            catch (Exception ex)
-            {
-                return null;
-
-            }
-        }
-
         public DataSet getInstallerUserDetailsByLoginId(string Email, string Password)
         {
             try
@@ -3331,6 +3311,26 @@ namespace JG_Prospect.DAL
             return returndata;
         }
 
+        public int UpdateUsersLastLoginTime(int loginUserID,  DateTime LogInTime)
+        {
+            try
+            {
+                SqlDatabase database = MSSQLDataBase.Instance.GetDefaultDatabase();
+                {
+                    DbCommand command = database.GetStoredProcCommand("usp_UpdateUserLoginTimeStamp");
+                    command.CommandType = CommandType.StoredProcedure;
+                    database.AddInParameter(command, "@Id", DbType.Int32, loginUserID);                    
+                    database.AddInParameter(command, "@LastLoginTimeStamp", DbType.DateTime, LogInTime);
+                    int retrunVal = database.ExecuteNonQuery(command);
+                    return retrunVal;
+                }
+            }
+            catch (Exception ex)
+            {
+                return 0;
+            }
+        }
+
         public Int32 QuickSaveInstallUser(user objuser)
         {
             try
@@ -3339,7 +3339,7 @@ namespace JG_Prospect.DAL
                 {
                     DbCommand command = database.GetStoredProcCommand("usp_QuickSaveInstallUser");
                     command.CommandType = CommandType.StoredProcedure;
-                    
+
                     database.AddInParameter(command, "@FirstName", DbType.String, objuser.fristname);
                     database.AddInParameter(command, "@NameMiddleInitial", DbType.String, objuser.NameMiddleInitial);
                     database.AddInParameter(command, "@LastName", DbType.String, objuser.lastname);
@@ -3362,7 +3362,7 @@ namespace JG_Prospect.DAL
                     database.AddInParameter(command, "@IsTextContactPreference", DbType.Boolean, objuser.IsTextContactPreference);
                     database.AddInParameter(command, "@IsMailContactPreference", DbType.Boolean, objuser.IsMailContactPreference);
 
-                    database.AddOutParameter(command, "@Id", DbType.Int32, 1);  
+                    database.AddOutParameter(command, "@Id", DbType.Int32, 1);
 
                     database.ExecuteScalar(command);
 
@@ -3416,11 +3416,11 @@ namespace JG_Prospect.DAL
                     database.AddInParameter(command, "@PrevApply", DbType.Boolean, Convert.ToBoolean(objuser.PrevApply));
                     database.AddInParameter(command, "@Notes", DbType.String, objuser.Notes);
                     database.AddInParameter(command, "@Picture", DbType.String, objuser.picture);
-                    database.AddInParameter(command, "@ResumePath", DbType.String, objuser.ResumePath);
-                    
+                    database.AddInParameter(command, "@ResumePath", DbType.String, objuser.picture);
+
 
                     database.ExecuteScalar(command);
-                    
+
                     return true;
                 }
             }
@@ -3432,5 +3432,47 @@ namespace JG_Prospect.DAL
             }
         }
 
+        public DataSet getInstallUserDetailsById(Int32 UserId)
+        {
+            try
+            {
+                SqlDatabase database = MSSQLDataBase.Instance.GetDefaultDatabase();
+                {
+                    returndata = new DataSet();
+                    DbCommand command = database.GetStoredProcCommand("usp_GetInstallUserDetailsById");
+                    command.CommandType = CommandType.StoredProcedure;
+                    database.AddInParameter(command, "@UserId", DbType.Int32, UserId);
+                    returndata = database.ExecuteDataSet(command);
+
+                    return returndata;
+                }
+            }
+
+            catch (Exception ex)
+            {
+                return null;
+
+            }
+        }
+
+        public DataSet BulkIntsallUserDuplicateCheck(String xmlDoc)
+        {
+            DataSet dsTemp = new DataSet();
+
+            try
+            {
+                SqlDatabase database = MSSQLDataBase.Instance.GetDefaultDatabase();
+                {
+                    DbCommand command = database.GetStoredProcCommand("UDP_BulkInstallUserDuplicateCheck");
+                    database.AddInParameter(command, "@XMLDOC2", SqlDbType.Xml, xmlDoc);
+                    dsTemp = database.ExecuteDataSet(command);
+                    return dsTemp;
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+            return dsTemp;
+        }
     }
 }

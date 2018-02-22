@@ -1,0 +1,719 @@
+﻿/*body {
+font-family: Arial, Helvetica, sans-serif;
+padding: 0;
+margin: 0;
+}
+
+.all-chats {
+float: right;
+}
+
+.chat-box {
+display: none;
+width: 242px;
+background: #fff;
+border: 2px solid #bbb;
+border-radius: 5px 5px 0 0;
+margin: 0 0 0 1px;
+padding: 2px;
+float: right;
+}
+
+.chat-box .header {
+display: inline-block;
+width: 99%;
+font-size: 12px;
+padding: 5px;
+background: #000;
+color: #fff;
+position: relative;
+left: -4px;
+border-radius: 4px 4px 0 0;
+min-height: 14px;
+top: -4px;
+min-width: 235px;
+}
+
+.chat-box .chats {
+height: 229px;
+overflow-x: hidden;
+overflow-y: auto;
+}
+
+.chat-box .chats .chat-row {
+display: inline-block;
+width: 100%;
+}
+
+.chat-box .chats .chat-row.receiver {
+}
+
+.chat-box .chats .chat-row.sender .profile {
+float: right;
+}
+
+.chat-box .chats .chat-row.receiver .profile {
+}
+
+.chat-box .chats .chat-row .profile {
+float: left;
+position: relative;
+width: 30px;
+height: 30px;
+}
+
+.chat-box .chats .chat-row .profile .installid {
+position: absolute;
+bottom: 0px;
+width: 100%;
+text-align: center;
+background: #ddd;
+opacity: 0.6;
+font-size:5px;
+display:none;
+}
+
+.chat-box .chats .chat-row .profile img {
+height: 30px;
+width: 30px;
+position: absolute;
+left: 0;
+top: 0;
+font-size: 4px;
+}
+
+.chat-box .chats .chat-row.receiver .profile span {
+float: left;
+color: red;
+}
+
+.chat-box .chats .chat-row .message {
+display: inline-block;
+width: 180px;
+padding: 2px;
+color: #fff;
+font-size: 11px;
+}
+
+.chat-box .chats .chat-row.receiver .message {
+float: left;
+background: #A33E3F;
+border-radius: 5px;
+color: #ccc;
+}
+
+.chat-box .chats .chat-row.sender .message {
+float: right;
+background: #333;
+color: #ccc;
+border-radius: 5px;
+}
+
+.chat-box .chat-text {
+position: relative;
+bottom: 0px;
+width: 100%;
+}
+
+.chat-box .chat-text input[type=text] {
+width: 99%;
+position:relative;
+}
+
+.chat-box .chat-text input[type=button] {
+width: 43px;
+padding: 1px;
+}
+
+.chat-box .chats .chat-row .message .tick, .chat-box .chats .chat-row .message .time, .chat-box .chats .chat-row .message .est {
+display: inline-block;
+font-size:10px;
+}
+
+.tick img {
+width: 16px;
+}
+
+.est {
+color: #A33E3F;
+}
+.chat-row.receiver .est {
+ color: #000;}
+.all-chats .header .minimize {
+    color: #fff;
+    font-size: inherit;
+    float: right;cursor: pointer;
+}
+.all-chats .header .minimize:hover {
+    background: #666;
+}
+.all-chats .header .close {
+    color: #fff;
+    font-size: inherit;
+    float: right;    position: relative;
+    top: 0;
+    right: 0;
+}
+.all-chats .header .close:hover {
+    background: #666;
+} 
+.all-chats .header .group-name{}*/
+
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    padding: 0;
+    margin: 0;
+}
+
+.all-chats {
+    float: none;
+}
+
+.chat-box {
+    display: none;
+    /*width: 98%;*/
+    background: #fff;
+    border: 2px solid #bbb;
+    border-radius: 8px 8px 0 0;
+    margin: 0 0 0 1px;
+    padding: 2px;
+    position: relative;
+}
+
+    .chat-box .header {
+        display: inline-block;
+        width: 99%;
+        font-size: 12px;
+        padding: 5px;
+        background: #000;
+        color: #fff;
+        position: relative;
+        left: -4px;
+        border-radius: 4px 4px 0 0;
+        min-height: 14px;
+        top: -4px;
+        min-width: 235px;
+        z-index: 1;
+    }
+
+    .chat-box .chats {
+        height: 265px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        position:relative;
+    }
+
+        .chat-box .chats .chat-row {
+            display: inline-block;
+            width: 100%;
+        }
+
+            .chat-box .chats .chat-row.receiver {
+            }
+
+            .chat-box .chats .chat-row.sender .profile {
+                float: right;
+            }
+
+            .chat-box .chats .chat-row.receiver .profile {
+            }
+
+            .chat-box .chats .chat-row .profile {
+                float: left;
+                position: relative;
+                width: 30px;
+                height: 30px;
+            }
+
+                .chat-box .chats .chat-row .profile .installid {
+                    position: absolute;
+                    bottom: 0px;
+                    width: 100%;
+                    text-align: center;
+                    background: #ddd;
+                    opacity: 0.6;
+                    font-size: 5px;
+                    display: none;
+                }
+
+                .chat-box .chats .chat-row .profile img {
+                    height: 30px;
+                    width: 30px;
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    font-size: 4px;
+                }
+
+            .chat-box .chats .chat-row.receiver .profile span {
+                float: left;
+                color: red;
+            }
+
+            .chat-box .chats .chat-row .message {
+                display: inline-block;
+                width: 500px;
+                padding: 2px;
+                color: #fff;
+                font-size: 12px;
+                position: relative;
+            }
+
+            .chat-box .chats .chat-row.receiver .message {
+                float: left;
+                background: #A33E3F;
+                border-radius: 5px;
+                color: #ccc;
+            }
+
+            .chat-box .chats .chat-row.sender .message {
+                float: right;
+                background: #333;
+                color: #ccc;
+                border-radius: 5px;
+            }
+
+                .chat-box .chats .chat-row.sender .message .msg {
+                    padding: 2px 4px;
+                }
+
+    .chat-box .chat-text {
+        position: relative;
+        bottom: 0px;
+        width: 100%;
+        display:inline-block;
+    }
+
+        .chat-box .chat-text input[type=text] {
+            width: 86.3%;
+            position: relative;
+            padding: 5px;
+            display:block !important;
+                float: left;    
+        }
+
+        .chat-box .chat-text input[type=button] {
+            width: 43px;
+            padding: 1px;
+        }
+
+    .chat-box .chats .chat-row .message .tick, .chat-box .chats .chat-row .message .time, .chat-box .chats .chat-row .message .est {
+        display: inline-block;
+        font-size: 11px;
+    }
+
+.tick img {
+    width: 16px;
+}
+
+.est {
+    color: #A33E3F;
+}
+
+.chat-row.receiver .est {
+    color: #000;
+}
+
+.all-chats .header .minimize {
+    color: #fff;
+    font-size: inherit;
+    float: left;
+    cursor: pointer;
+}
+
+    .all-chats .header .minimize:hover {
+    }
+
+.all-chats .header .close {
+    color: #fff;
+    font-size: inherit;
+    float: right;
+    position: relative;
+    top: 0;
+    right: 0;
+}
+
+    .all-chats .header .close:hover {
+        background: #666;
+    }
+
+.all-chats .header .group-name {
+    margin: 3px;
+    display: inline-block;
+    width: 95%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+
+
+.telecom-dashboard-popup {
+    position: absolute;
+    left: 30px;
+    top: 30px;
+    width: 1250px;
+    height: 600px;
+    background: #fff;
+    z-index: 10;
+    border-radius: 12px 12px 0 0;
+    box-shadow: 5px 5px 30px #000;
+    display: none;
+}
+
+    .telecom-dashboard-popup .header {
+        min-height: 15px;
+        position: relative;
+        font-size: 16px;
+        padding: 10px;
+        font-weight: bold;
+        color: #fff;
+        background: #A33E3F;
+        border: 1px solid #A33E3F;
+        border-radius: 10px 10px 0 0;
+    }
+
+        .telecom-dashboard-popup .header .close {
+            position: absolute;
+            top: 3px;
+            right: 5px;
+            color: #fff;
+        }
+
+    .telecom-dashboard-popup .column1 {
+        width: 30%;
+        height: 560px;
+        float: left;
+    }
+
+    .telecom-dashboard-popup .column2 {
+        width: 50%;
+        height: 560px;
+        float: left;
+    }
+
+    .telecom-dashboard-popup .column3 {
+        width: 19.5%;
+        height: 560px;
+        float: left;
+    }
+
+    .telecom-dashboard-popup .email-section {
+        width: 100%;
+        float: left;
+        height: 40%;
+        overflow: hidden;
+    }
+
+    .telecom-dashboard-popup .chat-section {
+        float: left;
+        width: 100%;
+        position: relative;
+    }
+
+.chat-container {
+    position: relative;
+    width: 100%;
+}
+
+.telecom-dashboard-popup .chat-box .header {
+    width: 99.7%;
+    padding: 4px;
+    border: 1px solid #333;
+    font-size: 12px;
+    background: #666;
+}
+
+    .telecom-dashboard-popup .chat-box .header .close {
+        float: right;
+        position: relative;
+        right: 0;
+        top: 0;
+        color: #fff;
+        display: none;
+    }
+
+        .telecom-dashboard-popup .chat-box .header .close:hover {
+            background: #333;
+        }
+
+.overlay {
+    position: fixed;
+    background: #000;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 9;
+    opacity: 0.5;
+    display: none;
+}
+
+.telecom-dashboard-popup .email-compose-section {
+    height: 225px;
+}
+
+.telecom-dashboard-popup .chat-users-section {
+    height: 330px;
+    width: 100%;
+    border: 1px solid #ddd;
+}
+
+    .telecom-dashboard-popup .chat-users-section .header {
+        padding: 5px;
+        font-size: 14px;
+        font-weight: normal;
+        background: #666;
+        border: 1px solid #666;
+        border-radius: 0;
+        min-height: 10px;
+        min-width: 10px;
+    }
+
+    .telecom-dashboard-popup .chat-users-section .user-row {
+        padding: 2px;
+        width: 99%;
+        float: left;
+        cursor: pointer;
+    }
+
+        .telecom-dashboard-popup .chat-users-section .user-row:hover {
+            background: #ddd;
+        }
+
+        .telecom-dashboard-popup .chat-users-section .user-row .profile {
+            float: left;
+            position: relative;
+            width: 40px;
+            height: 40px;
+            border: 1px solid #ddd;
+        }
+
+        .telecom-dashboard-popup .chat-users-section .user-row .name {
+            width: 185px;
+            float: left;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 5px 0;
+        }
+
+        .telecom-dashboard-popup .chat-users-section .user-row .profile img {
+            height: 40px;
+            width: 40px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-size: 4px;
+        }
+
+        .telecom-dashboard-popup .chat-users-section .user-row .profile .name {
+        }
+
+.telecom-dashboard-popup.fullscreen-chat {
+}
+
+    .telecom-dashboard-popup.fullscreen-chat .chat-box { /*width:100%;*/
+    }
+
+    .telecom-dashboard-popup.fullscreen-chat .chat-container {
+        position: absolute;
+    }
+
+    .telecom-dashboard-popup.fullscreen-chat .column1 {
+        display: none;
+    }
+
+    .telecom-dashboard-popup.fullscreen-chat .column2 {
+        display: block;
+        width: 80%;
+        padding: 2px;
+        margin: 0;
+    }
+
+    .telecom-dashboard-popup.fullscreen-chat .column3 {
+        padding: 2px 0;
+    }
+
+        .telecom-dashboard-popup.fullscreen-chat .column3 .email-compose-section {
+            display: none;
+        }
+
+    .telecom-dashboard-popup.fullscreen-chat .chat-users-section {
+        height: 550px;
+    }
+
+    .telecom-dashboard-popup.fullscreen-chat .column2 .email-section {
+        display: none;
+    }
+
+    .telecom-dashboard-popup.fullscreen-chat .chat-box .chats {
+        height: 470px;
+    }
+
+        .telecom-dashboard-popup.fullscreen-chat .chat-box .chats .chat-row .message {
+            width: 820px;
+        }
+
+        .telecom-dashboard-popup.fullscreen-chat .chat-box .chats .chat-row .profile {
+            width: 40px;
+            height: 40px;
+        }
+
+            .telecom-dashboard-popup.fullscreen-chat .chat-box .chats .chat-row .profile img {
+                width: 40px;
+                height: 40px;
+            }
+
+.chat-notification-sound {
+    position: fixed;
+    left: -600px;
+    top: -600px;
+}
+
+.telecom-dashboard-popup.fullscreen-chat .chat-box .chat-text input[type=text] {
+    padding: 10px 30px 10px 10px;
+    width: 87.5%;
+    font-size: 14px;    
+}
+
+.chat-users-section .contents {
+    display: inline-block;
+    width: 179px;
+    border-radius: 0px;
+    padding: 2px 0;
+    position: relative;
+    height: 40px;
+    float: left;
+}
+
+.chat-users-section .top {
+    width: 100%;
+    float: left;
+}
+
+.chat-users-section .contents .top .name {
+    float: left;
+    width: 135px;
+    padding: 2px 0;
+    color: #000;
+    font-weight: bold;
+}
+
+.chat-users-section .contents .top .time {
+    float: right;
+    width: 50px;
+    padding: 2px 0;
+    color: #666;
+}
+
+.chat-users-section .contents .msg-container {
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+}
+
+    .chat-users-section .contents .msg-container .tick {
+        float: left;
+    }
+
+    .chat-users-section .contents .msg-container .msg {
+        float: left;
+        width: 160px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: #666;
+        overflow: hidden;
+    }
+
+.chat-users-section .profile .installid {
+    position: absolute;
+    bottom: 0px;
+    background: #ddd;
+    font-size: 7px;
+    text-align: center;
+    width: 100%;
+    opacity: 0.5;
+}
+
+.chat-users-section .profile .status-icon {
+    position: absolute;
+    height: 10px;
+    width: 10px;
+    top: 2px;
+    right: 2px;
+    border-radius: 5px;
+}
+
+    .chat-users-section .profile .status-icon.active {
+        background: #02a800;
+    }
+
+    .chat-users-section .profile .status-icon.idle {
+        background: #f27e00;
+    }
+
+.chat-users-section .list .no-user {
+    text-align: center;
+    padding: 10px;
+}
+
+.orange-bg {
+    background: #f27e00 !important;
+    border-color: #f27e00 !important;
+}
+
+.watermark-logo {
+    width: 100%;
+    height: 100%;
+    display: block;
+    /*position: relative;*/
+}
+
+.watermark-logo::before {
+    content: "";
+    background: url(../img/JgLogo.jpg);
+    opacity: 0.2;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    position: absolute;
+    /*z-index: -1;*/
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
+}
+button.text-send {
+    float: left;
+    margin: 0 5px;
+    padding: 6px;
+    background: #A33E3F;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 3px;
+}
+button.record-send {
+    float: left;
+    margin: 0;
+    padding: 6px;
+    background: #A33E3F;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 3px;
+}
+.telecom-dashboard-popup .emoji-picker-icon{right: 76px;top:3px;}
+.telecom-dashboard-popup.fullscreen-chat .emoji-picker-icon{right: 75px;font-size: 28px;}
+.telecom-dashboard-popup.fullscreen-chat .emoji-picker-icon{right: 87px;font-size: 28px;}
+.telecom-dashboard-popup.fullscreen-chat .text-send {padding: 12px 8px;}
+.telecom-dashboard-popup.fullscreen-chat .record-send {font-size: 22px;}
+.telecom-dashboard-popup.fullscreen-chat .emoji-menu{right: 81px;}
+.telecom-dashboard-popup .chat-users-section .list {
+    display: inline-block;
+    height: 302px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+.telecom-dashboard-popup.fullscreen-chat .chat-users-section .list{height:522px;}

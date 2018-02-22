@@ -4,6 +4,9 @@
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
     <link href="../Content/touchPointlogs.css" rel="stylesheet" />
+    <style type="text/css">
+        
+    </style>
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
@@ -31,6 +34,22 @@
             </div>
         </div>
     </div>
+    
+    <%--<div class="chats">
+        <div class="chat-row"></div>
+    </div>
+    <div>
+        <input type="text" id="chattext" />
+        <input type="button" value="Send" id="sendChat" />
+    </div>--%>
+
+    <%--<div class="chats">
+        <div class="chat-row"></div>
+    </div>
+    <div>
+        <input type="text" id="chattext" />
+        <input type="button" value="Send" id="sendChat" />
+    </div>--%>
 
     <script type="text/javascript" src="<%=Page.ResolveUrl("~/js/chosen.jquery.js")%>"></script>
     <script src="../js/angular/scripts/jgapp.js"></script>
@@ -40,6 +59,36 @@
     <script src="../js/jquery.dd.min.js"></script>
     <script src="../js/angular/scripts/ClosedTasls.js"></script>
 
+    <%--<script src="/Scripts/jquery.signalR-2.2.2.min.js"></script>
+    <script src="/signalr/hubs"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // Reference the auto-generated proxy for the hub.
+            var chat = $.connection.chatHub;
+            // Start the connection.
+            $.connection.hub.start().done(function () {
+                console.log('started...')
+                $('#sendChat').click(function () {
+                    chat.server.sendChatMessage('Jitendra', $('#chattext').val());
+                });
+            }).fail(function (reason) {
+                debugger;
+                console.log(reason);
+            });
+
+            //Callback function which the hub will call when it has finished processing,
+            // is attached to the proxy 
+            chat.client.updateClient = function (obj) {
+                // Add the message to the page.
+                $('.chats').append('<div class="chat-row">' + obj.Message + '</div>');
+            };
+            chat.client.receiveMessage = function (obj) {
+                // Add the message to the page.
+
+            };
+        });
+    </script>--%>
     <script type="text/javascript">
         function Paging(sender) {
             $('#PageIndex').val(paging.currentPage);
@@ -100,7 +149,11 @@
         }
         var pageSize = 20;
         $(document).ready(function () {
-            Paging($(this));
+            //Paging($(this));
+            //var RcvrID = getUrlVars()["RcvrID"];
+            //var chatGroupId = getUrlVars()["CGID"];
+            //if (RcvrID != undefined && chatGroupId != undefined)
+            //    InitiateChat($(this), RcvrID, chatGroupId);
         });
     </script>
 </asp:Content>

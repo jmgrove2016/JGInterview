@@ -19,13 +19,18 @@ namespace JG_Prospect.Sr_App
         #region Page Variables
         public static bool IsSuperUser = false;
         public int loggedInUserId = 0;
+        public bool TaskListView = true;
+        public int UserDesignationId = 0;
         #endregion
 
         protected void Page_Load(object sender, EventArgs e)
         {
             JG_Prospect.App_Code.CommonFunction.AuthenticateUser();
+            UserDesignationId = JGSession.DesignationId;
 
             IsSuperUser = CommonFunction.CheckAdminAndItLeadMode();
+            if (Request.QueryString["View"] != null && Request.QueryString["View"] == "C")
+                TaskListView = false;
 
             if (!Page.IsPostBack)
             {
@@ -45,8 +50,9 @@ namespace JG_Prospect.Sr_App
                 FillDesignation();
 
                 //if ((string)Session["DesigNew"] == "ITLead" || (string)Session["DesigNew"] == "Admin" || (string)Session["DesigNew"] == "Office Manager")
-                if(IsSuperUser)
+                if(UserDesignationId==4 || UserDesignationId == 6 || UserDesignationId == 18 || UserDesignationId == 21 || IsSuperUser)
                 {
+                    IsSuperUser = true;
                     lblalertpopup.Visible = true;
                     DataSet ds = TaskGeneratorBLL.Instance.GetFrozenNonFrozenTaskCount();
                     if(ds!=null && ds.Tables.Count>0 && ds.Tables[0].Rows.Count > 0)
@@ -61,7 +67,7 @@ namespace JG_Prospect.Sr_App
                     lblalertpopup.Visible = false;
 
                     //For ng-repeat
-                    tableFilter.Visible = false;
+                    //tableFilter.Visible = false;
                     seqArrowDown.Visible = seqArrowUp.Visible = false;
                 }
                 //LoadFilterUsersByDesginationFrozen("", drpUserFrozen);

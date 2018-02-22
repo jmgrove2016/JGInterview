@@ -63,7 +63,7 @@ namespace JG_Prospect.Common.modal
         public int SecondoryTradeId;
         public string Notes;
         public string Source;
-        public int    SourceId;
+        public int SourceId;
         public string Reason;
         public string GeneralLiability;
         public string PqLicense;
@@ -213,7 +213,7 @@ namespace JG_Prospect.Common.modal
         public string city;
         public string zip;
         public string firstname;
-        public string lastname;        
+        public string lastname;
         public int PrimeryTradeId;
         public int SecondoryTradeId;
         public string Source;
@@ -242,6 +242,7 @@ namespace JG_Prospect.Common.modal
         public string UserType;
         public string Password;
         public Int64 Row_Num;
+
     }
 
     public class LoginUser
@@ -253,5 +254,158 @@ namespace JG_Prospect.Common.modal
         public string Password { get; set; }
         public string Email { get; set; }
         public string Phone { get; set; }
+        public string ProfilePic { get; set; }
+    }
+
+    public class ChatMentionUser
+    {
+        public int id { get; set; }
+        public string name { get; set; }
+        public string avatar { get; set; }
+        public string type { get; set; }
+    }
+
+    public class ActiveUser
+    {
+        public ActiveUser()
+        {
+            //LastActivityAt = DateTime.UtcNow;
+            Status = 1;
+        }
+        public int? UserId { get; set; }
+        public string UserInstallId { get; set; }
+      //  public string FirstName { get; set; }
+       // public string LastName { get; set; }
+       // public string Email { get; set; }
+        public DateTime? OnlineAt { get; set; }
+        public string OnlineAtFormatted { get; set; }
+        public string ProfilePic { get; set; }
+        public DateTime LastActivityAt { get; set; }
+
+        public string LastMessage { get; set; }
+        public DateTime? LastMessageAt { get; set; }
+        public string LastMessageAtFormatted { get; set; }
+        public bool IsRead { get; set; }
+        public int Status { get; set; }
+
+        public string ChatGroupId { get; set; }
+        public string ReceiverIds { get; set; }
+
+        public string GroupOrUsername { get; set; }
+    }
+
+    public class ChatUser : ActiveUser
+    {
+        public ChatUser()
+        {
+            ConnectionIds = new List<string>();
+        }
+        public List<string> ConnectionIds { get; set; }
+        public bool ChatClosed { get; set; }
+    }
+
+    public class ChatMessage
+    {
+        public int UserId { get; set; }
+        public string UserInstallId { get; set; }
+        public string UserProfilePic { get; set; }
+        public string UserFullname { get; set; }
+        public string Message { get; set; }
+        public DateTime MessageAt { get; set; }
+        public string MessageAtFormatted { get; set; }
+
+        public int ChatSourceId { get; set; }
+
+        public string ChatGroupId { get; set; }
+
+    }
+
+    public class ChatMessageActiveUser
+    {
+        public ChatMessageActiveUser()
+        {
+            ActiveUsers = new List<modal.ActiveUser>();
+            ChatMessages = new List<modal.ChatMessage>();
+        }
+        public string ChatGroupId { get; set; }
+        public string ChatGroupName { get; set; }
+        public List<ActiveUser> ActiveUsers { get; set; }
+        public List<ChatMessage> ChatMessages { get; set; }
+    }
+
+    public class ChatGroup
+    {
+        public ChatGroup()
+        {
+            ChatUsers = new List<ChatUser>();
+            ChatMessages = new List<ChatMessage>();
+        }
+        public string ChatGroupId { get; set; }
+        public string ChatGroupName { get; set; }
+        public List<ChatUser> ChatUsers { get; set; }
+        public List<ChatMessage> ChatMessages { get; set; }
+        public int SenderId { get; set; }
+    }
+
+    public sealed class SingletonUserChatGroups
+    {
+        SingletonUserChatGroups()
+        {
+            ChatGroups = new List<ChatGroup>();
+            ActiveUsers = new List<ActiveUser>();
+        }
+
+        private static readonly object padlock = new object();
+        private static SingletonUserChatGroups instance = null;
+        public List<ChatGroup> ChatGroups { get; set; }
+        public List<ActiveUser> ActiveUsers { get; set; }
+        public static SingletonUserChatGroups Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    lock (padlock)
+                    {
+                        if (instance == null)
+                        {
+                            instance = new SingletonUserChatGroups();
+                        }
+                    }
+                }
+                return instance;
+            }
+        }
+    }
+
+    public sealed class SingletonGlobal
+    {
+        SingletonGlobal()
+        {
+            RandomGUID = JGConstant.RandomGUID;
+            ConnectedClients = new List<string>();
+        }
+
+        private static readonly object padlock = new object();
+        private static SingletonGlobal instance = null;
+        public string RandomGUID { get; set; }
+        public List<string> ConnectedClients { get; set; }
+        public static SingletonGlobal Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    lock (padlock)
+                    {
+                        if (instance == null)
+                        {
+                            instance = new SingletonGlobal();
+                        }
+                    }
+                }
+                return instance;
+            }
+        }
     }
 }

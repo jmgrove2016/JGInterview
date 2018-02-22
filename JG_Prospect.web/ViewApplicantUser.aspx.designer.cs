@@ -2947,6 +2947,15 @@ namespace JG_Prospect {
         protected global::System.Web.UI.WebControls.Label lblLastName;
         
         /// <summary>
+        /// lblDisignation control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblDisignation;
+        
+        /// <summary>
         /// drpDesig control.
         /// </summary>
         /// <remarks>
@@ -3136,6 +3145,15 @@ namespace JG_Prospect {
         protected global::System.Web.UI.WebControls.Literal ltlTaskInstallID;
         
         /// <summary>
+        /// lblSeqtask control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl lblSeqtask;
+        
+        /// <summary>
         /// hypTaskLink1 control.
         /// </summary>
         /// <remarks>
@@ -3172,15 +3190,6 @@ namespace JG_Prospect {
         protected global::System.Web.UI.WebControls.Literal ltlTaskTitle;
         
         /// <summary>
-        /// ltlAssignTo control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal ltlAssignTo;
-        
-        /// <summary>
         /// ddlInterviewDTOptions control.
         /// </summary>
         /// <remarks>
@@ -3188,15 +3197,6 @@ namespace JG_Prospect {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList ddlInterviewDTOptions;
-        
-        /// <summary>
-        /// ltlManagerName control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal ltlManagerName;
         
         /// <summary>
         /// txtChangePassword1 control.

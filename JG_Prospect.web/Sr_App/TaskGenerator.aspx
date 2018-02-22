@@ -13,6 +13,94 @@
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
     <link href="../css/chosen.css" rel="stylesheet" />
+    <style>
+        .div-col-middle{
+            vertical-align: middle;
+            line-height: 44px;
+        }
+        .div-table-col input{
+            margin-top:0px;
+        }
+        .div-table-col a {
+            text-decoration: none;
+        }
+        .div-col-middle input{
+            margin-top:0px;
+        }
+        .div-col-middle input[type=checkbox]{
+            width:20px;
+        }
+        .row{
+            clear:both;
+        }
+        .addTaskPopup{
+            position: unset !important;
+            top: unset !important;
+            left: unset !important;
+            width:1100px;
+        }
+        .chosen-dropdown{
+            width:225px;
+        }
+        .search-field{
+            line-height:normal;
+        }
+        .url{
+            margin-left:5px;
+        }
+        .designation{
+            margin-left:47px;
+        }
+        .ui-button{
+            background: url(../img/main-header-bg.png) repeat-x;
+            color: #fff;
+        }
+        #cke_txtTaskDescription{
+            border: 1px solid #b5b4b4;
+            box-shadow:none;
+            width:1030px;
+        }
+        #myModalAddTask .multileveledittext div.cke_textarea_inline{
+            margin-left: 40px;
+            width: 987px;
+        }
+        .listIdPopup{
+            float: left;
+            width: 30px;
+            margin-top: 7px;
+            margin-left:10px;
+        }
+        .center {
+            text-align:center !important;
+        }
+        #txtTaskDescription{
+            height:200px;
+        }
+        .cke_bottom {
+            padding: 6px 8px 2px;
+            position: relative;
+            background: #555555 !important;
+        }
+        .cke_textarea_inline{
+            border-radius:0px;
+        }
+        #myModalAddTask .modal-body input.smart-text{
+            font-size:12px;
+            margin-top:15px;
+        }
+        .delete-icon{
+            float:right;
+        }
+        .delete-icon img{
+            height:17px;
+            cursor:pointer;
+        }
+        .left{
+            float:left;
+            color:red !important;
+            text-decoration:underline;
+        }
+    </style>
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <link rel="stylesheet" href="../css/jquery-ui.css" />
@@ -28,9 +116,10 @@
     <script src="../js/angular/scripts/jgapp.js"></script>
     <script src="../js/angular/scripts/TaskGenerator.js"></script>
     <script src="../js/angular/scripts/TaskGeneratorHelper.js"></script>
-<!-- The Modal -->
-    <div id="myModal" class="modal">
 
+    <div id="controllerDiv" data-ng-controller="TaskGeneratorController">
+<!-- Share Popup Starts -->
+    <div id="myModal" class="modal">
         <!-- Modal content -->
         <div class="modal-content">
             <div class="modal-header">
@@ -46,6 +135,10 @@
                 <input type="text" id="txtSearchUser" class="smart-text" />
             </div>
             <div class="modal-footer">
+                <%if (IsAdminMode)
+                    { %>
+                <button id="btnDelete" onclick="return false;" class="mui-btn mui-btn--small mui-btn--primary mui-btn--flat left">Delete</button>
+                <%} %>
                 <span class="search-label" style="color: red;">Search: Email</span>
                 <button id="btnShare" onclick="return false;" class="mui-btn mui-btn--small mui-btn--primary mui-btn--flat">Share</button>
                 <button id="btnCopy" class="mui-btn mui-btn--small mui-btn--primary mui-btn--flat">Copy</button>
@@ -54,6 +147,152 @@
         </div>
 
     </div>
+<!-- Share Popup Ends-->
+
+    <!-- Add New Task Popup Starts -->
+    <div id="myModalAddTask" class="modal">        
+        <!-- Modal content -->
+        <div class="modal-content addTaskPopup">
+            <div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix ui-draggable-handle">
+                <span id="ui-id-3" class="ui-dialog-title">Add New Task</span>
+                <button onclick="closePopup()" type="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only ui-dialog-titlebar-close" role="button" title="Close">
+                    <span class="ui-button-icon-primary ui-icon ui-icon-closethick"></span><span class="ui-button-text">Close</span>
+                </button>
+            </div>
+
+            <!-- 
+            <div class="modal-header">
+                <span class="close">×</span>
+                <h2>Add New Task</h2>
+
+            </div>
+            -->
+            <div class="modal-body">
+                <div class="row">
+                    <div class="div-table-col div-col-middle">List ID:</div>
+                    <div class="div-table-col">
+                        <input type="text" id="txtListId" class="smart-text" readonly style="width: 100px;" value="Loading...">
+                    </div>
+                    <div class="div-table-col div-col-middle">
+                        <input type="checkbox" id="chkIsTechTask" class="smart-text">Tech Task?
+                    </div>
+                    <div class="div-table-col div-col-middle">
+                        Type<span style="color: red;">*</span>
+                        <select id="ddlTaskType">
+                            <option value="1">Bug</option>
+                            <option value="2">BetaError</option>
+                            <option value="3">Enhancement</option>
+                        </select>
+                    </div>
+                    <div class="div-table-col div-col-middle designation">
+                        Designations:<span style="color: red;">*</span>
+                        <select data-placeholder="Select Designation" class="chosen-dropdown" multiple id="ddlTasksDesignations">
+                            <option selected value="">All</option>
+                            <option value="1">Admin</option>
+                            <option value="2">Jr. Sales</option>
+                            <option value="3">Jr Project Manager</option>
+                            <option value="4">Office Manager</option>
+                            <option value="5">Recruiter</option>
+                            <option value="6">Sales Manager</option>
+                            <option value="7">Sr. Sales</option>
+                            <option value="8">IT - Network Admin</option>
+                            <option value="9">IT - Jr .Net Developer</option>
+                            <option value="10">IT - Sr .Net Developer</option>
+                            <option value="11">IT - Android Developer</option>
+                            <option value="12">IT - Sr. PHP Developer</option>
+                            <option value="13">IT – JR SEO/Backlinking/Content</option>
+                            <option value="14">Installer - Helper</option>
+                            <option value="15">Installer - Journeyman</option>
+                            <option value="16">Installer - Mechanic</option>
+                            <option value="17">Installer - Lead mechanic</option>
+                            <option value="18">Installer - Foreman</option>
+                            <option value="19">Commercial Only</option>
+                            <option value="20">SubContractor</option>
+                            <option value="22">Admin-Sales</option>
+                            <option value="23">Admin Recruiter</option>
+                            <option value="24">IT - Senior QA</option>
+                            <option value="25">IT - Junior QA</option>
+                            <option value="26">IT - Jr. PHP Developer</option>
+                            <option value="27">IT – Sr SEO Developer</option>
+                        </select>
+                    </div>
+                    <div class="div-table-col div-col-middle">
+                        Users:<span style="color: red;">*</span>
+                        <select data-placeholder="Select Designation" class="chosen-dropdown" multiple id="ddlTaskUsers">
+                            <option selected value="">All</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="div-table-col div-col-middle">Title<span style="color: red;">*</span></div>
+                    <div class="div-table-col">
+                        <input type="text" id="txtTitle" class="smart-text" style="width: 448px;">
+                    </div>
+                     <div class="div-table-col div-col-middle url">URL <span style="color: red;">*</span></div>
+                    <div class="div-table-col" id="divURL">
+                        <input type="text" id="txtURL" class="smart-text taskURL" style="width: 484px;">
+                        <a href="#" onclick="OnURLAdd(this)">+</a>
+                    </div>                    
+                </div>
+                <div class="row">
+                    <div class="div-table-col div-col-middle">Description<span style="color: red;">*</span></div>    
+                </div>
+                <div class="row">
+                    <div class="div-table-col">
+                        <textarea id="txtTaskDescription" class="smart-text" style="width: 1030px;" rows="5"></textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="nestedChildren">
+                        <div ng-repeat="Child in NewTaskMultiLevelChildren"
+                            class="ChildRow{{NewTaskId}}" data-level="{{Child.IndentLevel}}" data-label="{{Child.Label}}"
+                            style="clear: both; padding: 5px;">
+                            <div ng-class="{level2: Child.IndentLevel==2, level3: Child.IndentLevel==3, parentdiv: Child.IndentLevel==1}">
+                                <div style="float: left" id="selectboxes{{NewTaskId}}">
+                                    <input ng-class="{hide: Child.IndentLevel!= 1}" type="checkbox" style="margin-top:0px !important; width:auto" />
+                                    <a href="#" style="color: blue" class="context-menu-child" data-childid="{{Child.Id}}" data-highlighter="{{NewTaskId}}">{{Child.Label}}.</a>
+                                </div>
+                                <div ng-bind-html="Child.Description | trustAsHtml" class="ChildEdit" style="float:left" id="ChildEdit{{Child.Id}}" data-parentid="{{NewTaskId}}" data-taskid="{{Child.Id}}"></div>
+                            </div>
+                            <div class="delete-icon"><img src="../img/delete.jpg" alt="Delete" data-childid="{{Child.Id}}" onclick="DeleteChild(this, true)"/></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="taskSubPoints" style="background-color: white; padding-top: 5px;">
+                        <div class="listId">
+                            <a href="#" data-listid="{{TaskInstallId}}" data-level="{{TaskIndent}}" data-label="{{LevelToRoman(TaskLastChild,TaskIndent)}}"
+                                id="listIdNewTask" style="color: blue">{{LevelToRoman(TaskLastChild,TaskIndent)}}</a>
+                            <input id="nestLevelNewTask" value="{{TaskIndent}}" data-label="{{LevelToRoman(TaskLastChild,TaskIndent)}}" type="hidden" />
+                            <input id="lastDataNewTask" value="{{TaskIndent}}" data-label="{{LevelToRoman(TaskLastChild,TaskIndent)}}" type="hidden" />
+                        </div>
+                        <div class="multileveledittext">
+                            <textarea style="width: 80%" rows="1" id="multilevelChildDesc" data-taskid="{{NewTaskId}}"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div id="NewChildDiv">
+                        &nbsp;
+                        <div class="btn_sec" id="indentDiv">
+                            <button class="indentButtonLeft" type="button" id="btnLeftNewTask" data-taskid="{{NewTaskId}}" data-action="left" onclick="OnIndent(this)" ></button>
+                            <button class="indentButtonRight" type="button" id="btnRightNewTask" data-taskid="{{NewTaskId}}" data-action="right" onclick="OnIndent(this)" ></button>
+                        </div>
+                        <div id="TaskloaderDiv" class="TaskloaderDiv">
+                            <img src="../../img/ajax-loader.gif" style="height: 16px; vertical-align: bottom">
+                            Auto Saving...
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer clear center">
+                <span class="search-label" style="color: red;" id="lblStatus"></span>
+                <input type="button" value="Save Task" id="btnSaveSubTask" class="ui-button">
+            </div>
+            <div class="users-container"></div>
+        </div>
+    </div>
+    <!-- Add New Task Popup Ends -->
 
     <div class="right_panel">
         <hr />
@@ -75,7 +314,7 @@
                             <asp:Literal ID="ltrlAssigningManager" runat="server" /></td>
                     </tr>
                 </table>
-                <div class="form_panel_custom" data-ng-controller="TaskGeneratorController">
+                <div class="form_panel_custom">
                     <table id="tblAdminTaskView" runat="server" class="tablealign"
                         width="100%" cellspacing="5">
                         <tr>
@@ -255,6 +494,7 @@
             </ContentTemplate>
         </asp:UpdatePanel>
     </div>
+        </div>
     <div id="divFixedSection" runat="server" style="position: fixed; right: 0px; bottom: 0px; margin: 0px 10px 10px 0px; padding: 3px; background-color: black; color: white;">
     </div>
 
@@ -524,17 +764,17 @@
         </div>
     </div>
     <%--Popup Ends--%>
-
+    <script src="../js/angular/scripts/TaskPopupHelper.js"></script>
     <script type="text/javascript">
 
         /**
          * Added By Kapil Pancholi
          * For Angular
-         */
+         */        
         
         $(document).ready(function () {
             //Load Chosen
-            $('.chosen-input').chosen();
+            $('.chosen-input').chosen();            
 
             //Update Chosen
             $(".chosen-input").bind("DOMSubtreeModified", function () {
@@ -570,7 +810,13 @@
         });
        <%if (IsAdminMode) { %>
         function fillUsers(selector, fillDDL, loader) {
-            var did = $(selector).val().join();
+            var did = $(selector).val();
+            if (did != undefined && did != null) {
+                did = did.join();
+            }
+            else {
+                did = '';
+            }
             var options = $(fillDDL);
             var selectedUsersString = '<%=hdnSelectedUsers.Value%>';
 

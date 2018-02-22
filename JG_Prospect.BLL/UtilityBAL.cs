@@ -68,15 +68,15 @@ namespace JG_Prospect.BLL
         {
             //Thread email = new Thread(delegate ()
             //{
-                SendEmailAsync(strEmailTemplate, strToAddress, strSubject, strBody, lstAttachments, lstAlternateView,
-                    CC,BCC);
+            SendEmailAsync(strEmailTemplate, strToAddress, strSubject, strBody, lstAttachments, lstAlternateView,
+                CC, BCC);
             //});
             //email.IsBackground = true;
             //email.Start();
             return true;
         }
 
-        private static bool SendEmailAsync(string strEmailTemplate, string strToAddress, string strSubject, 
+        private static bool SendEmailAsync(string strEmailTemplate, string strToAddress, string strSubject,
                 string strBody, List<Attachment> lstAttachments, List<AlternateView> lstAlternateView = null,
                 string[] CC = null, string[] BCC = null)
         {
@@ -121,7 +121,7 @@ namespace JG_Prospect.BLL
                     if (!InstallUserBLL.Instance.CheckUnsubscribedEmail(strToAddress))
                     {
                         Msg.To.Add(strToAddress);
-                    }                    
+                    }
                 }
                 #region Check for autologin url
                 if (strBody.Contains("{AutoLoginCode}"))
@@ -198,14 +198,14 @@ namespace JG_Prospect.BLL
         {
             //Thread email = new Thread(delegate ()
             //{
-                SendEmailAsync(strToAddress, strSubject, strBody);
+            SendEmailAsync(strToAddress, strSubject, strBody);
             //});
             //email.IsBackground = true;
             //email.Start();            
         }
 
         private static void SendEmailAsync(string strToAddress, string strSubject, string strBody)
-        {            
+        {
             try
             {
                 string userName = ConfigurationManager.AppSettings["VendorCategoryUserName"].ToString();

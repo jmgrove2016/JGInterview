@@ -56,8 +56,6 @@ namespace JG_Prospect.Sr_App
         {
             CommonFunction.AuthenticateUser();
 
-            hdnAddedByUserId.Value = JGSession.LoginUserID;
-
             if (Session["Username"] != null)
             {
                 // txtSource.Text = Session["Username"].ToString();
@@ -6227,8 +6225,8 @@ namespace JG_Prospect.Sr_App
                     , strUserInstallId
                     , DateTime.Now
                     , strValueToAdd
-                    , UserGuid
-                    , (int)TouchPointSource.CreateSalesUser);
+                    , UserGuid,
+                     (int)TouchPointSource.CreateSalesUser);
 
                 BindTouchPointLog();
             }

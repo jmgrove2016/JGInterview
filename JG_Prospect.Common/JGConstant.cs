@@ -82,7 +82,7 @@ namespace JG_Prospect.Common
         public const string EventCalendar_Upload_Folder = "~/EventCalendar";
         //-------- End DP ------------
 
-
+        public static string RandomGUID = Guid.NewGuid().ToString();
 
         #endregion
 

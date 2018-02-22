@@ -473,6 +473,7 @@ namespace JG_Prospect
                         Session["IdGenerated"] = ds.Tables[0].Rows[0][62].ToString();
                         imgprofile.ImageUrl = String.Concat("~/Employee/ProfilePictures/", ds.Tables[0].Rows[0]["Picture"].ToString());
                         GenerateBarCode(Convert.ToString(Session["installId"]));
+                        hypExam.InnerText = Convert.ToString(Session["installId"]);
                         txtfirstname.Text = ds.Tables[0].Rows[0][1].ToString();
                         Session["FirstName"] = ds.Tables[0].Rows[0][1].ToString();
                         txtlastname.Text = ds.Tables[0].Rows[0][2].ToString();
@@ -500,6 +501,7 @@ namespace JG_Prospect
                         hidPhoneISDCode.Value = ds.Tables[0].Rows[0]["PhoneISDCode"].ToString();
                         txtPhone.Text = ds.Tables[0].Rows[0]["Phone"].ToString();
                         txtPhoneExt.Text = ds.Tables[0].Rows[0]["PhoneExtNo"].ToString();
+                        lbtnEmail.Text = ds.Tables[0].Rows[0]["Email"].ToString();
 
                         txtMiddleInitial.Text = ds.Tables[0].Rows[0]["NameMiddleInitial"].ToString();
 
@@ -546,8 +548,9 @@ namespace JG_Prospect
                         {
                             ddlCountry.ClearSelection();
                             ddlCountry.SelectedValue = ds.Tables[0].Rows[0]["CountryCode"].ToString();
+                            divCountryCode.Attributes.Add("class", ds.Tables[0].Rows[0]["CountryCode"].ToString());
                         }
-
+                        ddlEmployeeType.SelectedValue = ds.Tables[0].Rows[0]["EmpType"].ToString();
                         System.Web.UI.WebControls.ListItem lstDesig = ddldesignation.Items.FindByText(ds.Tables[0].Rows[0]["Designation"].ToString());
                         System.Web.UI.WebControls.ListItem lstPositionDesig = ddlPositionAppliedFor.Items.FindByText(ds.Tables[0].Rows[0]["Designation"].ToString());
 
@@ -1302,7 +1305,7 @@ namespace JG_Prospect
                     {
                         DataSet dsTaskToBeAssigned = TaskGeneratorBLL.Instance.GetUserAssignedTaskHistory(this.UserID);
                         if (dsTaskToBeAssigned != null && dsTaskToBeAssigned.Tables.Count > 0 && dsTaskToBeAssigned.Tables[0].Rows.Count > 0)
-                            SetExamPassedMessage(dsTaskToBeAssigned.Tables[0].Rows[0]["InstallId"].ToString(), dsTaskToBeAssigned.Tables[0].Rows[0]["Title"].ToString(), Convert.ToInt64(dsTaskToBeAssigned.Tables[0].Rows[0]["TaskId"]), Convert.ToInt64(dsTaskToBeAssigned.Tables[0].Rows[0]["ParentTaskId"]), dsTaskToBeAssigned.Tables[0].Rows[0]["ParentTitle"].ToString(), false);
+                            SetExamPassedMessage(dsTaskToBeAssigned.Tables[0].Rows[0]["InstallId"].ToString(), dsTaskToBeAssigned.Tables[0].Rows[0]["Title"].ToString(), Convert.ToInt64(dsTaskToBeAssigned.Tables[0].Rows[0]["TaskId"]), Convert.ToInt64(dsTaskToBeAssigned.Tables[0].Rows[0]["ParentTaskId"]), dsTaskToBeAssigned.Tables[0].Rows[0]["ParentTitle"].ToString(), false, dsTaskToBeAssigned.Tables[0].Rows[0]["AvailableSequence"].ToString(), DesignationID);
 
                         ScriptManager.RegisterStartupScript(this, this.Page.GetType(), "ExamPassed", "showExamPassPopup();", true);
                     }
@@ -1343,8 +1346,7 @@ namespace JG_Prospect
                 rqAccountType.Enabled = false;
             }
 
-            #endregion
-
+            #endregion           
             pnlFngPrint.Visible = false;
         }
 
@@ -1386,7 +1388,7 @@ namespace JG_Prospect
                 //TODO:Uncomment after full spec implementation.
                 // InsertAssignedTaskSequenceInfo(Convert.ToInt64(dsTaskToBeAssigned.Tables[0].Rows[0]["TaskId"]), this.DesignationID, Convert.ToInt64(dsTaskToBeAssigned.Tables[0].Rows[0]["AvailableSequence"]), true);
 
-                SetExamPassedMessage(dsTaskToBeAssigned.Tables[0].Rows[0]["InstallId"].ToString(), dsTaskToBeAssigned.Tables[0].Rows[0]["Title"].ToString(), Convert.ToInt64(dsTaskToBeAssigned.Tables[0].Rows[0]["TaskId"]), Convert.ToInt64(dsTaskToBeAssigned.Tables[0].Rows[0]["ParentTaskId"]), dsTaskToBeAssigned.Tables[0].Rows[0]["ParentTitle"].ToString(), false);
+                SetExamPassedMessage(dsTaskToBeAssigned.Tables[0].Rows[0]["InstallId"].ToString(), dsTaskToBeAssigned.Tables[0].Rows[0]["Title"].ToString(), Convert.ToInt64(dsTaskToBeAssigned.Tables[0].Rows[0]["TaskId"]), Convert.ToInt64(dsTaskToBeAssigned.Tables[0].Rows[0]["ParentTaskId"]), dsTaskToBeAssigned.Tables[0].Rows[0]["ParentTitle"].ToString(), false, dsTaskToBeAssigned.Tables[0].Rows[0]["AvailableSequence"].ToString(), DesignationID);
 
                 ScriptManager.RegisterStartupScript(this, this.Page.GetType(), "ExamPassed", "showExamPassPopup();", true);
             }
@@ -1411,7 +1413,7 @@ namespace JG_Prospect
             return alertMessage;
         }
 
-        private void SetExamPassedMessage(String InstallId, String TaskTitle, Int64 TaskId, Int64 ParentTaskId, String ParentTaskTitle, Boolean IsWithOutTask)
+        private void SetExamPassedMessage(String InstallId, String TaskTitle, Int64 TaskId, Int64 ParentTaskId, String ParentTaskTitle, Boolean IsWithOutTask, string Sequence = null, int SequenceDesignationId = 0)
         {
             SetInterviewDateNTime();
             ltlUDesg.Text = this.DesignationName;
@@ -1423,7 +1425,7 @@ namespace JG_Prospect
                 ltlTaskTitle.Text = TaskTitle;
                 ltlParentTask.Text = ParentTaskTitle;
 
-                ltlAssignTo.Text = String.Concat(txtfirstname.Text, " ", txtlastname.Text, " - ");
+                //ltlAssignTo.Text = String.Concat(txtfirstname.Text, " ", txtlastname.Text, " - ");
 
                 ltlAssignToInstallID.Text = hlnkUserID.Text;
 
@@ -1439,17 +1441,20 @@ namespace JG_Prospect
             lblLastName.Text = txtlastname.Text;
 
             drpDesig.SelectedIndex = ddldesignation.SelectedIndex;
+            lblDisignation.Text = drpDesig.SelectedItem.Text;
+            drpDesig.Visible = false;
             ddlEmployeeType.SelectedIndex = ddlEmployeeType.SelectedIndex;
 
-            divCountryCode.Attributes.Add("class", ddlCountry.SelectedValue);
+            //  divCountryCode.Attributes.Add("class", ddlCountry.SelectedValue);
 
             lblCity.Text = txtCity.Text;
             lblZip.Text = txtZip.Text;
 
-            lbtnEmail.Text = hidExtEmail.Value;
+            //lbtnEmail.Text = hidExtEmail.Value;
 
             lblPrimaryPhone.Text = txtPhone.Text;
             lblExt.Text = txtExt.Text;
+            lblSeqtask.InnerText = JGCommon.GetSequenceDisplayText(string.IsNullOrEmpty(Sequence) ? "N.A." : Sequence, SequenceDesignationId, "TT");
 
             #endregion
 
@@ -5213,7 +5218,7 @@ namespace JG_Prospect
                     strBody = strBody.Replace("#Fname#", fullname);
                     strBody = strBody.Replace("#TaskLink#", string.Format("{0}?TaskId={1}&{2}", String.Concat(Request.Url.Scheme, Uri.SchemeDelimiter, Request.Url.Host.Split('?')[0], "/Sr_App/TaskGenerator.aspx"), strTaskId, strTaskLinkTitle));
 
-                    
+
                     strBody = strBody.Replace("#TaskTitle#", string.Format("{0}?TaskId={1}", Request.Url.ToString().Split('?')[0], strTaskId));
 
                     strBody = strHeader + strBody + strFooter;

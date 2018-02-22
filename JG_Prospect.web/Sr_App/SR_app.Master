@@ -6,36 +6,50 @@
 <%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit.HTMLEditor"
     TagPrefix="cc1" %>
 <%@ Register Src="~/UserControl/ucRenewSession.ascx" TagPrefix="uc1" TagName="ucRenewSession" %>
+<%
+    string baseUrl = HttpContext.Current.Request.Url.Scheme +
+                        "://" + HttpContext.Current.Request.Url.Authority +
+                        HttpContext.Current.Request.ApplicationPath.TrimEnd('/') + "/";
 
+%>
 <!DOCTYPE html>
 <html data-ng-app="JGApp">
 <head id="Head1" runat="server">
     <title>JG Sales</title>
 
-    <link href="../css/screen.css" rel="stylesheet" media="screen" type="text/css" />
+    <link href="../css/screen.css?v=<%#RandomGUID %>" rel="stylesheet" media="screen" type="text/css" />
     <link href="../css/jquery.ui.theme.css" rel="stylesheet" media="screen" type="text/css" />
     <link rel="stylesheet" type="text/css" href="//twitter.github.com/bootstrap/assets/css/bootstrap.css">
-    <link href="../js/mention/recommended-styles.css" rel="stylesheet" />   
-    <link href="../css/jquery-ui.css" rel="stylesheet" />
-    <link href="../Content/paging.css" rel="stylesheet" />
+    <%--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css">--%>
+    <link href="../css/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="../js/mention/recommended-styles.css?v=<%#RandomGUID %>" rel="stylesheet" />
+    <%--<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.21/themes/redmond/jquery-ui.css" />--%>
 
-    <script src="//code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
-    
+    <%--<link href="../datetime/js/jquery.ptDayOnlySelect.css" rel="stylesheet" type="text/css" />
+    <link href="../datetime/js/jquery.ptTimeOnlySelect.css" rel="stylesheet" type="text/css" />--%>
+
+
+    <%--<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />--%>
+    <link href="../css/jquery-ui.css" rel="stylesheet" />
+    <link href="../Content/paging.css?v=<%#RandomGUID %>" rel="stylesheet" />
+
+    <script src="../Scripts/jquery-2.2.4.min.js"></script>
+
     <script type="text/javascript" src="../js/jquery.watermarkinput.js"></script>
-    <script src="//code.jquery.com/ui/1.10.1/jquery-ui.js" type="text/javascript"></script>
+    <script src="../js/jquery-ui.js"></script>
 
     <script type="text/javascript" src="../js/ddaccordion.js"></script>
 
-    <script type="text/javascript" src="../js/jg-common.js"></script>
-    
+    <script type="text/javascript" src="../js/jg-common.js?v=<%#RandomGUID %>"></script>
+
     <link href="../js/tribute/tribute.css" rel="stylesheet" />
     <script src="../js/tribute/tribute.min.js"></script>
 
     <script type="text/javascript" src="../js/jquery.form.js"></script>
-    <script type="text/javascript" src="../js/common-js.js"></script>
-    <script type="text/javascript" src="../js/paging.js"></script>
-    
-    
+    <script type="text/javascript" src="../js/common-js.js?v=<%#RandomGUID %>"></script>
+    <script type="text/javascript" src="../js/paging.js?v=<%#RandomGUID %>"></script>
+
+
     <script src="../Scripts/angular.min.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-sanitize.js"></script>
 
@@ -83,7 +97,6 @@
         //        }
     </script>
     <style type="text/css">
-
         .ui-widget-header {
             border: 0;
             background: none /*{bgHeaderRepeat}*/;
@@ -196,17 +209,30 @@
         #ScriptEditor_ctl02_ctl00 {
             height: 100px !important;
         }
+
         @keyframes blink {
-                from {background-color: #fff;}
-                to {background-color: #e0b900;}
+            from {
+                background-color: #fff;
             }
-            @-webkit-keyframes blink {
-                from {background-color: #fff;}
-                to {background-color: #e0b900;}
+
+            to {
+                background-color: #e0b900;
             }
-            .blink-notes{
-                animation: blink 2s steps(2, start) infinite;
+        }
+
+        @-webkit-keyframes blink {
+            from {
+                background-color: #fff;
             }
+
+            to {
+                background-color: #e0b900;
+            }
+        }
+
+        .blink-notes {
+            animation: blink 2s steps(2, start) infinite;
+        }
     </style>
     <asp:ContentPlaceHolder ID="head" runat="server">
     </asp:ContentPlaceHolder>
@@ -401,7 +427,7 @@
         <div class="container">
             <!--header section-->
             <div class="header">
-              
+
                 <uc1:Header ID="Header1" runat="server" />
                 <div class="search_google">
                     <input name="qfront" id="qfront" value="Google Web Search" runat="server" type="text" /><asp:Button ID="searchbutton"
@@ -412,7 +438,7 @@
                 </div>
             </div>
             <div class="content_panel">
-                <div class="left_panel"  id="leftmenudiv" runat="server">
+                <div class="left_panel" id="leftmenudiv" runat="server">
                     <div class="arrowlistmenu">
                         <h4>Customer</h4>
                         <uc2:LeftPanel ID="LeftPanel1" runat="server" />
@@ -439,7 +465,7 @@
                         </ul>
                     </div>
                 </div>
-                <div class="loading"  style="display: none">Loading&#8230;</div>
+                <div class="loading" style="display: none">Loading&#8230;</div>
                 <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
                 </asp:ContentPlaceHolder>
                 <div class="clr">
@@ -574,7 +600,7 @@
                     dataType: 'json',
                     data: JSON.stringify(objPostDataJSON),
                     asynch: false,
-                    success: function (data) {                        
+                    success: function (data) {
                         //console.log(OnSuccessCallBack);
                         HideAjaxLoader();
                         if (typeof (OnSuccessCallBack) === 'function') {
@@ -596,8 +622,493 @@
         }
 
     </script>
+
     <div id="MainThrobberImage" style="position: absolute; z-index: 99999999999999; display: none;">
         <img alt="throbber" src="../img/ajax-loader.gif" />
     </div>
+    <div class="telecom-dashboard-popup fullscreen-chat">
+        <div class="header"><span class="popup-title">Chat Dashboard</span><span class="close" onclick="closeTelecomPopup(this)"><i class="fa fa-times-circle" aria-hidden="true"></i></span></div>
+        <div class="column1">
+            <div class="dialer-section">
+                <img src="../img/dialer.PNG" />
+            </div>
+            <div class="user-list-section">
+                <img src="../img/user-list.PNG" />
+            </div>
+        </div>
+        <div class="column2">
+            <div class="email-section">
+                <img src="../img/inbox.PNG" />
+            </div>
+            <div class="chat-section">
+                <div class="chat-container" id="chat-container">
+                    <div class="all-chats">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="column3">
+            <div class="email-compose-section">
+                <img src="../img/compose.PNG" />
+            </div>
+            <div class="chat-users-section">
+                <div class="header">Contacts</div>
+                <div class="list">
+                    Loading Online Users...
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="overlay">
+    </div>
+    <audio controls="controls" class="chat-notification-sound">
+        <source src="../Chat/chat-notification.mp3" />
+        <source src="../Chat/chat-notification.ogg" />
+    </audio>
+    <link href="../Chat/chat.css?v=<%#RandomGUID %>" rel="stylesheet" />
+    <script src="/Scripts/jquery.signalR-2.2.2.min.js"></script>
+    <script src="/signalr/hubs"></script>
+    <script type="text/javascript">
+        // $(document).ready(function () {
+        // Reference the auto-generated proxy for the hub.
+        var chat = $.connection.chatHub;
+        var userTobeAddedIntoChatGroupId = 0;
+        var userChatStatus = '<%= (int)JG_Prospect.Common.ChatUserStatus.Active %>';
+        var pageTitle = $('head').find('title').html();
+        sendChat = function (e, sender) {
+            var chatGrpId = $(sender).parents('.chat-box').find('#ChatGroupId').val();
+            var receiverIds = $(sender).parents('.chat-box').find('#ReceiverIds').val();
+            if ($(sender).hasClass('text-send')) {
+                var chatText = $(sender).parents('div.chat-text').find('input.mention').val();
+                if (chatText != undefined && chatText != '' && chatText != null) {
+                    chat.server.sendChatMessage(chatGrpId, chatText, '<%=(int)JG_Prospect.Common.ChatSource.UserChat %>', receiverIds);
+                    $(sender).parents('div.chat-text').find('input.mention').val('');
+                }
+            } else {
+                var charCode = (typeof e.which === "number") ? e.which : e.keyCode;
+                if (charCode === 13) {
+                    var chatText = $(sender).val();
+                    if (chatText != undefined && chatText != '' && chatText != null) {
+                        chat.server.sendChatMessage(chatGrpId, chatText, '<%=(int)JG_Prospect.Common.ChatSource.UserChat %>', receiverIds);
+                        $(sender).val('');
+                    }
+                }
+            }
+            userTobeAddedIntoChatGroupId = chatGrpId;
+        }
+        minimize = function (sender) {
+            if ($(sender).parents('.telecom-dashboard-popup').hasClass('fullscreen-chat')) {
+                $(sender).parents('.telecom-dashboard-popup').removeClass('fullscreen-chat');
+                $('.popup-title').html('ALL-Telecom Dashboard');
+            } else {
+                $(sender).parents('.telecom-dashboard-popup').addClass('fullscreen-chat');
+                $('.popup-title').html('Chat Dashboard');
+            }
+        }
+        closechat = function (sender) {
+            chat.server.closeChat($(sender).parents('.chat-box').attr('id'));
+            $(sender).parents('.chat-box').remove();
+            if (window.location.href.toLowerCase().indexOf('edituser.aspx') > 1)
+                ReLoadNotes();
+        }
+        closeTelecomPopup = function (sender) {
+            chat.server.closeChat($(sender).parents('.telecom-dashboard-popup').find('.chat-box').attr('id'));
+            $(sender).parents('.telecom-dashboard-popup').hide();
+            $('.overlay').hide();
+        }
+        addUserIntoChatGroup = function (id) {
+            chat.server.addUserIntoChatGroup(userTobeAddedIntoChatGroupId, id);
+            userTobeAddedIntoChatGroupId = 0;
+        }
+        // Start the connection.
+        $.connection.hub.start().done(function () {
+            console.log('started...')
+            chat.server.getOnlineChatUsers();
+            // logic to open chat popup as per query string
+            var RcvrID = getUrlVars()["RcvrID"];
+            var chatGroupId = getUrlVars()["CGID"];
+            if (RcvrID != undefined && chatGroupId != undefined)
+                InitiateChat($('.left_panel'), RcvrID, chatGroupId);
+        }).fail(function (reason) {
+            debugger;
+            console.log(reason);
+        });
+        chat.client.sendChatMessageCallbackError = function (data) {
+            console.log(data.Object);
+        };
+        //Callback function which the hub will call when it has finished processing,
+        // is attached to the proxy
+        chat.client.updateClient = function (data) {
+            var id = data.Message.split('`')[0];
+            var name = data.Message.split('`')[1];
+            var receiverIds = data.Message.split('`')[2];
+            var strChat = '<div class="chat-box" id="' + id + '" style="display:block;">' +
+                                        '<div class="header"><span class="group-name">' + name +
+                                            '</span><span class="close" onclick="closechat(this)"><i class="fa fa-times" aria-hidden="true"></i></span>' +
+                                            '<span class="minimize" onclick="minimize(this)"><img src="../img/min-max.jpg" /></span></div>' +
+                                        '<input type="hidden" id="ChatGroupId" value="' + id + '" />' +
+                                        '<input type="hidden" id="ReceiverIds" value="' + receiverIds + '" />' +
+                                        '<div class="chats watermark-logo"></div>' +
+                                        '<div class="chat-text">' +
+                                            '<input type="text" data-emojiable="true" data-emoji-input="unicode" class="mention" placeholder="Say Something..." id="chattext" onkeyup="sendChat(event, this);" />' +
+                                            '<button class="text-send" onclick="sendChat(event, this)">Send</button>' +
+                                            '<button class="record-send"><i class="fa fa-microphone" aria-hidden="true"></i></button>' +
+                                        '</div>' +
+                                   '</div>';
+            if ($('.all-chats').find('#' + id) != undefined)
+                if ($('.all-chats').find('#' + id).length <= 0) {
+                    $('.all-chats').html(strChat);
+                    LoadPreviousChat(this, id, receiverIds);
+                    InitializeEmoji();
+                }
+
+            // Show chat popup
+            $('.telecom-dashboard-popup').show();
+            $('.overlay').show();
+            // Calculate Center
+            var sW = $(window).width();
+            var pW = $('.telecom-dashboard-popup').width();
+            var sH = $(window).height();
+            var pH = $('.telecom-dashboard-popup').height();
+            $('.telecom-dashboard-popup').css({ 'left': ((sW / 2) - (pW / 2)) + 'px', 'top': ((sH / 2) - (pH / 2)) + 'px' });
+            // Add the message to the page.
+            // Identify sender/receiver
+            var loggedInUserId = getCookie('<%=JG_Prospect.Common.Cookies.UserId%>');
+            var senderReceiver = loggedInUserId == data.Object.UserId ? 'sender' : 'receiver';
+            var str = '<div class="chat-row ' + senderReceiver + '" userid="' + data.Object.UserId + '"><div class="profile">' +
+                            '<img src="<%=baseUrl %>' + data.Object.UserProfilePic + '" title="' + data.Object.UserFullname + '" />' +
+                            '<div class="status-icon"></div><div class="installid">' +
+                                '<a target="_blank" href="/Sr_App/ViewSalesUser.aspx?id=' + data.Object.UserId + '">' + data.Object.UserInstallId + '</a></div>' +
+                        '</div>' +
+                        '<div class="message"><div class="msg">' + data.Object.Message + '</div>' +
+                        '<div class="time-container"><div class="tick">' +
+                            '<img src="../img/grey-tick.png" /> </div>' +
+                            '<div class="time">' + data.Object.MessageAtFormatted + '</div>' +
+                            '<div class="est">(EST)</div> </div>' +
+                        '</div></div>';
+            $('.chat-box#' + id + ' .chats').append(str);
+            //$('.chat-box .chats').scrollTop(d.prop("scrollHeight"));
+            $('.chat-box#' + id + ' .chats').animate({ scrollTop: $('.chat-box#' + id + ' .chats').prop("scrollHeight") }, 500);
+            // reset existing @mention and add new @mention support
+            var existingText = $('input.mention').val();
+            $('input.mention').parent().find('.mentions').remove();
+            $('input.mention').parent().find('.mentions-autocomplete-list').remove();
+            $('input.mention').mentionsInput({
+                onDataRequest: function (mode, query, callback) {
+                    ajaxExt({
+                        url: '/WebServices/JGWebService.asmx/GetUsers',
+                        type: 'POST',
+                        data: '{ keyword: "' + query + '", chatGroupId:"' + userTobeAddedIntoChatGroupId + '" }',
+                        showThrobber: true,
+                        throbberPosition: { my: "left center", at: "right center", of: $(this), offset: "5 0" },
+                        success: function (data, msg) {
+                            responseData = data.Results;
+                            responseData = _.filter(responseData, function (item) {
+                                return item.name.toLowerCase().indexOf(query.toLowerCase()) > -1
+                            });
+                            callback.call(this, responseData);
+                        }
+                    });
+                }
+            });
+            if (existingText != undefined && existingText != null) {
+                $('input.mention').val(existingText);
+            }
+            $('audio.chat-notification-sound').remove();
+            if (loggedInUserId != data.Object.UserId) {
+                $('body').append('<audio autoplay class="chat-notification-sound"><source src="../Chat/chat-notification.mp3"><source src="../Chat/chat-notification.ogg"></audio>');
+                PageTitleNotification.Off();
+                PageTitleNotification.On('New Message!!!', 1000);
+            }
+        };
+        chat.client.addUserIntoChatGroupCallback = function (data) {
+            var id = data.Object.split('`')[0];
+            var name = data.Object.split('`')[1];
+            var userId = data.Object.split('`')[2];
+            var receiverIds = $('.chat-box#' + id).find('#ReceiverIds').val().split(',');
+            receiverIds.push(userId);
+            $('.chat-box#' + id).find('#ReceiverIds').val(receiverIds.join(','));
+            $('.chat-box#' + id + ' .chats').append('<div class="newUser">' + data.Message + '</div>');
+            $('.chat-box#' + id + ' .header').find('.group-name').html(name);
+        };
+        chat.client.closeChatCallback = function (data) {
+            if (data.Object) {
+                $('.chat-box#' + data.Message).remove();
+            }
+        };
+        chat.client.onConnectedCallback = function (data) {
+            bindChatUsers(data);
+        }
+        chat.client.onDisconnectedCallback = function (data) {
+            bindChatUsers(data);
+        }
+        chat.client.setChatUserStatusToIdleCallback = function (data) {
+            bindChatUsers(data);
+        }
+        chat.client.setChatMessageReadCallback = function (data) {
+            SetChatMessageRead(data);
+        }
+
+        var timer = null;
+        $(document).on('mousemove', function () {
+            if (userChatStatus == '<%= (int)JG_Prospect.Common.ChatUserStatus.Idle %>') {
+                chat.server.setChatUserStatusToIdle('<%= (int)JG_Prospect.Common.ChatUserStatus.Active %>');
+                userChatStatus = '<%= (int)JG_Prospect.Common.ChatUserStatus.Active %>';
+            } else {
+                // Reset Timeout
+                if (timer) {
+                    clearTimeout(timer); //cancel the previous timer.
+                    timer = null;
+                }
+                timer = setTimeout(function () {
+                    chat.server.setChatUserStatusToIdle('<%= (int)JG_Prospect.Common.ChatUserStatus.Idle %>');
+                    userChatStatus = '<%= (int)JG_Prospect.Common.ChatUserStatus.Idle %>';
+                }, 900000);
+            }
+            // Set Message Read Status
+            if ($('#chattext').is(':focus')) {
+                var rows = $('.chat-box .chats').find('.chat-row').length;
+                var read = $('.chat-box .chats .chat-row').find('.tick.read').length;
+                if (rows != read) {
+                    var chatGrpId = $('#chattext').parents('.chat-box').find('#ChatGroupId').val();
+                    chat.server.setChatMessageRead(chatGrpId);
+                }
+            }
+        });
+
+    </script>
+    <script src='//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js' type='text/javascript'></script>
+    <link href="../js/Jquery-mention/jquery.mentionsInput.css" rel="stylesheet" />
+    <script src='../js/Jquery-mention/lib/jquery.events.input.js' type='text/javascript'></script>
+    <script src='../js/Jquery-mention/lib/jquery.elastic.js' type='text/javascript'></script>
+    <script src='../js/Jquery-mention/jquery.mentionsInput.js' type='text/javascript'></script>
+
+    <!-- Begin emoji-picker Stylesheets -->
+    <link href="../Content/emoji-picker/lib/css/emoji.css" rel="stylesheet">
+    <!-- End emoji-picker Stylesheets -->
+    <!-- Begin emoji-picker JavaScript -->
+    <script src="../Content/emoji-picker/lib/js/config.js"></script>
+    <script src="../Content/emoji-picker/lib/js/util.js"></script>
+    <script src="../Content/emoji-picker/lib/js/jquery.emojiarea.js"></script>
+    <script src="../Content/emoji-picker/lib/js/emoji-picker.js"></script>
+    <!-- End emoji-picker JavaScript -->
+
+    <script type="text/javascript">
+        function LoadPreviousChat(sender, chatGroupId, receiverIds) {
+            ajaxExt({
+                url: '/WebServices/JGWebService.asmx/InitiateChat',
+                type: 'POST',
+                data: '{ receiverIds: "' + receiverIds + '", chatGroupId:"' + chatGroupId + '" }',
+                showThrobber: true,
+                throbberPosition: { my: "left center", at: "right center", of: $(sender), offset: "5 0" },
+                success: function (data, msg) {
+                    var loggedInUserId = getCookie('<%=JG_Prospect.Common.Cookies.UserId%>');
+                    var str = '';
+                    $(data.Results).each(function (i) {
+                        var senderReceiver = loggedInUserId == data.Results[i].UserId ? 'sender' : 'receiver';
+                        str += '<div class="chat-row ' + senderReceiver + '" userid="' + data.Results[i].UserId + '"><div class="profile">' +
+                                        '<img src="<%=baseUrl %>' + data.Results[i].UserProfilePic + '" title="' + data.Results[i].UserFullname + '" />' +
+                                        '<div class="status-icon"></div><div class="installid">' +
+                                            '<a target="_blank" href="/Sr_App/ViewSalesUser.aspx?id=' + data.Results[i].UserId + '">' + data.Results[i].UserInstallId + '</a></div>' +
+                                    '</div>' +
+                                    '<div class="message"><div class="msg">' + data.Results[i].Message + '</div>' +
+                                    '<div class="time-container"><div class="tick">' +
+                                        '<img src="../img/grey-tick.png" /> </div>' +
+                                        '<div class="time">' + data.Results[i].MessageAtFormatted + '</div>' +
+                                        '<div class="est">(EST)</div> </div>' +
+                                    '</div></div>';
+                    });
+                    $('.chat-box#' + chatGroupId + ' .chats').append(str);
+                    //$('.chat-box .chats').scrollTop(d.prop("scrollHeight"));
+                    $('.chat-box#' + chatGroupId + ' .chats').animate({ scrollTop: $('.chat-box#' + chatGroupId + ' .chats').prop("scrollHeight") }, 500);
+                    str = '';
+                }
+            });
+        }
+
+        function InitiateChat(sender, receiverIds, chatGroupId) {
+            ajaxExt({
+                url: '/WebServices/JGWebService.asmx/InitiateChat',
+                type: 'POST',
+                data: '{ receiverIds: "' + receiverIds + '", chatGroupId:"' + chatGroupId + '" }',
+                showThrobber: true,
+                throbberPosition: { my: "left center", at: "right center", of: $(sender), offset: "5 0" },
+                success: function (data, msg) {
+                    // Close Previous Chat
+                    var chat = $('.chat-container .chat-box').find('span.close');
+                    closechat(chat);;
+                    var id = data.Object.ChatGroupId;
+                    var name = data.Object.ChatGroupName;
+                    //$('.chat-container').show();
+                    if ($('#' + id).length <= 0) {
+                        $('.telecom-dashboard-popup').show();
+                        $('.overlay').show();
+                        // Calculate Center
+                        var sW = $(window).width();
+                        var pW = $('.telecom-dashboard-popup').width();
+                        var sH = $(window).height();
+                        var pH = $('.telecom-dashboard-popup').height();
+                        $('.telecom-dashboard-popup').css({ 'left': ((sW / 2) - (pW / 2)) + 'px', 'top': ((sH / 2) - (pH / 2)) + 'px' });
+                        window.scrollTo(0, 0);
+                        var strChat = '<div class="chat-box" id="' + id + '" style="display:block;">' +
+                                            '<div class="header"><span class="group-name">' + name +
+                                                '</span><span class="close" onclick="closechat(this)"><i class="fa fa-times" aria-hidden="true"></i></span>' +
+                                                '<span class="minimize" onclick="minimize(this)"><img src="../img/min-max.jpg" /></span></div>' +
+                                            '<input type="hidden" id="ChatGroupId" value="' + id + '" />' +
+                                            '<input type="hidden" id="ReceiverIds" value="' + receiverIds + '" />' +
+                                            '<div class="chats watermark-logo"></div>' +
+                                            '<div class="chat-text">' +
+                                                '<input type="text" data-emojiable="true" data-emoji-input="unicode" class="mention" placeholder="Say Something..." id="chattext" onkeyup="sendChat(event, this);"  />' +
+                                                '<button class="text-send" onclick="sendChat(event, this)">Send</button>' +
+                                                '<button class="record-send"><i class="fa fa-microphone" aria-hidden="true"></i></button>' +
+                                            '</div>' +
+                                       '</div>';
+                        $('.all-chats').append(strChat);
+                        // Append Old chats
+                        // Identify sender/receiver
+                        var loggedInUserId = getCookie('<%=JG_Prospect.Common.Cookies.UserId%>');
+                        var str = '';
+                        $(data.Object.ChatMessages).each(function (i) {
+                            var senderReceiver = loggedInUserId == data.Object.ChatMessages[i].UserId ? 'sender' : 'receiver';
+                            str += '<div class="chat-row ' + senderReceiver + '" userid="' + data.Object.ChatMessages[i].UserId + '"><div class="profile">' +
+                                            '<img src="<%=baseUrl %>' + data.Object.ChatMessages[i].UserProfilePic + '" title="' + data.Object.ChatMessages[i].UserFullname + '" />' +
+                                        '<div class="status-icon"></div><div class="installid">' +
+                                            '<a target="_blank" href="/Sr_App/ViewSalesUser.aspx?id=' + data.Object.ChatMessages[i].UserId + '">' + data.Object.ChatMessages[i].UserInstallId + '</a></div>' +
+                                    '</div>' +
+                                    '<div class="message"><div class="msg">' + data.Object.ChatMessages[i].Message + '</div>' +
+                                    '<div class="time-container"><div class="tick">' +
+                                        '<img src="../img/grey-tick.png" /> </div>' +
+                                        '<div class="time">' + data.Object.ChatMessages[i].MessageAtFormatted + '</div>' +
+                                        '<div class="est">(EST)</div> </div>' +
+                                    '</div></div>';
+                        });
+                        $('.chat-box#' + id + ' .chats').append(str);
+                        //$('.chat-box .chats').scrollTop(d.prop("scrollHeight"));
+                        $('.chat-box#' + id + ' .chats').animate({ scrollTop: $('.chat-box#' + id + ' .chats').prop("scrollHeight") }, 500);
+
+                        // reset existing @mention and add new @mention support 
+                        $('input.mention').parent().find('.mentions').remove();
+                        $('input.mention').parent().find('.mentions-autocomplete-list').remove();
+                        $('input.mention').mentionsInput({
+                            onDataRequest: function (mode, query, callback) {
+                                ajaxExt({
+                                    url: '/WebServices/JGWebService.asmx/GetUsers',
+                                    type: 'POST',
+                                    data: '{ keyword: "' + query + '", chatGroupId:"' + userTobeAddedIntoChatGroupId + '" }',
+                                    showThrobber: true,
+                                    throbberPosition: { my: "left center", at: "right center", of: $(this), offset: "5 0" },
+                                    success: function (data, msg) {
+                                        responseData = data.Results;
+                                        responseData = _.filter(responseData, function (item) {
+                                            return item.name.toLowerCase().indexOf(query.toLowerCase()) > -1
+                                        });
+                                        callback.call(this, responseData);
+                                    }
+                                });
+                            }
+                        });
+                        // Load User's list on right panel
+                        //var userObj = {
+                        //    Results: data.Object.ActiveUsers
+                        //}
+                        bindChatUsers(data);
+                        InitializeEmoji();
+                    }
+                }
+            });
+        }
+
+        function bindChatUsers(data) {
+            data.Results = data.Object.ActiveUsers;
+            if (data.Results.length > 1) {
+                // Get this(logged in user) from Cookie
+                var loggedInUserId = getCookie('<%=JG_Prospect.Common.Cookies.UserId%>');
+                    var str = '';
+                    $.each(data.Results, function (i) {
+                        // remove this(loggedin) user from lits
+                        if (loggedInUserId != data.Results[i].UserId) {
+                            var clr = data.Results[i].IsRead.toString().toLowerCase() == 'true' ? 'blue' : 'grey';
+                            var chatStatus = data.Results[i].Status == '1' ? 'active' : 'idle';
+                            str += '<div title="' + data.Results[i].GroupOrUsername + '" class="user-row" uid="' + data.Results[i].UserId + '" onclick="InitiateChat(this, \'' + data.Results[i].ReceiverIds + '\', \'' + (data.Results[i].UserId == null ? data.Results[i].ChatGroupId : null) + '\')">' +
+                                        '<div class="profile">' +
+                                            '<img src="<%=baseUrl %>' + data.Results[i].ProfilePic + '" title="">' +
+                                        (data.Results[i].UserId == null ? '' :
+                                        '<div class="status-icon ' + chatStatus + '"></div>' +
+                                        '<div class="installid"><a href="#">' + data.Results[i].UserInstallId + '</a></div>') +
+                                    '</div>' +
+                                    '<div class="contents" online-at="' + data.Results[i].OnlineAtFormatted + '">' +
+                                        '<div class="top"><div class="name">' + data.Results[i].GroupOrUsername + '</div><div class="time">' + (data.Results[i].LastMessageAtFormatted == null ? '' : data.Results[i].LastMessageAtFormatted.split(' ')[0]) + '</div></div>' +
+                                        '<div class="msg-container">' +
+                                            (data.Results[i].LastMessageAtFormatted == null ? '' :
+                                            '<div class="tick"><img src="../img/' + clr + '-tick.png"></div>') +
+                                            '<div class="msg">' + data.Results[i].LastMessage + '</div>' +
+                                        '</div>' +
+                                    '</div></div>';
+                    }
+                });
+                $('.chat-users-section .list').html(str);
+                    // Bind Top Right Corner user list
+                str = '';
+                $.each(data.Results, function (i) {
+                    // remove this(loggedin) user from lits
+                    if (loggedInUserId != data.Results[i].UserId) {
+                        var clr = data.Results[i].IsRead.toString().toLowerCase() == 'true' ? 'blue' : 'grey';
+                        var chatStatus = data.Results[i].Status == '1' ? 'active' : 'idle';
+                        str += '<div class="row" title="' + data.Results[i].GroupOrUsername + '" onclick="InitiateChat(this, \'' + data.Results[i].ReceiverIds + '\', \'' + (data.Results[i].UserId == null ? data.Results[i].ChatGroupId : null) + '\')">' +
+                                '<div class="user-image">' +
+                                    '<div class="img">' +
+                                        '<img src="<%=baseUrl %>' + data.Results[i].ProfilePic + '"></div>' +
+                                    (data.Results[i].UserId == null ? '' :
+		                            '<div class="status-icon ' + chatStatus + '"></div>' +
+		                            '<div class="installid"><a href="#">' + data.Results[i].UserInstallId + '</a></div>') +
+                                '</div>' +
+	                            '<div class="contents">' +
+		                            '<div class="top"><div class="name">' + data.Results[i].GroupOrUsername + '</div><div class="time">' + (data.Results[i].LastMessageAtFormatted == null ? '' : data.Results[i].LastMessageAtFormatted.split(' ')[0]) + '</div></div>' +
+		                            '<div class="msg-container">' +
+                                        (data.Results[i].LastMessageAtFormatted == null ? '' :
+			                            '<div class="tick"><img src="../img/' + clr + '-tick.png"></div>') +
+                                    '<div class="msg">' + data.Results[i].LastMessage + '</div>' +
+			                            '<div class="counter">3</div>' +
+		                            '</div>' +
+	                            '</div>' +
+	                            '<div class="caller">' +
+		                            '<div class="phone"><i class="fa fa-phone" aria-hidden="true"></i></div>' +
+		                            '<div class="email"><i class="fa fa-envelope" aria-hidden="true"></i></div>' +
+		                            '<div class="video"><i class="fa fa-video-camera" aria-hidden="true"></i></div>' +
+	                            '</div>' +
+                            '</div>';
+                    }
+                });
+                $('.header-msg').html(str);
+            } else {
+                $('.chat-users-section .list').html('<div class="no-user">No one is online!!!</div>');
+                $('.header-msg').html('<div class="no-user">No one is online!!!</div>');
+            }
+        }
+
+        function SetChatMessageRead(data) {
+            var chatGroupId = data.Object;
+            var users = data.Message.split(',');
+            $(users).each(function (i) {
+                $('#' + chatGroupId).find('.chat-row[userid="' + users[i] + '"]').find('.tick img').attr('src', '../img/blue-tick.png');
+                $('#' + chatGroupId).find('.chat-row[userid="' + users[i] + '"]').find('.tick').addClass('read');
+            });
+        }
+
+        function InitializeEmoji() {
+            return false;
+            // Initializes and creates emoji set from sprite sheet
+            window.emojiPicker = new EmojiPicker({
+                emojiable_selector: '[data-emojiable=true]',
+                assetsPath: '../Content/emoji-picker/lib/img/',
+                popupButtonClasses: 'fa fa-smile-o'
+            });
+            // Finds all elements with `emojiable_selector` and converts them to rich emoji input fields
+            // You may want to delay this step if you have dynamically created input fields that appear later in the loading process
+            // It can be called as many times as necessary; previously converted input fields will not be converted again
+            window.emojiPicker.discover();
+        }
+    </script>
 </body>
+
 </html>

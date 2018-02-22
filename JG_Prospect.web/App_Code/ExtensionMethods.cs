@@ -22,7 +22,7 @@ namespace JG_Prospect.App_Code
         /// </summary>
         /// <param name="num"></param>
         /// <returns></returns>
-        public static string ToRoman( int num)
+        public static string ToRoman(int num)
         {
 
             if (num > 3999) throw new ArgumentException("Too big - can't exceed 3999");

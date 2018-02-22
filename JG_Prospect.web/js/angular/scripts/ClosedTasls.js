@@ -29,7 +29,7 @@ function applyFunctionsClosedTask($scope, $compile, $http, $timeout , $filter) {
 
             //debugger;
             //get all Customers
-            getAllClosedTasksWithSearchandPaging($http, "GetAllClosedTasks", { page: $scope.pageClosedTask, pageSize: sequenceScope.pageSize, DesignationIDs: sequenceScope.UserSelectedDesigIdsClosedTaks, userid: sequenceScope.UserId, vSearch: $scope.vSearch }).then(function (data) {
+            getAllClosedTasksWithSearchandPaging($http, "GetAllClosedTasks", { page: $scope.pageClosedTask, pageSize: sequenceScope.pageSize, DesignationIDs: sequenceScope.UserSelectedDesigIdsClosedTaks, userid: sequenceScope.UserId, TaskUserStatus: sequenceScope.UserStatus, vSearch: $scope.vSearch }).then(function (data) {
                 
                 $scope.loaderClosedTask.loading = false;
                 //$scope.DesignationSelectModel = [];
@@ -43,8 +43,54 @@ function applyFunctionsClosedTask($scope, $compile, $http, $timeout , $filter) {
                 $scope.pagesCountClosedTask = results.RecordCount.TotalPages;
                 $scope.ClosedTask = $scope.correctDataforAngularClosedTaks(results.Tasks);
                 //$scope.TaskSelected = $scope.TechTasks[0];                
+                if ($scope.TotalRecordsClosedTask > 0) {
+                    $('#noDataCT').hide();
+                }
+                else {
+                    $('#noDataCT').fadeIn(500);
+                }
             });
     };
+
+    $scope.onClosedTaskEnd = function () {
+        var totalUser = 0;
+        var totalITLead = 0;
+        $timeout(function () {
+            $('#ContentPlaceHolder1_grdTaskClosed tbody tr').each(function (i, item) {
+                var content = $(this).children('td.TotalHours').html();
+
+                var user = 0;
+                var itlead = 0;
+
+                if (content != null) {
+                    if (content.split(',')[0] != undefined && content.split(',')[0].indexOf('ITLead') >= 0) {
+                        itlead = content.split(',')[0].match(/(\d+)/g);
+                        totalITLead += itlead != null ? parseInt(itlead[0]) != undefined ? parseInt(itlead[0]) : 0 : 0;
+                    }
+                    else if (content.split(',')[0] != undefined && content.split(',')[0].indexOf('User') >= 0) {
+                        user = content.split(',')[0].match(/(\d+)/g);
+                        totalUser += user != null ? parseInt(user[0]) != undefined ? parseInt(user[0]) : 0 : 0;
+                    }
+
+                    if (content.split(',')[1] != undefined && content.split(',')[1].indexOf('User') >= 0) {
+                        user = content.split(',')[1].match(/(\d+)/g);
+                        totalUser += user != null ? parseInt(user[0]) != undefined ? parseInt(user[0]) : 0 : 0;
+                    }
+                    else if (content.split(',')[1] != undefined && content.split(',')[1].indexOf('ITLead') >= 0) {
+                        itlead = content.split(',')[1].match(/(\d+)/g);
+                        totalITLead += itlead != null ? parseInt(itlead[0]) != undefined ? parseInt(itlead[0]) : 0 : 0;
+                    }
+                }
+
+                
+            });
+            //$('#ContentPlaceHolder1_grdTaskClosed tbody').append('<tr><td style="width:100px;"></td><td style="width:100px;"></td><td style="width:300px;"></td><td style="width:100px;text-align:center"><b>(Total) IT Lead: ' + totalITLead + ', User: ' + totalUser + '</b></td><td style="width:120px;"></td></tr>');
+            console.log(totalITLead);
+            sequenceScopeClosedTasks.totalITLead = totalITLead;
+            sequenceScopeClosedTasks.totalUser = totalUser;
+            console.log(totalUser);
+        }, 2);
+    }
 
     $scope.SetDesignForSearch = function (value, isReload) {
         $scope.UserSelectedDesigIdsClosedTaks = [];

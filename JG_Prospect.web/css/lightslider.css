@@ -148,14 +148,19 @@
         transition: border-radius 0.12s linear 0s 0.35s linear 0s;
     }
 
-        .lSSlideOuter .lSPager.lSGallery li.active, .lSSlideOuter .lSPager.lSGallery li:hover {
+        .lSSlideOuter .lSPager.lSGallery li.active  img, .lSSlideOuter .lSPager.lSGallery li:hover  img {
             border-radius: 5px;
+            border-color: yellow;
+            border-style: solid;
+            border-width: 2px;
         }
 
     .lSSlideOuter .lSPager.lSGallery img {
         display: block;
         height: auto;
-        max-width: 100%;
+        max-width: 62PX;
+        max-height: 62PX;
+        margin-right: 5px;
     }
 
     .lSSlideOuter .lSPager.lSGallery:before, .lSSlideOuter .lSPager.lSGallery:after {
@@ -172,7 +177,7 @@
 .lSAction > a {
     width: 32px;
     display: block;
-    top: 50%;
+    top: 63%;
     height: 32px;
     background-image: url('../img/controls.png');
     cursor: pointer;

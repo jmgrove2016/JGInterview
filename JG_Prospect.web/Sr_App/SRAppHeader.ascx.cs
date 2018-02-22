@@ -10,6 +10,7 @@ using JG_Prospect.App_Code;
 using JG_Prospect.Common.RestServiceJSONParser;
 using JG_Prospect.Utilits;
 using Newtonsoft.Json;
+using JG_Prospect.Chat.Hubs;
 
 namespace JG_Prospect.Sr_App
 {
@@ -20,8 +21,10 @@ namespace JG_Prospect.Sr_App
 
             if (Session["loginid"] != null)
             {
-                lbluser.Text = Session["Username"].ToString();
+                lbluser.Text = Session["Username"].ToString() + " " + Session["LastName"].ToString();
+                lblDesignation.Text = JGSession.Designation;
                 imgProfile.ImageUrl = JGSession.UserProfileImg;
+                hLnkEditProfil.Text = JGSession.UserInstallId;
                 if (JGSession.LoginUserID != null)
                     hLnkEditProfil.NavigateUrl = "/Sr_App/CreateSalesUser.aspx?ID=" + JGSession.LoginUserID;
                 else
@@ -52,6 +55,16 @@ namespace JG_Prospect.Sr_App
 
         protected void btnlogout_Click(object sender, EventArgs e)
         {
+            // Remove user from ChatUser
+            //ChatHub chatHub = new Chat.Hubs.ChatHub();
+            
+            HttpCookie auth_cookie = Request.Cookies[Cookies.UserId];
+            if (auth_cookie != null)
+            {
+                auth_cookie.Expires = DateTime.Now.AddDays(-2);
+                Response.Cookies.Add(auth_cookie);
+            }
+
             UpdateAudiTrailForLogout();
             Session.Clear();
             Session["LogOut"] = 1;
@@ -88,18 +101,18 @@ namespace JG_Prospect.Sr_App
         // TODO: If user is admin then only show email link as of now.
         private void SetEmailCountersAccess()
         {
-            if (JGSession.UserLoginId == CommonFunction.PreConfiguredAdminUserId)
-            {
-                hypEmail.HRef = "javascript:window.open('/webmail/checkemail.aspx','mywindow','width=900,height=600')";
-                this.Page.ClientScript.RegisterStartupScript(this.Page.GetType(), "EmailCount", "SetEmailCounts();", true);
-                idPhoneLink.Visible = true;
+            //if (JGSession.UserLoginId == CommonFunction.PreConfiguredAdminUserId)
+            //{
+            hypEmail.HRef = "javascript:window.open('/webmail/checkemail.aspx','mywindow','width=900,height=600')";
+            this.Page.ClientScript.RegisterStartupScript(this.Page.GetType(), "EmailCount", "SetEmailCounts();", true);
+            idPhoneLink.Visible = true;
 
-            }
-            else
-            {
-                idPhoneLink.Visible = false;
-            }
+            //}
+            //else
+            //{
+            //    idPhoneLink.Visible = false;
+            //}
         }
-        
+
     }
 }

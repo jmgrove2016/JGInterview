@@ -110,5 +110,11 @@ namespace JG_Prospect.BLL
         {
             return HTMLTemplateDAL.Instance.GetDesignationSMSTemplate(objHTMLTemplates, strDesignation);
         }
+
+        public List<EMailSchedularModel> GetCurrentScheduledHtmlTemplates()
+        {
+            return HTMLTemplateDAL.Instance.GetCurrentScheduledHtmlTemplates();
+
+        }
     }
 }

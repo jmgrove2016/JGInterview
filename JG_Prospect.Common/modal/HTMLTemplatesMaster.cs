@@ -18,4 +18,12 @@ namespace JG_Prospect.Common.modal
         public string Footer { get; set; }
         public DateTime DateUpdated { get; set; }
     }
+
+    public class EMailSchedularModel
+    {
+        public int Id { get; set; }
+        public int TemplateId { get; set; }
+        public int Frequency { get; set; }
+        public DateTime RunsOn { get; set; }
+    }
 }

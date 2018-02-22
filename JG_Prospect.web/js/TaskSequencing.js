@@ -10,7 +10,7 @@ function initializeAngular() {
 function SetLatestSequenceForAddNewSubTask() {
 
     var sequencetextbox = $('#divNewAddSeq');
-    getLastAvailableSequence(sequencetextbox,false);
+    getLastAvailableSequence(sequencetextbox, false);
 
 
 }
@@ -204,58 +204,57 @@ function ShowNonFrozenTaskSequenceDashBoard(DesId, UserId) {
 
 }
 
-function ShowTaskSequenceDashBoard(DesId, UserId) {
+function ShowTaskSequenceDashBoard(DesId, UserId, For) {
 
-    //debugger;
-    //var TechTask = false;
-    var DesignationIds = DesId;
+    //Prepare Params for Getting Tasks
 
-    sequenceScope.UserId = UserId;    
-    //search initially all tasks with sequencing.
+    //Set Page Size
+    sequenceScope.pageSize = 20;
 
-    // set designation id to be search by default
-    sequenceScope.SetDesignForSearch(DesignationIds, false);
+    //Designation IDs
+    var DesignationIds = DesId == '0' ? '' : DesId;    
+
+    //User IDs
+    sequenceScope.UserId = UserId == '0' ? '' : UserId;
 
     // Bind Assign user master dropdown for selected designation.
     sequenceScope.getAssignUsers();
 
-    //debugger;
+    sequenceScope.UserSelectedDesigIds = DesignationIds != '' ? DesignationIds.split(",") : '';
 
-    var defaultTabIndex;
-    var UserStatus = $('#ddlUserStatus').val();
-    if (UserStatus != undefined)
-        sequenceScope.UserStatus = UserStatus;
-    else
-        sequenceScope.UserStatus = 0;
+    //User Status(s)
+    var UserStatus = $('#ddlUserStatus').length > 0 ? $('#ddlUserStatus').val().join() : ':';
+    sequenceScope.UserStatus = UserStatus;
 
-    var StartDate = $('#ContentPlaceHolder1_txtfrmdate').val();
+    //Start Date
+    var StartDate = $('.dateFrom').val();
     if (StartDate != undefined)
         sequenceScope.StartDate = StartDate;
     else
         sequenceScope.StartDate = "";
 
-    var EndDate = $('#ContentPlaceHolder1_txtTodate').val();
+    //End Date
+    var EndDate = $('.dateTo').val();
     if (EndDate != undefined)
         sequenceScope.EndDate = EndDate;
     else
         sequenceScope.EndDate = "";
 
-    if (sequenceScope.IsTechTask == true) {
-        defaultTabIndex = 1;
-        //console.log("calling search tech task after popup initialized....");
-        sequenceScope.IsTechTask = true;
-        sequenceScope.getTechTasks();
-        //sequenceUIGridScope.getUITechTasks();
-        applyTaskSequenceTabs(1);
+    //Task Type [true,false]
+    sequenceScope.IsTechTask = false;
+
+    //For [true,false]
+    sequenceScope.ForInProgress = For;
+    sequenceScope.getAssignUsers();
+    //For Grid [true,false]
+    if (For) {
+        //Call Function
+        sequenceScope.getTasks();
     }
     else {
-        defaultTabIndex = 0;
-        sequenceScope.IsTechTask = false;
-        sequenceScope.getTasks();
-        applyTaskSequenceTabs(0);
+        sequenceScope.getClosedTasks();
     }
-
-    sequenceScope.getAssignUsers();
+    //sequenceScope.getAssignUsers();
 
 }
 
@@ -263,8 +262,12 @@ function ShowAllClosedTasksDashBoard(DesIds, UserId, pageSize) {
 
     //debugger;
     sequenceScope.pageSize = pageSize;
-    sequenceScope.UserSelectedDesigIdsClosedTaks = DesIds;
-    //console.log("Task designation is: " + DesignationIds);    
+    sequenceScope.UserSelectedDesigIdsClosedTaks = DesIds == '0' ? '' : DesIds;
+    var UserStatus = $('#ddlUserStatus').length > 0 ? $('#ddlUserStatus').val().join() : ':';
+
+    sequenceScope.UserStatus = UserStatus;
+
+    //console.log("Task designation is: " + DesignationIds);
     //debugger;
     //Set if tech task than load tech task related sequencing.
     sequenceScope.UserId = UserId;
@@ -360,14 +363,13 @@ function showEditTaskSequence(element) {
 
 }
 
-function showEditTaskSubSequence(element)
-{
+function showEditTaskSubSequence(element) {
 
     var TaskID = $(element).attr('data-taskid');
     var Seq = parseInt($(element).attr('data-taskseq'));
 
-    var sequenceDiv = $('#divSeq' + TaskID);     
-    
+    var sequenceDiv = $('#divSeq' + TaskID);
+
     sequenceDiv.removeClass('hide');
 }
 
@@ -380,7 +382,7 @@ function setDropDownChangedData(dropdown) {
     if (sequenceDiv) {
 
         var DesignationID = $(dropdown).val();
-        getLastAvailableSequence(TaskID, DesignationID,true);
+        getLastAvailableSequence(TaskID, DesignationID, true);
 
     }
 
@@ -420,7 +422,7 @@ function setFirstRowAutoData() {
 
     }
     else {
-        
+
 
         // set default last available sequence in designation.
         DesignationID = $(ddlDesigSeqClientID).val();// take selected designation from top master designation dropdown.
@@ -453,13 +455,13 @@ function getLastAvailableSequence(TaskID, DesignationID, isFromDropDown) {
             var sequence = JSON.parse(data.d);
 
             var valExisting = parseInt($('#txtSeq' + TaskID).val());
-            
+
 
             if (isNaN(valExisting) || valExisting == 0 || valExisting + 1 >= parseInt(sequence.Table[0].Sequence) || isFromDropDown) {
                 $('#txtSeq' + TaskID).val(parseInt(sequence.Table[0].Sequence));
             }
 
-           // console.log($('#txtSeq' + TaskID).val());
+            // console.log($('#txtSeq' + TaskID).val());
 
             DisplySequenceBox(TaskID, sequence.Table[0].Sequence);
 
@@ -942,24 +944,24 @@ function EditSeqAssignedTaskUsers(sender) {
     var $sender = $(sender);
     var intTaskID = parseInt($sender.attr('data-taskid'));
     var intTaskStatus = parseInt($sender.attr('data-taskstatus'));
-    var arrAssignedUsers = [];
-    var arrDesignationUsers = [];
+    var arrAssignedUsers = $(sender).val();
+    var arrDesignationUsers = arrAssignedUsers;
     var options = $sender.find('option');
 
-    $.each(options, function (index, item) {
+    //$.each(options, function (index, item) {
 
-        var intUserId = parseInt($(item).attr('value'));
+    //    var intUserId = parseInt($(item).attr('value'));
 
-        if (intUserId > 0) {
-            arrDesignationUsers.push(intUserId);
-            //if ($.inArray(intUserId.toString(), $(sender).val()) != -1) {                
-            //    arrAssignedUsers.push(intUserId);
-            //}
-            if ($(sender).val() == intUserId.toString()) {
-                arrAssignedUsers.push(intUserId);
-            }
-        }
-    });
+    //    if (intUserId > 0) {
+    //        arrDesignationUsers.push(intUserId);
+    //        //if ($.inArray(intUserId.toString(), $(sender).val()) != -1) {                
+    //        //    arrAssignedUsers.push(intUserId);
+    //        //}
+    //        if ($(sender).val() == intUserId.toString()) {
+    //            arrAssignedUsers.push(intUserId);
+    //        }
+    //    }
+    //});
 
     SaveAssignedTaskUsers();
 
@@ -1040,8 +1042,7 @@ function SaveTaskSubSequence(hyperlink) {
 }
 
 
-function harddeleteTask(TaskId)
-{
+function harddeleteTask(TaskId) {
     var proceed = confirm('are you sure you want to delete this task and all its children with details?');
 
     if (proceed == true) {
@@ -1056,7 +1057,7 @@ function harddeleteTask(TaskId)
         function OnUpdateHardDeleteTaskSuccess(response) {
             HideAjaxLoader();
 
-            if (response) {                
+            if (response) {
                 HideAjaxLoader();
                 $(updateRepeaterButton).click();
                 alert('All tasks and related informations are deleted successfully!');

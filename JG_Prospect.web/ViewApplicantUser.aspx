@@ -1408,6 +1408,8 @@
             margin-right: 0;
             margin-bottom: 0;
         }
+        .seq-tasktitle{width:40%;word-wrap:break-word;}
+        .seq-notes {width: 35%; }
     </style>
     <script type="text/javascript">
         function uploadComplete2() {
@@ -5385,14 +5387,15 @@
         <br />
         <table id="tblProfile" style="border: solid 1px gray; margin: 10px; padding: 5px;">
             <tr>
-                <td style="width: 10%;">
-                    <asp:Image Style="width: 100%;" ID="imgprofile" runat="server"></asp:Image></td>
-                <td style="width: 20%;">
+                <td style="width: 5%;">
+                    <asp:Image Style="width: 55px;height:55px;" ID="imgprofile" runat="server"></asp:Image></td>
+                <td style="width: 18%;">
                     <a id="hypExam" runat="server" class="bluetext" href="ViewApplicantUser.aspx?Id=">
                         <asp:Literal ID="ltlAssignToInstallID" runat="server"></asp:Literal></a><br />
                     <asp:Label ID="lblFirstName" runat="server"></asp:Label>
                     <asp:Label ID="lblLastName" runat="server"></asp:Label>
                     <br />
+                    <asp:Label runat="server" ID="lblDisignation"></asp:Label>
                     <asp:DropDownList ID="drpDesig" Width="140px" Style="text-align: left; width: 95%;" AutoPostBack="true" runat="server">
                     </asp:DropDownList>
                 </td>
@@ -5402,8 +5405,7 @@
                     <%--<span><%# Eval("Zip") %></span>--%>
                     <asp:Label ID="lblCity" runat="server"></asp:Label>
                     <asp:Label ID="lblZip" runat="server"></asp:Label>
-
-                    <asp:DropDownList ID="ddlEmployeeType" Style="width: 95%;" runat="server">
+                    <asp:DropDownList ID="ddlEmployeeType" Style="width: 95%;" runat="server" onchange="setEmployeeType(this)">
                         <asp:ListItem Text="Select" Value="0"></asp:ListItem>
                         <asp:ListItem Text="Temp" Value="1"></asp:ListItem>
                         <asp:ListItem Text="Internship" Value="2"></asp:ListItem>
@@ -5450,11 +5452,10 @@
                 </td>
             </tr>
         </table>
-        <div id="divTaskAssigned"  visible ="false" runat="server">
+        <div id="divTaskAssigned"  visible ="true" runat="server">
             <div id="divTechAssignment">
-                Your first Tech assignment is <strong><a id="hypTaskLink" target="_blank" style="color: blue;" runat="server">
-                    <asp:Literal ID="ltlTaskInstallID" runat="server"></asp:Literal>
-                </a></strong>&nbsp; , details in grid below. Please review your assignment and Either ACCEPT or REJECT. If accepted your interview date with recruiter, This assignment is due for this Interview Date. IF NOT ACCEPTED in 48 HOURS, your assigned task will be REASSIGNED TO SOME ONE ELSE. if REJECTED, you will be reassigned a new task, with a reason.
+                Your first tech assignment is <strong><a id="hypTaskLink" target="_blank" style="color: blue;" runat="server"><asp:Literal ID="ltlTaskInstallID" runat="server"></asp:Literal> </a></strong>, 
+                details in grid below. Please review your assignment and either ACCEPT or REJECT. if accepted your interview date with recruiter IMG ID#name,date&time, this assignment is due for this interview date. IF NOT ACCEPTED in 24 hours, your assigned task will be REASSIGNED. If REJECTED, you will ve reassigned a new task, with a reason.
             </div>
 
             <br />
@@ -5469,10 +5470,10 @@
                         Parent Task
                                             <div>SubTask Title</div>
                     </div>
-                    <div class="div-table-col seq-taskstatus">
+                    <%--<div class="div-table-col seq-taskstatus">
                         Status<div>Assigned To</div>
                     </div>
-                    <div class="div-table-col seq-taskduedate">Due Date</div>
+                    <div class="div-table-col seq-taskduedate">Due Date</div>--%>
                     <div class="div-table-col seq-notes">Notes</div>
                 </div>
                 <div id="divMasterTask" class="div-table-row">
@@ -5480,7 +5481,7 @@
                     <!-- Sequence# starts -->
                     <div class="div-table-col seq-number">
                         <a href="javascript:void(0);" class="badge-hyperlink autoclickSeqEdit"><span class="badge badge-success badge-xstext">
-                            <label></label>
+                            <label id="lblSeqtask" runat="server"></label>
                         </span></a>
                     </div>
                     <!-- Sequence# ends -->
@@ -5503,15 +5504,15 @@
                     <!-- Parent Task & SubTask Title ends -->
 
                     <!-- Status & Assigned To starts -->
-                    <div class="div-table-col seq-taskstatus">
+                    <%--<div class="div-table-col seq-taskstatus">
                         Assigned
                     <br />
                         <asp:Literal ID="ltlAssignTo" runat="server"></asp:Literal>
-                    </div>
+                    </div>--%>
                     <!-- Status & Assigned To ends -->
 
                     <!-- DueDate starts -->
-                    <div class="div-table-col seq-taskduedate">
+                    <%--<div class="div-table-col seq-taskduedate">
                         <div class="seqapprovalBoxes">
                             <div style="width: 65%; float: left;">
                                 <input type="checkbox" id="chkngUser" class="fz fz-user" title="User" />
@@ -5527,7 +5528,7 @@
                                 <input type="checkbox" id="chkngAdminMaster" class="fz fz-admin largecheckbox" style="margin-top: -15px;" title="Admin" />
                             </div>
                         </div>
-                    </div>
+                    </div>--%>
                     <!-- DueDate ends -->
 
                     <!-- Notes starts -->
@@ -5542,23 +5543,24 @@
         <br />
         Your default Interview Date & Time Deadline has been scheduled for & with below, If you need an alternate due date and time, you may toggle the below date & time:
         <br />
-        <br />
         <table>
             <tr>
                 <td width="50%" align="left"><span><strong><span class="bluetext">*</span>Interview Date & Time: </strong>
                     <asp:DropDownList ID="ddlInterviewDTOptions" runat="server" CssClass="textbox"></asp:DropDownList>
                 </span></td>
                 <td align="right">
-                    <table>
+                    <%--<table>
                         <tr>
-                            <td align="left" valign="top"><a href="#" style="color: blue;">REC-001</a><br />
-                                <asp:Literal ID="ltlManagerName" runat="server" Text="Default Recruiter"></asp:Literal></td>
-                            <td align="right" valign="top">
-                                <img width="100px" height="100px" src="img/JG-Logo.gif" /></td>
+                            <td align="right" valign="top"> <img width="55px" height="55px" src="img/JG-Logo.gif" /></td>
+                            <td align="left" valign="top">
+                                <a id="hypExamRecruiter" runat="server" class="bluetext" href="ViewApplicantUser.aspx?Id=">
+                                <asp:Literal ID="ltlAssignToInstallIDRecruiter" runat="server">ABCD</asp:Literal></a><br />
+                                <asp:Label ID="lblFirstNameRecruiter" runat="server">FirstName</asp:Label>
+                                <asp:Label ID="lblLastNameRecruiter" runat="server">Last Name</asp:Label>
+                                <br />
+                                <asp:Label runat="server" ID="lblDisignationRecruiter">Admin Recruiter</asp:Label></td>
                         </tr>
-                    </table>
-
-
+                    </table>--%>
                 </td>
             </tr>
         </table>
@@ -5846,7 +5848,8 @@
             }
 
             $(document).ready(function () {
-                
+
+
                 $("#<%=ddlstatus.ClientID%>").click(function () {
                     if ($('#<%=ddlstatus.ClientID%>').val() == "Active") {
                         $('#pnlcolaps').show(500);
@@ -5914,7 +5917,22 @@
                 window.parent.location.href = HREF;
             }
 
-
+            function setEmployeeType(sender) {
+                var type = $(sender).val();
+                if (type != '' && type != '0') {
+                    ajaxExt({
+                        url: '/WebServices/JGWebService.asmx/SetEmployeeType',
+                        type: 'POST',
+                        data: '{ id: <%=Request.QueryString["id"].ToString()%>, type: "' + type + '" }',
+                        showThrobber: true,
+                        throbberPosition: { my: "left center", at: "right center", of: $(sender), offset: "5 0" },
+                        success: function (data, msg) {
+                            
+                        }
+                    });
+                }
+                return false;
+            }
     </script>
 
 

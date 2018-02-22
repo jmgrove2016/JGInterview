@@ -57,7 +57,7 @@ namespace JG_Prospect.DAL
 
         }
 
-        public DataSet GetAllInProAssReqTaskWithSequence(Int32 page, Int32 pageSize, String DesignationIds, int UserStatus, string StartDate, string EndDate)
+        public DataSet GetAllInProAssReqTaskWithSequence(Int32 page, Int32 pageSize, String DesignationIds, string TaskUserStatus, string UserIds, string StartDate, string EndDate, bool ForInProgress)
         {
             try
             {
@@ -68,9 +68,12 @@ namespace JG_Prospect.DAL
                     database.AddInParameter(command, "@PageIndex", SqlDbType.Int, page);
                     database.AddInParameter(command, "@PageSize", SqlDbType.Int, pageSize);
                     database.AddInParameter(command, "@DesignationIds", SqlDbType.VarChar, DesignationIds);
-                    database.AddInParameter(command, "@UserStatus", SqlDbType.Int, UserStatus);
+                    database.AddInParameter(command, "@TaskStatus", SqlDbType.VarChar, TaskUserStatus.Split(":".ToCharArray())[0]);
+                    database.AddInParameter(command, "@UserStatus", SqlDbType.VarChar, TaskUserStatus.Split(":".ToCharArray())[1]);
                     database.AddInParameter(command, "@StartDate", SqlDbType.VarChar, StartDate.Equals("All") ? "" : StartDate);
                     database.AddInParameter(command, "@EndDate", SqlDbType.VarChar, EndDate);
+                    database.AddInParameter(command, "@UserIds", SqlDbType.VarChar, UserIds);
+                    database.AddInParameter(command, "@ForInProgress", SqlDbType.Bit, ForInProgress);
                     command.CommandType = CommandType.StoredProcedure;
 
                     DataSet result = database.ExecuteDataSet(command);
@@ -214,7 +217,7 @@ namespace JG_Prospect.DAL
         }
 
 
-        public DataSet GetAllInProAssReqUserTaskWithSequence(Int32 page, Int32 pageSize, bool IsTechTask, string UserId, bool ForDashboard)
+        public DataSet GetAllInProAssReqUserTaskWithSequence(Int32 page, Int32 pageSize, bool IsTechTask, string UserId, bool ForDashboard, string StartDate, string EndDate, bool ForInProgress)
         {
             try
             {
@@ -227,6 +230,9 @@ namespace JG_Prospect.DAL
                     database.AddInParameter(command, "@UserId", SqlDbType.VarChar, UserId);
                     database.AddInParameter(command, "@IsTechTask", SqlDbType.Bit, IsTechTask);
                     database.AddInParameter(command, "@ForDashboard", SqlDbType.Bit, ForDashboard);
+                    database.AddInParameter(command, "@ForInProgress", SqlDbType.Bit, ForInProgress);
+                    database.AddInParameter(command, "@StartDate", SqlDbType.VarChar, StartDate.Equals("All") ? "" : StartDate);
+                    database.AddInParameter(command, "@EndDate", SqlDbType.VarChar, EndDate);
                     command.CommandType = CommandType.StoredProcedure;
 
                     DataSet result = database.ExecuteDataSet(command);
@@ -1242,6 +1248,65 @@ namespace JG_Prospect.DAL
 
         }
 
+        public bool DeleteSubTaskChild(int Id)
+        {
+            try
+            {
+                SqlDatabase database = MSSQLDataBase.Instance.GetDefaultDatabase();
+                {
+                    DbCommand command = database.GetStoredProcCommand("usp_DeleteSubTaskChild");
+
+                    command.CommandType = CommandType.StoredProcedure;
+                    database.AddInParameter(command, "@Id", SqlDbType.BigInt, Id);
+
+                    int result = database.ExecuteNonQuery(command);
+
+
+
+                    if (result > 0)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                return false;
+            }
+
+        }
+        public bool DeleteTaskUserFile(int AttachmentId)
+        {
+            try
+            {
+                SqlDatabase database = MSSQLDataBase.Instance.GetDefaultDatabase();
+                {
+                    DbCommand command = database.GetStoredProcCommand("usp_DeleteAttachment");
+                    command.CommandType = CommandType.StoredProcedure;
+                    database.AddInParameter(command, "@Id", SqlDbType.Int, AttachmentId);
+                    int result = database.ExecuteNonQuery(command);
+                    if (result > 0)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                return false;
+            }
+
+        }
         public bool SaveOrDeleteTaskUserFiles(TaskUser objTaskUser)
         {
             try
@@ -1393,6 +1458,55 @@ namespace JG_Prospect.DAL
                 return null;
             }
         }
+        public DataSet GetCalendarTasksByDate(string StartDate, string EndDate, string userid)
+        {
+            try
+            {
+                SqlDatabase database = MSSQLDataBase.Instance.GetDefaultDatabase();
+                {
+                    returndata = new DataSet();
+                    DbCommand command = database.GetStoredProcCommand("usp_GetCalendarTasksByDate");
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    database.AddInParameter(command, "@StartDate", DbType.Date, StartDate);
+                    database.AddInParameter(command, "@EndDate", DbType.Date, EndDate);
+                    database.AddInParameter(command, "@userid", DbType.String, userid);
+                    returndata = database.ExecuteDataSet(command);
+
+                    return returndata;
+                }
+            }
+
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        public DataSet GetTaskMultilevelChildInfo(int TaskId)
+        {
+            try
+            {
+                SqlDatabase database = MSSQLDataBase.Instance.GetDefaultDatabase();
+                {
+                    returndata = new DataSet();
+                    DbCommand command = database.GetStoredProcCommand("usp_GetTaskMultilevelChildInfo");
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    database.AddInParameter(command, "@TaskId", DbType.Int32, TaskId);
+
+
+                    returndata = database.ExecuteDataSet(command);
+
+                    return returndata;
+                }
+            }
+
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
 
         public DataSet GetTaskUserFileByFileName(string FileName)
         {
@@ -1457,7 +1571,7 @@ namespace JG_Prospect.DAL
             }
         }
 
-        public DataSet GetInstallUsers(int Key, string Designastion, int userstatus)
+        public DataSet GetInstallUsers(int Key, string Designastion, string userstatus)
         {
             DataSet result = new DataSet();
             try
@@ -1476,7 +1590,7 @@ namespace JG_Prospect.DAL
                     command.CommandType = CommandType.StoredProcedure;
                     database.AddInParameter(command, "@Key", DbType.Int16, Key); ;
                     database.AddInParameter(command, "@Designations", DbType.String, string.Join(",", arrDesignation));
-                    database.AddInParameter(command, "@UserStatus", DbType.Int32, userstatus);
+                    database.AddInParameter(command, "@UserStatus", DbType.String, userstatus);
                     result = database.ExecuteDataSet(command);
                 }
                 return result;
@@ -1510,27 +1624,6 @@ namespace JG_Prospect.DAL
                     database.AddInParameter(command, "@InterviewDateStatus", DbType.String, Convert.ToByte(JGConstant.InstallUserStatus.InterviewDate).ToString());
                     database.AddInParameter(command, "@OfferMadeStatus", DbType.String, Convert.ToByte(JGConstant.InstallUserStatus.OfferMade).ToString());
                     database.AddInParameter(command, "@Designations", DbType.String, string.Join(",", arrDesignation));
-                    result = database.ExecuteDataSet(command);
-                }
-                return result;
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-
-        }
-
-        public DataSet GetDesignationCode(int Key)
-        {
-            DataSet result = new DataSet();
-            try
-            {
-                SqlDatabase database = MSSQLDataBase.Instance.GetDefaultDatabase();
-                {
-                    DbCommand command = database.GetStoredProcCommand("UDP_GetDesignationCode");
-                    command.CommandType = CommandType.StoredProcedure;
-                    database.AddInParameter(command, "@Key", DbType.Int16, Key);
                     result = database.ExecuteDataSet(command);
                 }
                 return result;
@@ -2645,7 +2738,7 @@ namespace JG_Prospect.DAL
             }
         }
 
-        public DataSet GetClosedTasks(string userid, string desigid, string vSearch, int pageindex = 0, int pagesize = 0)
+        public DataSet GetClosedTasks(string userid, string desigid,string TaskUserStatus, string vSearch, int pageindex = 0, int pagesize = 0)
         {
             try
             {
@@ -2656,6 +2749,8 @@ namespace JG_Prospect.DAL
                     command.CommandType = CommandType.StoredProcedure;
                     database.AddInParameter(command, "@userid", DbType.String, userid);
                     database.AddInParameter(command, "@desigid", DbType.String, desigid);
+                    database.AddInParameter(command, "@TaskStatus", SqlDbType.VarChar, TaskUserStatus.Split(":".ToCharArray())[0]);
+                    database.AddInParameter(command, "@UserStatus", SqlDbType.VarChar, TaskUserStatus.Split(":".ToCharArray())[1]);
                     database.AddInParameter(command, "@search", DbType.String, vSearch);
                     database.AddInParameter(command, "@PageIndex", DbType.Int32, pageindex);
                     database.AddInParameter(command, "@PageSize", DbType.Int32, pagesize);

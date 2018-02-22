@@ -1,9 +1,11 @@
 ﻿using JG_Prospect.App_Code;
 using JG_Prospect.Common;
+using Microsoft.AspNet.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Web.Routing;
 using System.Web.Security;
 using System.Web.SessionState;
 
@@ -27,6 +29,7 @@ namespace JG_Prospect
         {
             // Code that runs on application startup
 
+            
         }
 
         void Application_End(object sender, EventArgs e)

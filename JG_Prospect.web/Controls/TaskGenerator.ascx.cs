@@ -1040,12 +1040,15 @@ namespace JG_Prospect.Sr_App.Controls
         {
             BindTaskTypeDropDown();
             DataSet ds = DesignationBLL.Instance.GetActiveDesignationByID(0, 1);
-            ddlUserDesignation.Items.Clear();
-            ddlUserDesignation.DataSource = ds.Tables[0];
-            ddlUserDesignation.DataTextField = "DesignationName";
-            ddlUserDesignation.DataValueField = "ID";
-            ddlUserDesignation.DataBind();
-            ddlUserDesignation.Items.Insert(0, new ListItem("--All--", "0"));
+            if (ds != null && ds.Tables.Count > 0)
+            {
+                ddlUserDesignation.Items.Clear();
+                ddlUserDesignation.DataSource = ds.Tables[0];
+                ddlUserDesignation.DataTextField = "DesignationName";
+                ddlUserDesignation.DataValueField = "ID";
+                ddlUserDesignation.DataBind();
+                ddlUserDesignation.Items.Insert(0, new ListItem("--All--", "0")); 
+            }
         }
 
         private void BindTaskTypeDropDown()

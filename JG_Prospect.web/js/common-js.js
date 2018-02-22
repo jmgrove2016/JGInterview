@@ -32,7 +32,7 @@ var EditActionType = {
 //====== End Enums & Constants =====
 
 $(document).ready(function () {
-    
+
 });
 
 
@@ -637,22 +637,7 @@ function sendEmail(sender, contents, uid) {
     }
 }
 
-//function addNote(sender, uid, note) {
-//    if (note != '') {
-//        $('.search-label').html('Please Wait...');
-//        ajaxExt({
-//            url: '/Sr_App/edituser.aspx/AddNotes',
-//            type: 'POST',
-//            data: '{ id: ' + uid + ', note: "' + note + '" }',
-//            showThrobber: true,
-//            throbberPosition: { my: "left center", at: "right center", of: $(sender), offset: "5 0" },
-//            success: function (data, msg) {
-//                $('#txtSearchUser').val('');
-//                $('.search-label').html('Note Sent.');
-//            }
-//        });
-//    }
-//}
+
 
 function setUserData(sender, data, id) {
     uid = id;
@@ -671,3 +656,44 @@ var tribute = new Tribute({
       { key: 'Yogesh Kumar', value: 'Yogesh' }
     ]
 });
+
+var PageTitleNotification = {
+    Vars: {
+        OriginalTitle: document.title,
+        Interval: null
+    },
+    On: function (notification, intervalSpeed) {
+        var _this = this;
+        _this.Vars.Interval = setInterval(function () {
+            document.title = (_this.Vars.OriginalTitle == document.title)
+                                ? notification
+                                : _this.Vars.OriginalTitle;
+            // Changing Header Colour
+            if ($('.telecom-dashboard-popup .chat-box .header').hasClass('orange-bg'))
+                $('.telecom-dashboard-popup .chat-box .header').removeClass('orange-bg');
+            else
+                $('.telecom-dashboard-popup .chat-box .header').addClass('orange-bg');
+        }, (intervalSpeed) ? intervalSpeed : 1000);
+    },
+    Off: function () {
+        clearInterval(this.Vars.Interval);
+        document.title = this.Vars.OriginalTitle;
+        $('.telecom-dashboard-popup .chat-box .header').removeClass('orange-bg');
+    }
+}
+
+$(document).on('mousemove','body', function () {
+    PageTitleNotification.Off();
+});
+
+function Hexc(colorval) {
+    if (colorval != undefined) {
+        var parts = colorval.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+        delete (parts[0]);
+        for (var i = 1; i <= 3; ++i) {
+            parts[i] = parseInt(parts[i]).toString(16);
+            if (parts[i].length == 1) parts[i] = '0' + parts[i];
+        }
+        return color = '#' + parts.join('');
+    }
+}

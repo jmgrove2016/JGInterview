@@ -129,6 +129,7 @@ function SetCKEditorForPageContent(Id, AutosavebuttonId) {
 function SetCKEditorForChildren(Id) {
 
     var $target = $('#' + Id);
+    var taskid = $('#' + Id).attr('data-taskid');
 
     // The inline editor should be enabled on an element with "contenteditable" attribute set to "true".
     // Otherwise CKEditor will start in read-only mode.
@@ -176,7 +177,14 @@ function SetCKEditorForChildren(Id) {
         } else {
             data.url = jsonarray.url;
         }
-        
+
+        RefreshData = false;
+        var data = {
+            FileName: jsonarray.fileName
+        };
+        CurrentFileName = jsonarray.fileName;
+        CurrentEditor = CKEDITOR.instances[Id];
+        SaveChildAttchmentToDB(taskid);
     });
     //Save when leaves editing
     CKEDITOR.instances[Id].on('blur', function () {
@@ -190,7 +198,7 @@ function SetCKEditorForChildren(Id) {
     CKEDITOR.instances[Id].updateElement();
 
     arrCKEditor.push(editor);
-    var taskid = $('#' + Id).attr('data-taskid');
+    
 
     function ckeditorKeyPress(event) {
         switch (event.data.keyCode) {
@@ -274,21 +282,13 @@ function SetCKEditorForSubTask(Id) {
             data.url = jsonarray.url;
         }
 
-
-
         RefreshData = false;
-        SaveAttchmentToDB();
-
         var data = {
             FileName: jsonarray.fileName
         };
-
-
-
-        setTimeout(function () {
-            sequenceScopeTG.getFileData(jsonarray.fileName, CKEDITOR.instances[Id]);
-        }, 1);
-
+        CurrentFileName = jsonarray.fileName;
+        CurrentEditor = CKEDITOR.instances[Id];
+        SaveAttchmentToDB();
     });
 
     CKEDITOR.instances[Id].on('blur', function () {
@@ -330,6 +330,197 @@ function SetCKEditorForSubTask(Id) {
             }, 30000);
             console.log('adding timer: ' + timeoutId);
         }
+    }
+}
+
+function SetCKEditorForTaskPopup(Id) {
+
+    var $target = $('#' + Id);
+    // The inline editor should be enabled on an element with "contenteditable" attribute set to "true".
+    // Otherwise CKEditor will start in read-only mode.
+    $target.attr('contenteditable', true);
+
+    CKEDITOR.replace(Id,
+        {
+            // Show toolbar on startup (optional).
+            //startupFocus: true,
+            height: 200,
+            startupFocus: false,
+            enterMode: CKEDITOR.ENTER_BR,
+            on: {
+                blur: function (event) {
+                    event.editor.updateElement();
+                },
+
+            },
+            on: {
+                'key': ckeditorKeyPress
+            }
+        });
+    CKEDITOR.instances[Id].on('fileUploadResponse', function (event) {
+        if (TaskSaved == true) {
+            // Prevent the default response handler.
+            event.stop();
+            // Ger XHR and response.
+            var data = event.data,
+                xhr = data.fileLoader.xhr,
+                response = xhr.responseText.split('|');
+            var jsonarray = JSON.parse(response[0]);
+
+            //Attach image
+            attachImagesByCKEditor(event.data.fileLoader.fileName, jsonarray.fileName);
+
+            if (jsonarray && jsonarray.uploaded != "1") {
+                // Error occurred during upload.                
+                event.cancel();
+            } else {
+                data.url = jsonarray.url;
+            }
+            var data = {
+                FileName: jsonarray.fileName
+            };
+            CurrentFileName = jsonarray.fileName;
+            CurrentEditor = CKEDITOR.instances[Id];
+            SaveAttchmentToDBPopup();            
+        }
+        else {
+            alert('Please save the task before adding any attachment.');
+        }
+    });
+
+    var editor = CKEDITOR.instances[Id];
+
+    arrCKEditor.push(editor);
+
+
+    function ckeditorKeyPress(event) {
+        if (Id == 'txtTaskDescription') {
+            if (timeoutId != undefined) {
+                console.log('removing timer: ' + timeoutId);
+                clearTimeout(timeoutId);
+            }
+
+            timeoutId = setTimeout(function () {
+                // Runs 1 second (1000 ms) after the last change    
+                SaveSubTask(true);
+            }, 10000);
+            console.log('adding timer: ' + timeoutId);
+        }
+    }
+}
+function SetCKEditorForChildrenPopup(Id) {
+
+    var $target = $('#' + Id);
+
+    // The inline editor should be enabled on an element with "contenteditable" attribute set to "true".
+    // Otherwise CKEditor will start in read-only mode.
+
+    $target.attr('contenteditable', true);
+    var editor = CKEDITOR.instances[Id];
+
+    CKEDITOR.inline(Id,
+        {
+            // Show toolbar on startup (optional).
+            //startupFocus: true,
+            startupFocus: true,
+            enterMode: CKEDITOR.ENTER_BR,
+            on: {
+                blur: function (event) {
+                    event.editor.updateElement();
+                    //updateDesc(GetCKEditorContent(Id));
+                },
+                fileUploadResponse: function (event) {
+
+                }
+
+            },
+            on: {
+                'key': ckeditorKeyPress
+            }
+        });
+
+    CKEDITOR.instances[Id].on('fileUploadResponse', function (event) {
+        if (TaskSaved == true) {
+            // Prevent the default response handler.
+            event.stop();
+
+            // Ger XHR and response.
+            var data = event.data,
+                xhr = data.fileLoader.xhr,
+                response = xhr.responseText.split('|');
+
+            var jsonarray = JSON.parse(response[0]);
+
+            //Attach image
+            attachImagesByCKEditor(event.data.fileLoader.fileName, jsonarray.fileName);
+
+            if (jsonarray && jsonarray.uploaded != "1") {
+                // Error occurred during upload.                
+                event.cancel();
+            } else {
+                data.url = jsonarray.url;
+            }
+            var data = {
+                FileName: jsonarray.fileName
+            };
+
+            CurrentFileName = jsonarray.fileName;
+            CurrentEditor = CKEDITOR.instances[Id];
+            SaveAttchmentToDBPopup();            
+        }
+        else {
+            alert('Please save the task before adding any attachment.');
+        }
+    });
+    //Save when leaves editing
+    CKEDITOR.instances[Id].on('blur', function () {
+        //CKEDITOR.instances[Id].updateElement();        
+
+        //OnSaveSubTask(taskid, GetCKEditorContent('subtaskDesc' + taskid));
+        //CKEDITOR.instances[Id].setData('');
+    });
+
+    //Auto Save after 30 seconds
+    CKEDITOR.instances[Id].updateElement();
+
+    arrCKEditor.push(editor);
+
+    function ckeditorKeyPress(event) {
+        if (TaskSaved) {
+            switch (event.data.keyCode) {
+                case 13: //enter key
+                    event.cancel();
+                    event.stop();
+                    var desc = GetCKEditorContent('multilevelChildDesc');
+                    CKEDITOR.instances[Id].setData('');
+                    OnSaveSubTaskPopup(SavedTaskID, desc);
+                    break;
+                default:
+                    if (timeoutId != undefined) {
+                        console.log('removing timer: ' + timeoutId);
+                        clearTimeout(timeoutId);
+                    }
+
+                    timeoutId = setTimeout(function () {
+                        // Runs 1 second (1000 ms) after the last change    
+                        var desc = GetCKEditorContent('multilevelChildDesc');
+                        if (desc != undefined && desc.trim() != '') {
+                            console.log('saving desc...');
+                            CKEDITOR.instances[Id].setData('');
+                            OnSaveSubTaskPopup(SavedTaskID, desc);
+                        }
+                        else
+                            console.log('not saving empty desc');
+                    }, 30000);
+                    console.log('adding timer: ' + timeoutId);
+                    break;
+            }
+        }
+        else {
+            alert('Please save the task before adding feedback point.');
+        }
+        //trigger an imitation key event here and it lets you catch the enter key
+        //outside the ckeditor
     }
 }
 
@@ -487,9 +678,11 @@ function LoadImageGallery(strSelector) {
         subtaskSliders = $(strSelector).lightSlider({
             gallery: true,
             item: 1,
-            thumbItem: 9,
+            thumbItem: 6,
             slideMargin: 0,
             speed: 500,
+            currentPagerPosition: 'left',
+            pauseOnHover: true,
             auto: true,
             loop: true,
             onSliderLoad: function () {

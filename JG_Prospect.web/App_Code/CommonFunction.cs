@@ -54,6 +54,14 @@ namespace JG_Prospect.App_Code
             }
         }
 
+        public static int GetUserIdCookie()
+        {
+            HttpCookie auth_cookie = HttpContext.Current.Request.Cookies[Cookies.UserId];
+            if (auth_cookie != null)
+                return Convert.ToInt32(auth_cookie.Value);
+            return 0;
+        }
+
         /// <summary>
         /// Add a GitHub user as Collaborator in repo        
         /// </summary>
@@ -172,6 +180,13 @@ namespace JG_Prospect.App_Code
             return formateddatetime;
         }
 
+        public static void SetUserIdCookie(string UserId)
+        {
+            HttpCookie auth = new HttpCookie(Cookies.UserId, UserId);
+            auth.Expires = DateTime.Now.AddMonths(20);
+            HttpContext.Current.Response.Cookies.Add(auth);
+        }
+
         public static void AuthenticateUser()
         {
             if (!JGSession.IsActive)
@@ -191,11 +206,12 @@ namespace JG_Prospect.App_Code
 
                             JGSession.Username = ds.Tables[0].Rows[0]["FristName"].ToString().Trim();
                             JGSession.LastName = ds.Tables[0].Rows[0]["LastName"].ToString().Trim();
-                            JGSession.UserProfileImg = ds.Tables[0].Rows[0]["Picture"].ToString();
+                            JGSession.UserProfileImg =  String.Concat("~/Employee/ProfilePictures/", ds.Tables[0].Rows[0]["Picture"].ToString());
                             JGSession.LoginUserID = ds.Tables[0].Rows[0]["Id"].ToString();
                             JGSession.Designation = ds.Tables[0].Rows[0]["Designation"].ToString().Trim();
                             JGSession.UserInstallId = ds.Tables[0].Rows[0]["UserInstallId"].ToString().Trim();
                             JGSession.UserStatus = (JGConstant.InstallUserStatus)Convert.ToInt32(ds.Tables[0].Rows[0]["Status"]);
+                            SetUserIdCookie(ds.Tables[0].Rows[0]["Id"].ToString());
                             if (!string.IsNullOrEmpty(ds.Tables[0].Rows[0]["DesignationId"].ToString()))
                             {
                                 JGSession.DesignationId = Convert.ToInt32(ds.Tables[0].Rows[0]["DesignationId"].ToString().Trim());
@@ -407,18 +423,6 @@ namespace JG_Prospect.App_Code
                     sc.EnableSsl = Convert.ToBoolean(ConfigurationManager.AppSettings["enableSSL"].ToString()); // runtime encrypt the SMTP communications using SSL
 
                     sc.Send(Msg);
-                    //try
-                    //{
-                    //    lockerEmailLogs.AcquireWriterLock(int.MaxValue);
-                    //    using (var tw = new StreamWriter(HostingEnvironment.MapPath("~/EmailStatistics/EmailLogs.txt"), true))
-                    //    {
-                    //        tw.WriteLine(strToAddress + "  - " + DateTime.Now + " - " + strSubject);
-                    //        tw.Close();
-                    //    }
-                    //}finally
-                    //{
-                    //    lockerEmailLogs.ReleaseWriterLock();
-                    //}
                     retValue = true;
 
                     Msg = null;
@@ -827,86 +831,84 @@ namespace JG_Prospect.App_Code
         {
             string strCode = string.Empty;
 
-            DataSet dsUsers = TaskGeneratorBLL.Instance.GetDesignationCode((int)objDesignationType);
-            strCode = Convert.ToString(dsUsers.Tables[0].Rows[0]["DesignationCode"]);
-            //switch (objDesignationType)
-            //{
-            //    case JGConstant.DesignationType.Admin:
-            //        strCode = "ADM";
-            //        break;
-            //    case JGConstant.DesignationType.Jr_Sales:
-            //        strCode = "JSL";
-            //        break;
-            //    case JGConstant.DesignationType.Jr_Project_Manager:
-            //        strCode = "JPM";
-            //        break;
-            //    case JGConstant.DesignationType.Office_Manager:
-            //        strCode = "OFM";
-            //        break;
-            //    case JGConstant.DesignationType.Recruiter:
-            //        strCode = "REC";
-            //        break;
-            //    case JGConstant.DesignationType.Sales_Manager:
-            //        strCode = "SLM";
-            //        break;
-            //    case JGConstant.DesignationType.Sr_Sales:
-            //        strCode = "SSL";
-            //        break;
-            //    case JGConstant.DesignationType.IT_Network_Admin:
-            //        strCode = "ITNA";
-            //        break;
-            //    case JGConstant.DesignationType.IT_Jr_Net_Developer:
-            //        strCode = "ITJN";
-            //        break;
-            //    case JGConstant.DesignationType.IT_Sr_Net_Developer:
-            //        strCode = "ITSN";
-            //        break;
-            //    case JGConstant.DesignationType.IT_Android_Developer:
-            //        strCode = "ITAD";
-            //        break;
-            //    case JGConstant.DesignationType.IT_PHP_Developer:
-            //        strCode = "ITPH";
-            //        break;
-            //    case JGConstant.DesignationType.IT_Jr_PHP_Developer:
-            //        strCode = "ITJP";
-            //        break;
-            //    case JGConstant.DesignationType.IT_SEO_OR_BackLinking:
-            //        strCode = "ITSB";
-            //        break;
-            //    case JGConstant.DesignationType.Installer_Helper:
-            //        strCode = "INH";
-            //        break;
-            //    case JGConstant.DesignationType.Installer_Journeyman:
-            //        strCode = "INJ";
-            //        break;
-            //    case JGConstant.DesignationType.Installer_Mechanic:
-            //        strCode = "INM";
-            //        break;
-            //    case JGConstant.DesignationType.Installer_Lead_Mechanic:
-            //        strCode = "INLM";
-            //        break;
-            //    case JGConstant.DesignationType.Installer_Foreman:
-            //        strCode = "INF";
-            //        break;
-            //    case JGConstant.DesignationType.Commercial_Only:
-            //        strCode = "COM";
-            //        break;
-            //    case JGConstant.DesignationType.SubContractor:
-            //        strCode = "SBC";
-            //        break;
-            //    case JGConstant.DesignationType.IT_Lead:
-            //        strCode = "ITL";
-            //        break;
-            //    case JGConstant.DesignationType.Admin_Sales:
-            //        strCode = "ASL";
-            //        break;
-            //    case JGConstant.DesignationType.Admin_Recruiter:
-            //        strCode = "AREC";
-            //        break;
-            //    default:
-            //        strCode = "OUID";
-            //        break;
-            //}
+            switch (objDesignationType)
+            {
+                case JGConstant.DesignationType.Admin:
+                    strCode = "ADM";
+                    break;
+                case JGConstant.DesignationType.Jr_Sales:
+                    strCode = "JSL";
+                    break;
+                case JGConstant.DesignationType.Jr_Project_Manager:
+                    strCode = "JPM";
+                    break;
+                case JGConstant.DesignationType.Office_Manager:
+                    strCode = "OFM";
+                    break;
+                case JGConstant.DesignationType.Recruiter:
+                    strCode = "REC";
+                    break;
+                case JGConstant.DesignationType.Sales_Manager:
+                    strCode = "SLM";
+                    break;
+                case JGConstant.DesignationType.Sr_Sales:
+                    strCode = "SSL";
+                    break;
+                case JGConstant.DesignationType.IT_Network_Admin:
+                    strCode = "ITNA";
+                    break;
+                case JGConstant.DesignationType.IT_Jr_Net_Developer:
+                    strCode = "ITJN";
+                    break;
+                case JGConstant.DesignationType.IT_Sr_Net_Developer:
+                    strCode = "ITSN";
+                    break;
+                case JGConstant.DesignationType.IT_Android_Developer:
+                    strCode = "ITAD";
+                    break;
+                case JGConstant.DesignationType.IT_PHP_Developer:
+                    strCode = "ITPH";
+                    break;
+                case JGConstant.DesignationType.IT_Jr_PHP_Developer:
+                    strCode = "ITJP";
+                    break;
+                case JGConstant.DesignationType.IT_SEO_OR_BackLinking:
+                    strCode = "ITSB";
+                    break;
+                case JGConstant.DesignationType.Installer_Helper:
+                    strCode = "INH";
+                    break;
+                case JGConstant.DesignationType.Installer_Journeyman:
+                    strCode = "INJ";
+                    break;
+                case JGConstant.DesignationType.Installer_Mechanic:
+                    strCode = "INM";
+                    break;
+                case JGConstant.DesignationType.Installer_Lead_Mechanic:
+                    strCode = "INLM";
+                    break;
+                case JGConstant.DesignationType.Installer_Foreman:
+                    strCode = "INF";
+                    break;
+                case JGConstant.DesignationType.Commercial_Only:
+                    strCode = "COM";
+                    break;
+                case JGConstant.DesignationType.SubContractor:
+                    strCode = "SBC";
+                    break;
+                case JGConstant.DesignationType.IT_Lead:
+                    strCode = "ITL";
+                    break;
+                case JGConstant.DesignationType.Admin_Sales:
+                    strCode = "ASL";
+                    break;
+                case JGConstant.DesignationType.Admin_Recruiter:
+                    strCode = "AREC";
+                    break;
+                default:
+                    strCode = "OUID";
+                    break;
+            }
 
             return strCode;
         }
@@ -1190,9 +1192,9 @@ namespace JG_Prospect.App_Code
                 switch (Userstatus)
                 {
                     case JGConstant.InstallUserStatus.Active:
-                    case JGConstant.InstallUserStatus.OfferMade:
                         row["CssClass"] = "activeUser";
                         break;
+                    case JGConstant.InstallUserStatus.OfferMade:                        
                     case JGConstant.InstallUserStatus.InterviewDate:
                         row["CssClass"] = "IOUser";
                         break;
@@ -1323,7 +1325,6 @@ namespace JG_Prospect.App_Code
             {
                 ProfileUpdateRequired = false;
             }
-
             return ProfileUpdateRequired;
         }
 
@@ -1364,34 +1365,37 @@ namespace JG_Prospect.App_Code
 
         public static void UpdateLog(string LogText)
         {
-            string logDirectoryPath = HttpContext.Current.Server.MapPath(@"~\Log");
-
-            if (!Directory.Exists(logDirectoryPath))
+            try
             {
-                Directory.CreateDirectory(logDirectoryPath);
-            }
+                lockerEmailLogs.AcquireWriterLock(int.MaxValue);
 
-            string path = String.Concat(logDirectoryPath, "\\Log.txt");
-
-            if (!File.Exists(path))
-            {
-
-                using (TextWriter tw = File.CreateText(path))
+                string logDirectoryPath = HostingEnvironment.MapPath(@"~\Log");
+                if (!Directory.Exists(logDirectoryPath))
                 {
-                    tw.WriteLine(LogText + "  - " + DateTime.Now);
-                    tw.Close();
+                    Directory.CreateDirectory(logDirectoryPath);
                 }
-
-
-            }
-            else if (File.Exists(path))
-            {
-                using (var tw = new StreamWriter(path, true))
+                string path = String.Concat(logDirectoryPath, "\\Log.txt");
+                if (!File.Exists(path))
                 {
-                    tw.WriteLine(LogText + "  - " + DateTime.Now);
-                    tw.Close();
+                    using (TextWriter tw = File.CreateText(path))
+                    {
+                        tw.WriteLine(LogText + "  - " + DateTime.Now);
+                        tw.Close();
+                    }
+                }
+                else if (File.Exists(path))
+                {
+                    using (var tw = new StreamWriter(path, true))
+                    {
+                        tw.WriteLine(LogText + "  - " + DateTime.Now);
+                        tw.Close();
+                    }
                 }
             }
+            finally
+            {
+                lockerEmailLogs.ReleaseWriterLock();
+            }            
         }
 
         internal static DataSet GetDesignations()
@@ -1650,6 +1654,7 @@ namespace JG_Prospect.App_Code
             return newTaskLinkTitle;
         }
 
+
         /// <summary>
         /// Upload file on server to given relative path from given file upload control.
         /// </summary>
@@ -1682,6 +1687,25 @@ namespace JG_Prospect.App_Code
             return fileName;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="strFilePath">Send physically mapped path of file on server.</param>
+        internal static void RemoveFile(string strFilePath)
+        {
+            try
+            {
+                if (File.Exists(strFilePath))
+                {
+                    File.Delete(strFilePath);
+                }
+            }
+            catch (Exception)
+            {
+
+                
+            }
+        }
     }
 }
 
@@ -1871,20 +1895,6 @@ namespace JG_Prospect
             set
             {
                 HttpContext.Current.Session["LoginUserID"] = value;
-            }
-        }
-
-        public static string LoggedinUserEmail
-        {
-            get
-            {
-                if (HttpContext.Current.Session["LUE"] == null)
-                    return null;
-                return Convert.ToString(HttpContext.Current.Session["LUE"]);
-            }
-            set
-            {
-                HttpContext.Current.Session["LUE"] = value;
             }
         }
 

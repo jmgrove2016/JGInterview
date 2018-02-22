@@ -24,7 +24,7 @@ namespace JG_Prospect.DAL
         public static HTMLTemplateDAL Instance
         {
             get { return m_HTMLTemplateDAL; }
-            private set { ; }
+            private set {; }
         }
 
         public DataSet GetHTMLTemplateMasters(Int32 TemplateUsedFor)
@@ -247,7 +247,7 @@ namespace JG_Prospect.DAL
                     command.CommandType = CommandType.StoredProcedure;
                     database.AddInParameter(command, "@MasterTemplateID", DbType.Int16, objDesignationHTMLTemplate.HTMLTemplatesMasterId);
                     database.AddInParameter(command, "@Body", DbType.String, objDesignationHTMLTemplate.Body);
-                    
+
                     database.ExecuteNonQuery(command);
 
                     return true;
@@ -302,7 +302,7 @@ namespace JG_Prospect.DAL
                     DbCommand command = database.GetStoredProcCommand("usp_RevertTemplatesToMasterHTMLTemplate");
                     command.CommandType = CommandType.StoredProcedure;
                     database.AddInParameter(command, "@MasterTemplateID", DbType.Int32, masterTemplateId);
-                    
+
                     database.ExecuteNonQuery(command);
 
                     return true;
@@ -345,7 +345,7 @@ namespace JG_Prospect.DAL
                         objHTMLTemplate.Subject = Convert.ToString(dr["Subject"]);
                         objHTMLTemplate.Header = Convert.ToString(dr["Header"]);
 
-                        String BodyText = Convert.ToString(dr["Body"]);                       
+                        String BodyText = Convert.ToString(dr["Body"]);
 
                         if (BodyText.IndexOf("#UNSEMAIL#") > 0)
                         {
@@ -427,7 +427,7 @@ namespace JG_Prospect.DAL
                 return false;
             }
         }
-              
+
         public bool DeleteDesignationHTMLTemplate(HTMLTemplates objHTMLTemplates, string strDesignation)
         {
             try
@@ -463,7 +463,7 @@ namespace JG_Prospect.DAL
                     command.CommandType = CommandType.StoredProcedure;
                     database.AddInParameter(command, "@Id", DbType.Int32, TemplateId);
                     database.AddInParameter(command, "@FromID", DbType.String, FromID);
-                                        
+
                     database.ExecuteNonQuery(command);
 
                     return true;
@@ -532,7 +532,7 @@ namespace JG_Prospect.DAL
                     database.AddInParameter(command, "@FrequencyInDays", DbType.Int32, FrequencyInDays);
                     database.AddInParameter(command, "@FrequencyStartDate", DbType.DateTime, FrequencyStartDate);
                     database.AddInParameter(command, "@FrequencyStartTime", DbType.DateTime, FrequenchTime);
- 
+
                     database.ExecuteNonQuery(command);
 
                     return true;
@@ -541,6 +541,40 @@ namespace JG_Prospect.DAL
             catch (Exception ex)
             {
                 return false;
+            }
+        }
+
+        public List<EMailSchedularModel> GetCurrentScheduledHtmlTemplates()
+        {
+            try
+            {
+                SqlDatabase database = MSSQLDataBase.Instance.GetDefaultDatabase();
+                {
+                    DbCommand command = database.GetStoredProcCommand("GetCurrentScheduledHtmlTemplates");
+                    command.CommandType = CommandType.StoredProcedure;
+                    DataSet dt = database.ExecuteDataSet(command);
+                    if (dt != null && dt.Tables[0] != null && dt.Tables[0].Rows.Count > 0)
+                    {
+                        List<EMailSchedularModel> model = new List<EMailSchedularModel>();
+                        foreach (DataRow row in dt.Tables[0].Rows)
+                        {
+                            model.Add(new EMailSchedularModel
+                            {
+                                Id = Convert.ToInt32(row["Id"]),
+                                Frequency = Convert.ToInt32(row["Frequency"]),
+                                RunsOn = Convert.ToDateTime(row["RunsOn"]),
+                                TemplateId = Convert.ToInt32(row["TemplateId"])
+                            });
+                        }
+                        return model;
+                    }
+                    else
+                        return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
             }
         }
 

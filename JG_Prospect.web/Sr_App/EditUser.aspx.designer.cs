@@ -1210,13 +1210,22 @@ namespace JG_Prospect {
         protected global::System.Web.UI.UpdatePanel upnlBulkUploadStatus;
         
         /// <summary>
-        /// divBulkUploadUserErrors control.
+        /// divBulkUploadStatistics control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlGenericControl divBulkUploadUserErrors;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl divBulkUploadStatistics;
+        
+        /// <summary>
+        /// ltlTotalInvalidUser control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal ltlTotalInvalidUser;
         
         /// <summary>
         /// rptIncorrectRecords control.
@@ -1228,6 +1237,15 @@ namespace JG_Prospect {
         protected global::System.Web.UI.WebControls.Repeater rptIncorrectRecords;
         
         /// <summary>
+        /// ltlTotalDuplicateUsers control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal ltlTotalDuplicateUsers;
+        
+        /// <summary>
         /// rptDuplicateRecords control.
         /// </summary>
         /// <remarks>
@@ -1235,6 +1253,15 @@ namespace JG_Prospect {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Repeater rptDuplicateRecords;
+        
+        /// <summary>
+        /// ltlTotalUserstobeAdded control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal ltlTotalUserstobeAdded;
         
         /// <summary>
         /// rptUserstoBeAdded control.
@@ -1246,6 +1273,15 @@ namespace JG_Prospect {
         protected global::System.Web.UI.WebControls.Repeater rptUserstoBeAdded;
         
         /// <summary>
+        /// ltlTotalSuccessfulUsersInserted control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal ltlTotalSuccessfulUsersInserted;
+        
+        /// <summary>
         /// rptSuccessFullyEntered control.
         /// </summary>
         /// <remarks>
@@ -1253,6 +1289,33 @@ namespace JG_Prospect {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Repeater rptSuccessFullyEntered;
+        
+        /// <summary>
+        /// divBulkUploadUserErrors control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl divBulkUploadUserErrors;
+        
+        /// <summary>
+        /// upnlBUPError control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.UpdatePanel upnlBUPError;
+        
+        /// <summary>
+        /// grdBulkUploadUserErrors control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.GridView grdBulkUploadUserErrors;
         
         /// <summary>
         /// divSendEmailToUser control.

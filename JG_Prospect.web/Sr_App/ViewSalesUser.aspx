@@ -1640,7 +1640,7 @@ function SetEmailValuefromCtlToHid() {
                                                 <asp:Label ID="lblPhoneReq" runat="server" Text="*" ForeColor="Red"></asp:Label>
                                                     <asp:RequiredFieldValidator ID="rqPhone" runat="server" ControlToValidate="txtPhone"
                                                         ForeColor="Red" Display="Dynamic" ValidationGroup="submit" ErrorMessage="Enter Phone No"></asp:RequiredFieldValidator>
-                                                    <asp:TextBox ID="txtPhone" runat="server" MaxLength="20" onblur="CheckDuplicatePhone(this)" TabIndex="505" OnTextChanged="txtPhone_TextChanged"
+                                                    <asp:TextBox ID="txtPhone" runat="server" MaxLength="14" onblur="CheckDuplicatePhone(this)" TabIndex="505" OnTextChanged="txtPhone_TextChanged"
                                                         onkeypress="return IsNumeric(event);" Width="170"></asp:TextBox>
                                                 </td>
                                                 <td>&nbsp;&nbsp;Ext. <%--extension--%>

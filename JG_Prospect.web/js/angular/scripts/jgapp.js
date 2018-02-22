@@ -144,3 +144,40 @@ angular.GetInstallIDPrefixFromDesignationIDinJS = function (DesignID) {
 
     return prefix;
 };
+
+(function () {
+    'use strict';
+
+    angular
+        .module('JGApp')
+        .filter('utcToLocal', Filter)
+        .filter('semiColSplit', function () {
+            return function (input) {
+                console.log(input);
+                if (input != null && input != undefined) {
+                    var ar = input.split(';'); // this will make string an array 
+                    return ar;
+                }
+                else {
+                    return null
+                }
+            };
+        });
+
+    function Filter($filter) {
+        return function (utcDateString, format) {
+            // return if input date is null or undefined
+            if (!utcDateString) {
+                return;
+            }
+
+            // append 'Z' to the date string to indicate UTC time if the timezone isn't already specified
+            if (utcDateString.indexOf('Z') === -1 && utcDateString.indexOf('+') === -1) {
+                utcDateString += 'Z';
+            }
+
+            // convert and format date using the built in angularjs date filter
+            return $filter('date')(utcDateString, format);
+        };
+    }
+})();

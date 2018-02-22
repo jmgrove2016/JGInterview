@@ -234,11 +234,44 @@
             margin: 0 0 0 0 !important;
         }
 
+        .first-col {
+            width: 20%;
+            float: left;
+        }
+
+        .second-col {
+            float: left;
+            width: 78%;
+        }
+
+            .second-col textarea.note-text {
+                width: 99%;
+            }
+
         .notes-container {
             display: block;
-            height: 66px;
+            /*height: 66px;*/
             overflow-x: hidden;
             overflow-y: auto;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+        }
+
+        .pos-rel {
+            position: relative;
+        }
+
+        .notes-inputs {
+            text-align: left;
+            height: 30px;
+            padding: 2px;
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            display:none;
         }
 
         .notes-table {
@@ -272,11 +305,7 @@
                 background: #FFF;
                 color: #000;
             }
-
-            .notes-table tr a {
-                font-size: 10px;
-            }
-
+            /*.notes-table tr a{font-size:10px;}*/
             .notes-table tr:nth-child(even) a, .notes-popup tr:nth-child(even) a {
                 color: #fff;
             }
@@ -417,7 +446,7 @@
             }
 
         .notes-container .note-desc {
-            width: 194px;
+            width: 230px;
             height: 29px;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -500,11 +529,96 @@
             width: 255px;
             margin: 0px;
         }
+
+        .content .row {
+            display: inline-block;
+            width: 100%;
+        }
+
+            .content .row.sender .user-image {
+                float: right;
+                margin-left: 5px;
+            }
+
+            .content .row.receiver .user-image {
+                float: left;
+                margin-right: 5px;
+            }
+
+            .content .row .user-image {
+                position: relative;
+                width: 80px;
+            }
+
+                .content .row .user-image .img img {
+                    width: 80px;
+                }
+
+                .content .row .user-image .installid {
+                    position: absolute;
+                    bottom: 0px;
+                    width: 100%;
+                    text-align: center;
+                    background: #ddd;
+                }
+
+                .content .row .user-image .status-icon {
+                    position: absolute;
+                    right: 2px;
+                    top: 2px;
+                    width: 16px;
+                    height: 16px;
+                    border-radius: 8px;
+                    background: green;
+                }
+
+                .content .row .user-image .installid a {
+                }
+
+        .time-container {
+            float: right;
+        }
+
+        .row .contents {
+            width: 600px;
+            border-radius: 10px;
+            padding: 30px;
+        }
+
+        .row.sender .contents {
+            float: right;
+            background: #333;
+            color: #ccc;
+            border-radius: 30px 30px 0;
+        }
+
+        .row.receiver .contents .est {
+            color: #000;
+        }
+
+        .row.receiver .contents {
+            float: left;
+            background: #A33E3F;
+            border-radius: 30px 30px 30px 0;
+            color: #ccc;
+        }
+
+        .row .contents .tick, .row .contents .time, .row .contents .est {
+            display: inline-block;
+        }
+
+        .row .contents .est {
+            color: #A33E3F;
+        }
+
+        .tick img {
+            width: 16px;
+        }
     </style>
     <script type="text/javascript">
 
         function addNotes(sender, uid, txtUid){
-            var note = $(sender).parent().find('.note-text').val();
+            var note = $(sender).parents('.notes-inputs').find('.note-text').val();
             if(note!='')
                 ajaxExt({
                     url: '/Sr_App/edituser.aspx/AddNotes',
@@ -540,7 +654,7 @@
                         var tdHeight = $('#user-' + userid).parents('tr').height();
                         $('#user-' + userid).html(tbl);
                         
-                        $('#user-' + userid).css('height',(tdHeight-36)+'px');
+                        $('#user-' + userid).css('height',(tdHeight-6)+'px');
                         var tuid = getUrlVars()["TUID"];
                         var nid = getUrlVars()["NID"];
                         if (tuid != undefined && nid!= undefined) {
@@ -550,8 +664,11 @@
                         tribute.attach(document.getElementById('txt-'+userid));
                     } else {
                         var tbl = '<table class="notes-table" cellspacing="0" cellpadding="0">' +
-                                    '<tr><td>&nbsp;</td><td>&nbsp;</td></tr>'+
-                                    '<tr><td>&nbsp;</td><td>&nbsp;</td></tr>'+
+                                    '<tr uid="' + userid + '"><td>&nbsp;</td><td>&nbsp;</td></tr>'+
+                                    '<tr uid="' + userid + '"><td>&nbsp;</td><td>&nbsp;</td></tr>'+
+                                    '<tr uid="' + userid + '"><td>&nbsp;</td><td>&nbsp;</td></tr>'+
+                                    '<tr uid="' + userid + '"><td>&nbsp;</td><td>&nbsp;</td></tr>'+
+                                    '<tr uid="' + userid + '"><td>&nbsp;</td><td>&nbsp;</td></tr>'+
                                    '</table>';
                         $('#user-' + userid).html(tbl);
                         tribute.attach(document.getElementById('txt-'+userid));
@@ -591,12 +708,67 @@
 
         $(document).on('click','.notes-table tr', function(e){
             if(!$(e.target).is('a') ) {
-                $('.notes-popup').css({ left: ($(window).width() / 2) - 400 });
-                $('#popupNoteUserId').val($(this).attr('uid'));
-                $('#popupNoteTxtUserId').val($(this).attr('iuid'));
-                $('.notes-popup').show();
-                $('.notes-popup-background').show();
-                Paging($(this));
+                //$('.notes-popup').css({ left: ($(window).width() / 2) - 400 });
+                //$('#popupNoteUserId').val($(this).attr('uid'));
+                //$('#popupNoteTxtUserId').val($(this).attr('iuid'));
+                //$('.notes-popup').show();
+                //$('.notes-popup-background').show();
+                //Paging($(this));
+                
+                // Open Chat Window
+                InitiateChat(this, $(this).attr('uid'), null);
+                //ajaxExt({
+                //    url: '/WebServices/JGWebService.asmx/InitiateChat',
+                //    type: 'POST',
+                //    data: '{ userID: ' + $(this).attr('uid') + ' }',
+                //    showThrobber: true,
+                //    throbberPosition: { my: "left center", at: "right center", of: $(this), offset: "5 0" },
+                //    success: function (data, msg) {
+                //        var id = data.Object.split('`')[0];
+                //        var name = data.Object.split('`')[1];
+                //        //$('.chat-container').show();
+                //        if($('#'+id).length <= 0){
+                //            $('.telecom-dashboard-popup').show();
+                //            $('.overlay').show();
+                //            window.scrollTo(0, 0);                            
+                //            var strChat = '<div class="chat-box" id="' + id + '" style="display:block;">' +
+                //                                '<div class="header"><span class="group-name">' + name +
+                //                                    '</span><span class="close" onclick="closechat(this)"><i class="fa fa-times" aria-hidden="true"></i></span>' +
+                //                                    '<span class="minimize" onclick="minimize(this)"><i class="fa fa-minus" aria-hidden="true"></i></span></div>' +
+                //                                '<input type="hidden" id="ChatGroupId" value="' + id + '" />' +
+                //                                '<div class="chats"></div>' +
+                //                                '<div class="chat-text">' +
+                //                                    '<input type="text" class="mention" id="chattext" onkeyup="sendChat(event, this);"  />' +
+                //                                    //'<input type="button" value="Send" id="sendChat" />' +
+                //                                '</div>' +
+                //                           '</div>';
+                //            $('.all-chats').append(strChat);
+                //            // reset existing @mention and add new @mention support 
+                //            $('input.mention').parent().find('.mentions').remove();
+                //            $('input.mention').parent().find('.mentions-autocomplete-list').remove();
+                //            $('input.mention').mentionsInput({
+                //                onDataRequest: function (mode, query, callback) {
+                //                    ajaxExt({
+                //                        url: '/WebServices/JGWebService.asmx/GetUsers',
+                //                        type: 'POST',
+                //                        data: '{ keyword: "' + query + '", chatGroupId:"' + userTobeAddedIntoChatGroupId + '" }',
+                //                        showThrobber: true,
+                //                        throbberPosition: { my: "left center", at: "right center", of: $(this), offset: "5 0" },
+                //                        success: function (data, msg) {
+                //                            responseData = data.Results;
+                //                            responseData = _.filter(responseData, function (item) {
+                //                                return item.name.toLowerCase().indexOf(query.toLowerCase()) > -1
+                //                            });
+                //                            callback.call(this, responseData);
+                //                        }
+                //                    });
+                //                }
+                //            });
+                //            // Load User's list on right panel
+                //            loadChatUsers(this);
+                //        }
+                //    }
+                //});
             }
         });
 
@@ -1298,7 +1470,7 @@
                                     </ItemTemplate>
                                     <ItemStyle HorizontalAlign="Center"></ItemStyle>
                                 </asp:TemplateField>
-                                <asp:TemplateField HeaderText="Status" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="10%" ItemStyle-Width="10%" SortExpression="Status">
+                                <asp:TemplateField HeaderText="Status" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="7%" ItemStyle-Width="7%" SortExpression="Status">
                                     <ItemTemplate>
                                         <asp:HiddenField ID="lblStatus" runat="server" Value='<%#Eval("Status")%>'></asp:HiddenField>
                                         <asp:HiddenField ID="lblOrderStatus" runat="server" Value='<%#(Eval("OrderStatus") == null || Eval("OrderStatus") == "") ? -99 : Eval("OrderStatus")%>'></asp:HiddenField>
@@ -1403,7 +1575,7 @@
                                         </div>--%>
                                     </ItemTemplate>
                                 </asp:TemplateField>
-                                <asp:TemplateField HeaderText="Country-Zip-City<br/>Type-Apptitude Test %<br/>Resume Attachment" HeaderStyle-Width="4%" ItemStyle-Width="4%" ItemStyle-HorizontalAlign="Center" SortExpression="Zip" ControlStyle-CssClass="wordBreak">
+                                <asp:TemplateField HeaderText="Country-Zip-City<br/>Type-Apptitude Test %<br/>Resume Attachment" HeaderStyle-Width="2%" ItemStyle-Width="2%" ItemStyle-HorizontalAlign="Center" SortExpression="Zip" ControlStyle-CssClass="wordBreak">
                                     <ItemTemplate>
                                         <div title='<%#Eval("Country") %>' style='<%# string.IsNullOrEmpty(Eval("CountryCode").ToString()) == true ? "": "background-image:url(img/flags24.png);background-repeat:no-repeat;float:left;height:22px;width:24px;margin-top:-5px;" %>' class='<%#Eval("CountryCode").ToString().ToLower()%>'>
                                         </div>
@@ -1435,8 +1607,8 @@
                                         <%--<span><%# Eval("EmpType") %></span> <span> - <span><%#(string.IsNullOrEmpty(Eval("Aggregate").ToString()))?"N/A":string.Format("{0:#,##}",Eval("Aggregate"))+ "%" %></span>--%>
                                     </ItemTemplate>
                                 </asp:TemplateField>
-                                <asp:TemplateField HeaderStyle-HorizontalAlign="Center" ItemStyle-HorizontalAlign="Center" HeaderStyle-Width="22%"
-                                    ItemStyle-Width="22%" ItemStyle-CssClass="noMargin">
+                                <asp:TemplateField HeaderStyle-HorizontalAlign="Center" ItemStyle-HorizontalAlign="Center" HeaderStyle-Width="27%"
+                                    ItemStyle-Width="27%" ItemStyle-CssClass="noMargin pos-rel">
                                     <HeaderTemplate>
                                         Notes
                                         <table class="table gridtbl notes-table" cellspacing="0" cellpadding="0" rules="cols" border="1" style="width: 100%; border-collapse: collapse;">
@@ -1448,30 +1620,17 @@
                                         </table>
                                     </HeaderTemplate>
                                     <ItemTemplate>
-                                        <%--<div class="GrdContainer">
-                                            <div class="GrdHeader">
-                                                <span>+</span>
-                                            </div>
-                                            <div class="GrdContent">
-                                                
-                                            </div>
-                                        </div>--%>
-                                        <%--<asp:PlaceHolder runat="server" ID="placeNotes"></asp:PlaceHolder>--%>
-
                                         <div class="notes-container" uid="<%#Eval("UserInstallId")%>" id="user-<%#Eval("Id")%>">
                                             Loading Notes...
                                         </div>
-                                        <div style="text-align: left; padding: 2px;">
-                                            <input type="button" class="GrdBtnAdd" value="Add Notes" onclick="addNotes(this, '<%# Eval("Id") %>    ','<%#Eval("UserInstallId")%>    ')" />
-                                            <textarea class="note-text textbox" id="txt-<%# Eval("Id") %>"></textarea>
+                                        <div class="notes-inputs">
+                                            <div class="first-col">
+                                                <input type="button" class="GrdBtnAdd" value="Add Notes" onclick="addNotes(this, '<%# Eval("Id") %>','<%#Eval("UserInstallId")%>')" />
+                                            </div>
+                                            <div class="second-col">
+                                                <textarea class="note-text textbox" id="txt-<%# Eval("Id") %>"></textarea>
+                                            </div>
                                         </div>
-                                        <%--<div style="text-align: left; padding: 4px;">
-                                            <asp:TextBox runat="server" ID="txtNewNote" TextMode="MultiLine" Rows="3"
-                                                Style="height: 36px; vertical-align: middle; padding: 2px!important; width: 70%; float: left; margin-right: 5px;" CssClass="textbox"></asp:TextBox>
-                                            <asp:Button runat="server" ID="btnAddNotes" CssClass="GrdBtnAdd" Text="Add Notes" CommandName="AddNotes"
-                                                CommandArgument='<%# Eval("Id") %>' Style="vertical-align: middle; overflow: hidden;" />
-
-                                        </div>--%>
                                     </ItemTemplate>
                                 </asp:TemplateField>
                             </Columns>
@@ -1489,7 +1648,7 @@
                     <table style="width: 100%">
                         <tr style="width: 100%">
                             <td>
-                                <asp:LinkButton ID="lnkDownload" Text="Download Sample Excel Format For Bulk Upload" CommandArgument='../UserFile/SalesSample.xlsx' runat="server" OnClick="DownloadFile"></asp:LinkButton>
+                                <asp:LinkButton ID="lnkDownload" Text="Download Sample Excel Format For Bulk Upload" CommandArgument='~/UserFile/SalesSample.xlsx' runat="server" OnClick="DownloadFile"></asp:LinkButton>
                                 <%--<br />
                         <br />
                         <asp:LinkButton ID="lnkDownloadCSV" Text="Download Sample CSV Format For Bulk Upload" CommandArgument='../UserFile/SalesSample.csv' runat="server" OnClick="DownloadFile"></asp:LinkButton>--%>
@@ -1507,7 +1666,7 @@
                                     </div>
                                 </div>
                                 <div class="btn_sec" style="float: left;">
-                                    <asp:Button ID="btnUploadNew" runat="server" Text="Upload" OnClick="btnUploadNew_Click" OnClientClick="showBulkUploadProgressPopup()" CssClass="ui-button" Style="padding: 0px 10px 0px 10px!important;" />
+                                    <asp:Button ID="btnUploadNew" runat="server" Text="Upload" OnClick="btnUploadNew_Click" OnClientClick="showBulkUploadProgressPopup();" CssClass="ui-button" Style="padding: 0px 10px 0px 10px!important;" />
                                 </div>
                                 <div class="hide">
                                     <input id="hdnBulkUploadFile" runat="server" type="hidden" />
@@ -1538,6 +1697,7 @@
                 </ContentTemplate>
                 <Triggers>
                     <asp:AsyncPostBackTrigger ControlID="btnUploadNew" EventName="Click" />
+                    <asp:PostBackTrigger ControlID="lnkDownload" />
                 </Triggers>
             </asp:UpdatePanel>
             <br />
@@ -1869,10 +2029,11 @@
     <div id="bulkUpload" class="modal hide">
         <asp:UpdatePanel ID="upnlBulkUploadStatus" runat="server" UpdateMode="Conditional">
             <ContentTemplate>
-                <div id="divBulkUploadUserErrors" runat="server" title="Information" data-width="900px">
+                <div id="divBulkUploadStatistics" runat="server" title="Information" data-width="900px">
 
                     <div>
-                        <h2>Incomplete users</h2>
+                        <h2>Incomplete users: <small>Total:
+                            <asp:Literal ID="ltlTotalInvalidUser" runat="server"></asp:Literal></small></h2>
                         <table class="table" cellspacing="0" cellpadding="0" rules="cols" border="1" style="width: 100%; border-collapse: collapse;">
 
                             <asp:Repeater ID="rptIncorrectRecords" runat="server">
@@ -1921,7 +2082,8 @@
                     </div>
 
                     <div style="margin-top: 10px;">
-                        <h2>Duplicate users</h2>
+                        <h2>Duplicate users: <small>Total:
+                            <asp:Literal ID="ltlTotalDuplicateUsers" runat="server"></asp:Literal></small></h2>
                         <div>
                             <table class="table" cellspacing="0" cellpadding="0" rules="cols" border="1" style="width: 100%; border-collapse: collapse;">
                                 <asp:Repeater ID="rptDuplicateRecords" runat="server">
@@ -1969,7 +2131,8 @@
                     </div>
 
                     <div style="margin-top: 10px;">
-                        <h2>Users to be Added</h2>
+                        <h2>Users to be Added: <small>Total:
+                            <asp:Literal ID="ltlTotalUserstobeAdded" runat="server"></asp:Literal></small></h2>
                         <div>
                             <table class="table" cellspacing="0" cellpadding="0" rules="cols" border="1" style="width: 100%; border-collapse: collapse;">
                                 <asp:Repeater ID="rptUserstoBeAdded" runat="server">
@@ -2017,7 +2180,8 @@
                     </div>
 
                     <div style="margin-top: 10px;">
-                        <h2>Successfully entered users</h2>
+                        <h2>Successfully entered users: <small>Total:
+                            <asp:Literal ID="ltlTotalSuccessfulUsersInserted" runat="server"></asp:Literal></small></h2>
                         <div>
                             <table class="table" cellspacing="0" cellpadding="0" rules="cols" border="1" style="width: 100%; border-collapse: collapse;">
                                 <asp:Repeater ID="rptSuccessFullyEntered" runat="server">
@@ -2065,6 +2229,8 @@
                     </div>
 
                 </div>
+             
+             
             </ContentTemplate>
             <Triggers>
                 <asp:AsyncPostBackTrigger ControlID="btnUploadNew" EventName="Click" />
@@ -2072,7 +2238,72 @@
         </asp:UpdatePanel>
     </div>
     <div class="hide">
-
+        <div id="divBulkUploadUserErrors" runat="server" title="Information" data-width="900px">
+            <div style="padding: 5px 10px;">
+                Below records contain empty values for mandatory fields. Please update cells marked by <span style="color: blue; font-weight: bold; text-align: center; font-size: 20px;">x</span> below in your file and upload again. If you see several empty rows at the end of the records, please delete those empty lines from your file.
+            </div>
+            <div style="max-height: 500px; height: 500px; overflow: auto;">
+                <asp:UpdatePanel ID="upnlBUPError" runat="server" UpdateMode="Conditional">
+                    <ContentTemplate>
+                        <asp:GridView ID="grdBulkUploadUserErrors" runat="server" AutoGenerateColumns="false"
+                            CssClass="table" Width="100%" CellSpacing="0" CellPadding="0" GridLines="Vertical">
+                            <EmptyDataRowStyle ForeColor="White" HorizontalAlign="Center" />
+                            <HeaderStyle CssClass="trHeader " />
+                            <RowStyle CssClass="FirstRow" BorderStyle="Solid" />
+                            <AlternatingRowStyle CssClass="AlternateRow " />
+                            <Columns>
+                                <asp:TemplateField HeaderText="FirstName*" HeaderStyle-Width="75" ItemStyle-Width="75">
+                                    <ItemTemplate>
+                                        <%#Eval("FirstName")%>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                                <asp:TemplateField HeaderText="FirstName*" HeaderStyle-Width="75" ItemStyle-Width="75">
+                                    <ItemTemplate>
+                                        <%#Eval("LastName")%>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                                <asp:TemplateField HeaderText="Email*" HeaderStyle-Width="90" ItemStyle-Width="90">
+                                    <ItemTemplate>
+                                        <%#Eval("Email")%>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                                <asp:TemplateField HeaderText="Designation*" HeaderStyle-Width="75" ItemStyle-Width="75">
+                                    <ItemTemplate>
+                                        <%#Eval("Designation")%>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                                <asp:TemplateField HeaderText="Status*" HeaderStyle-Width="50" ItemStyle-Width="50">
+                                    <ItemTemplate>
+                                        <%#Eval("Status")%>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                                <asp:TemplateField HeaderText="Source*" HeaderStyle-Width="60" ItemStyle-Width="60">
+                                    <ItemTemplate>
+                                        <%#Eval("Source")%>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                                <asp:TemplateField HeaderText="Primary Contact Phone*" HeaderStyle-Width="90" ItemStyle-Width="90">
+                                    <ItemTemplate>
+                                        <%#Eval("Phone1")%>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                                <asp:TemplateField HeaderText="Phone Type*" HeaderStyle-Width="60" ItemStyle-Width="60">
+                                    <ItemTemplate>
+                                        <%#Eval("Phone1Type")%>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                                <asp:TemplateField HeaderText="Zip*" HeaderStyle-Width="50" ItemStyle-Width="50">
+                                    <ItemTemplate>
+                                        <%#Eval("Zip")%>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                            </Columns>
+                        </asp:GridView>
+                    </ContentTemplate>
+                </asp:UpdatePanel>
+            </div>
+            <br />
+        </div>
         <%--Send Email To User Popup--%>
         <div id="divSendEmailToUser" runat="server" title="Send Email">
             <asp:UpdatePanel ID="upSendEmailToUser" runat="server" UpdateMode="Conditional">
@@ -2713,7 +2944,7 @@
                 });
             }
             //============== End DP ==============
-
+       
             function showBulkUploadProgressPopup() {
 
                 $('#bulkUpload').removeClass('hide');               
@@ -2732,5 +2963,6 @@
                 
                 return true;
             }
+
     </script>
 </asp:Content>
