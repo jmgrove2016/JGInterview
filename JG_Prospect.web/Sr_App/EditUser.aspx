@@ -616,6 +616,31 @@
         }
     </style>
     <script type="text/javascript">
+       
+
+        function CheckBoxCount() 
+        {
+           debugger;
+            var counter = 0;
+            $("#<%=grdUsers.ClientID%> input[id*='chkSelected']:checkbox").each(function (index) {
+                if ($(this).is(':checked'))
+                    counter++;
+            });
+           
+            if(counter==1)
+            {
+                $('#<%=lblselectedchk.ClientID%>').html( ", " + counter + " user selected");
+            }
+            else if(counter>1)
+            {
+                $('#<%=lblselectedchk.ClientID%>').html(", " + counter + " users selected");
+            }
+            else
+            {
+               $('#<%=lblselectedchk.ClientID%>').html(" ");
+            }
+            //alert(counter);
+        }
 
         function addNotes(sender, uid, txtUid){
             var note = $(sender).parents('.notes-inputs').find('.note-text').val();
@@ -1385,7 +1410,7 @@
                                         <asp:HiddenField runat="server" Value='<%#Eval("Id")%>' ID="hdId" />
                                         <asp:HiddenField runat="server" Value='<%#Eval("picture")%>' ID="hdimgsource" />
                                         <%--<asp:CheckBox ID="chkSelected" AutoPostBack="true" data-userid='<%#Eval("Id")%>' OnCheckedChanged="chkSelected_CheckedChanged" runat="server" CssClass="useraction" Style="position: relative; top: 2px; right: 30px;" />--%>
-                                        <asp:CheckBox ID="chkSelected" AutoPostBack="false" data-userid='<%#Eval("Id")%>' data-designationid='<%#Eval("DesignationID")%>' runat="server" CssClass="useraction" Style="position: relative; top: 2px; right: 30px;" />
+                                        <asp:CheckBox ID="chkSelected" data-userid='<%#Eval("Id")%>' data-designationid='<%#Eval("DesignationID")%>' runat="server" CssClass="useraction" Style="position: relative; top: 2px; right: 30px;" onclick="CheckBoxCount();"  />
                                         <%-- <asp:Image CssClass="starimg"  ID="starblankimg"  runat="server" ImageUrl= "../img/star.png"    ></asp:Image> --%>
                                         <%-- <asp:ImageButton ID="starredimg" CssClass="starimg" runat="server" ImageUrl="~/img/starred.png" OnClientClick=<%# "GotoStarUser('" + Eval("Id") + "','1')" %>></asp:ImageButton>--%>
                                         <a href='<%# String.Concat("ViewSalesUser.aspx?ID=", Eval("Id")) %>'>

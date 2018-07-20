@@ -71,7 +71,7 @@ namespace JG_Prospect.Sr_App
 
             //New code -HR changes and log
             //hide touch ppoint log grid for new customer and make it visible on view profile of customer
-            if (Request.QueryString["Id"] != null)
+            if (Request.QueryString["Id"] != null && !string.IsNullOrEmpty(Request.QueryString["ID"]))
             {
 
                 if (Session[JG_Prospect.Common.SessionKey.Key.UserId.ToString()] != null)
@@ -79,6 +79,7 @@ namespace JG_Prospect.Sr_App
                     UserId = Convert.ToInt16(Session[JG_Prospect.Common.SessionKey.Key.UserId.ToString()]);
                 }
 
+               
                 Session["ID"] = Convert.ToInt32(Request.QueryString["ID"]);
                 hidID.Value = Request.QueryString["ID"].ToString();
 
@@ -95,7 +96,14 @@ namespace JG_Prospect.Sr_App
                     // Store GIUD when user is in create mode and save Touch Point Log..
                     hidTouchPointGUID.Value = Guid.NewGuid().ToString();
                     SetUserControlValue(string.Empty);
-                    hlnkUserID.Text = GetInstallIdFromDesignation(ddldesignation.SelectedItem.Text) + "-AXXXX";
+                    if (ddldesignation.SelectedValue != "0")
+                    {
+                        hlnkUserID.Text = GetInstallIdFromDesignation(ddldesignation.SelectedItem.Text) + "-AXXXX";
+                    }
+                    else
+                    {
+                        rqDesignition.Validate();
+                    }
                 }
 
             }
@@ -3830,8 +3838,15 @@ namespace JG_Prospect.Sr_App
             }
 
             ShowHideAptitudeTestLink();
-
-            hlnkUserID.Text = GetInstallIdFromDesignation(ddldesignation.SelectedItem.Text) + "-AXXXX";
+                if (ddldesignation.SelectedValue != "0")
+                {
+                    hlnkUserID.Text = GetInstallIdFromDesignation(ddldesignation.SelectedItem.Text) + "-AXXXX";
+                }
+                else
+                {
+                   // rqDesignition.Validate();
+                }
+            //hlnkUserID.Text = GetInstallIdFromDesignation(ddldesignation.SelectedItem.Text) + "-AXXXX";
         }
 
         private void ShowHideAptitudeTestLink()
