@@ -221,8 +221,8 @@ AS
             BEGIN 
                   PRINT @Id 
 
-                IF (@InstallId IS NULL)  
-                BEGIN 
+                --IF (@InstallId IS NULL)  
+                --BEGIN 
                       -- get sequence of last entered task for perticular designation.   
                       DECLARE @DesSequence BIGINT 
 					  DECLARE @DesignationsCode varchar(15)
@@ -268,7 +268,7 @@ AS
                             SET    dbo.tbluserdesiglastsequenceno.lastsequenceno = @DesSequence 
                             WHERE dbo.tbluserdesiglastsequenceno.designationcode = @DesignationsCode 
                         END 
-                  END 
+                  --END 
 				  FETCH next FROM crsMyTblParams  INTO @InstallId,@designationid,@Id
                END 
                     
