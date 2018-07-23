@@ -1,4 +1,4 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Sr_App/SR_app.Master" AutoEventWireup="true" ValidateRequest="false"
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Sr_App/SR_app.Master" EnableEventValidation="false" AutoEventWireup="true" ValidateRequest="false"
     CodeBehind="EditUser.aspx.cs" Inherits="JG_Prospect.EditUser" MaintainScrollPositionOnPostback="true" Async="true" %>
 
 <%@ Register Assembly="System.Web.DataVisualization, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" Namespace="System.Web.UI.DataVisualization.Charting" TagPrefix="asp" %>
@@ -9,14 +9,49 @@
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
 
-    <script src="../js/Custom/JgPopUp.js" type="text/javascript"></script>
+    <script src="../js/Custom/JgPopUp.js?v=<%#JG_Prospect.Common.modal.SingletonGlobal.Instance.RandomGUID %>" type="text/javascript"></script>
     <link type="text/css" href="../css/flags24.css" rel="Stylesheet" />
     <link href="../css/jquery.timepicker.css" rel="stylesheet" />
     <style type="text/css">
+        .filter {
+            width: 100%;
+        }
+
+        table.filter td {
+            padding: 0px !important;
+            vertical-align: central !important;
+        }
+
+        .filterdiv {
+            vertical-align: middle;
+            height: 50%;
+            line-height: 15px;
+            margin: 5px 0 5px 2px;
+            width: 98%;
+        }
+
+        .filterdivbottom {
+            border-top: 1px solid white;
+        }
+
         .ddlstatus-per-text {
             float: right;
-            padding-right: 5px;
+            width: 100%;
+            font-size: 8px;
         }
+
+        img.fnone {
+            height: 8px;
+            width: 8px;
+        }
+
+        /*.form_panel ul li {
+       width: 90% !important;
+            }*/
+        .dd .ddChild li {
+            width: 95% !important;
+        }
+
 
         /*Grid add Container START*/
         .GrdContainer {
@@ -271,7 +306,6 @@
             left: 0;
             bottom: 0;
             width: 100%;
-            display:none;
         }
 
         .notes-table {
@@ -617,9 +651,9 @@
     </style>
     <script type="text/javascript">
 
-        function addNotes(sender, uid, txtUid){
+        function addNotes(sender, uid, txtUid) {
             var note = $(sender).parents('.notes-inputs').find('.note-text').val();
-            if(note!='')
+            if (note != '')
                 ajaxExt({
                     url: '/Sr_App/edituser.aspx/AddNotes',
                     type: 'POST',
@@ -627,9 +661,11 @@
                     showThrobber: true,
                     throbberPosition: { my: "left center", at: "right center", of: $(sender), offset: "5 0" },
                     success: function (data, msg) {
-                        $(sender).parent().find('.note-text').val('');
-                        Paging(sender);
+                        $(sender).parents('.notes-inputs').find('.note-text').val('');
+                        //Paging(sender);
                         LoadNotes(sender, txtUid, uid);
+                        // Refresh Online users
+                        GetOnlineUsers();
                     }
                 });
         }
@@ -638,40 +674,40 @@
             ajaxExt({
                 url: '/Sr_App/edituser.aspx/GetUserTouchPointLogs',
                 type: 'POST',
-                data: '{ pageNumber: 0, pageSize: 5, userId: ' + userid + ' }',
+                data: '{ pageNumber: 0, pageSize: 5, userId: ' + userid + ',chatSourceId:<%=(int)JG_Prospect.Common.ChatSource.EditUserPage%> }',
                 showThrobber: true,
                 throbberPosition: { my: "left center", at: "right center", of: $('#user-' + userid), offset: "5 0" },
                 success: function (data, msg) {
                     if (data.Data.length > 0) {
                         var tbl = '<table class="notes-table" cellspacing="0" cellpadding="0">';
                         $(data.Data).each(function (i) {
-                            tbl += '<tr iuid="'+ installUserId+'" uid="'+data.Data[i].UserID+'" id="' + data.Data[i].UserTouchPointLogID + '">' +
-                                        '<td>' + data.Data[i].SourceUsername + '- <a target="_blank" href="/Sr_App/ViewSalesUser.aspx?id='+data.Data[i].UpdatedByUserID+'">' + data.Data[i].SourceUserInstallId + '</a><br/>'+data.Data[i].ChangeDateTimeFormatted+'</td>' +
-                                        '<td title="' + data.Data[i].LogDescription + '"><div class="note-desc">' + data.Data[i].LogDescription + '</div></td>' +
-                                    '</tr>';
+                            tbl += '<tr iuid="' + installUserId + '" uid="' + data.Data[i].UserID + '" id="' + data.Data[i].UserTouchPointLogID + '">' +
+                                '<td>' + data.Data[i].SourceUsername + '- <a target="_blank" href="/Sr_App/ViewSalesUser.aspx?id=' + data.Data[i].UpdatedByUserID + '">' + data.Data[i].SourceUserInstallId + '</a><br/>' + data.Data[i].ChangeDateTimeFormatted + '</td>' +
+                                '<td title="' + data.Data[i].LogDescription + '"><div class="note-desc">' + data.Data[i].LogDescription + '</div></td>' +
+                                '</tr>';
                         });
                         tbl += '</table>';
                         var tdHeight = $('#user-' + userid).parents('tr').height();
                         $('#user-' + userid).html(tbl);
-                        
-                        $('#user-' + userid).css('height',(tdHeight-6)+'px');
+
+                        $('#user-' + userid).css('height', (tdHeight - 36) + 'px');
                         var tuid = getUrlVars()["TUID"];
                         var nid = getUrlVars()["NID"];
-                        if (tuid != undefined && nid!= undefined) {
+                        if (tuid != undefined && nid != undefined) {
                             $('.notes-table tr#' + nid).addClass('blink-notes');
+                        } else {
+
                         }
                         //tribute.attach(document.querySelectorAll('.note-text'));
-                        tribute.attach(document.getElementById('txt-'+userid));
+                        tribute.attach(document.getElementById('txt-' + userid));
                     } else {
                         var tbl = '<table class="notes-table" cellspacing="0" cellpadding="0">' +
-                                    '<tr uid="' + userid + '"><td>&nbsp;</td><td>&nbsp;</td></tr>'+
-                                    '<tr uid="' + userid + '"><td>&nbsp;</td><td>&nbsp;</td></tr>'+
-                                    '<tr uid="' + userid + '"><td>&nbsp;</td><td>&nbsp;</td></tr>'+
-                                    '<tr uid="' + userid + '"><td>&nbsp;</td><td>&nbsp;</td></tr>'+
-                                    '<tr uid="' + userid + '"><td>&nbsp;</td><td>&nbsp;</td></tr>'+
-                                   '</table>';
+                            '<tr uid="' + userid + '"><td>&nbsp;</td><td>&nbsp;</td></tr>' +
+                            '<tr uid="' + userid + '"><td>&nbsp;</td><td>&nbsp;</td></tr>' +
+                            '<tr uid="' + userid + '"><td>&nbsp;</td><td>&nbsp;</td></tr>' +
+                            '</table>';
                         $('#user-' + userid).html(tbl);
-                        tribute.attach(document.getElementById('txt-'+userid));
+                        tribute.attach(document.getElementById('txt-' + userid));
                     }
                 }
             });
@@ -682,7 +718,7 @@
             ajaxExt({
                 url: '/Sr_App/edituser.aspx/GetUserTouchPointLogs',
                 type: 'POST',
-                data: '{ pageNumber: ' + $('#PageIndex').val() + ', pageSize: ' + paging.pageSize + ', userId: ' + $('#popupNoteUserId').val() + ' }',
+                data: '{ pageNumber: ' + $('#PageIndex').val() + ', pageSize: ' + paging.pageSize + ', userId: ' + $('#popupNoteUserId').val() + ',chatSourceId:<%=(int)JG_Prospect.Common.ChatSource.EditUserPage%> }',
                 showThrobber: true,
                 throbberPosition: { my: "left center", at: "right center", of: $(sender), offset: "5 0" },
                 success: function (data, msg) {
@@ -691,12 +727,12 @@
                         var tbl = '<table cellspacing="0" cellpadding="0"><tr><th>Updated By<br/>Created On</th><th>Note</th></tr>';
                         $(data.Data).each(function (i) {
                             tbl += '<tr id="' + data.Data[i].UserTouchPointLogID + '">' +
-                                        '<td>' + data.Data[i].SourceUsername + '- <a target="_blank" href="/Sr_App/ViewSalesUser.aspx?id='+data.Data[i].UpdatedByUserID+'">' + data.Data[i].SourceUserInstallId + '</a><br/>'+data.Data[i].ChangeDateTimeFormatted+'</td>' +
-                                        '<td title="' + data.Data[i].LogDescription + '"><div class="note-desc">' + data.Data[i].LogDescription + '</div></td>' +
-                                    '</tr>';
+                                '<td>' + data.Data[i].SourceUsername + '- <a target="_blank" href="/Sr_App/ViewSalesUser.aspx?id=' + data.Data[i].UpdatedByUserID + '">' + data.Data[i].SourceUserInstallId + '</a><br/>' + data.Data[i].ChangeDateTimeFormatted + '</td>' +
+                                '<td title="' + data.Data[i].LogDescription + '"><div class="note-desc">' + data.Data[i].LogDescription + '</div></td>' +
+                                '</tr>';
                         });
                         tbl += '</table>';
-                        $('.notes-popup .content').html(tbl);                        
+                        $('.notes-popup .content').html(tbl);
                         tribute.attach(document.getElementById('txt-popup'));
                     } else {
                         $('.notes-popup .content').html('Notes not found');
@@ -706,17 +742,17 @@
             return false;
         }
 
-        $(document).on('click','.notes-table tr', function(e){
-            if(!$(e.target).is('a') ) {
+        $(document).on('click', '.notes-table tr', function (e) {
+            if (!$(e.target).is('a')) {
                 //$('.notes-popup').css({ left: ($(window).width() / 2) - 400 });
                 //$('#popupNoteUserId').val($(this).attr('uid'));
                 //$('#popupNoteTxtUserId').val($(this).attr('iuid'));
                 //$('.notes-popup').show();
                 //$('.notes-popup-background').show();
                 //Paging($(this));
-                
+
                 // Open Chat Window
-                InitiateChat(this, $(this).attr('uid'), null);
+                InitiateChat(this, $(this).attr('uid'), null,'<%=(int)JG_Prospect.Common.ChatSource.EditUserPage%>', 0, 0, 0);
                 //ajaxExt({
                 //    url: '/WebServices/JGWebService.asmx/InitiateChat',
                 //    type: 'POST',
@@ -772,9 +808,9 @@
             }
         });
 
-        function addPopupNotes(sender){
+        function addPopupNotes(sender) {
             var userId = $('#popupNoteUserId').val();
-            var txtUserId=$('#popupNoteTxtUserId').val();
+            var txtUserId = $('#popupNoteTxtUserId').val();
             addNotes(sender, userId, txtUserId);
         }
 
@@ -844,7 +880,7 @@
         }
 
         function OverlayPopupUploadBulk() {
-            alert('Successfully imported users and auto-email/sms sent for request for applicant to fill out Hr form http://www.jmgroveconstruction.com/employment.php');
+            alert('Successfully imported users and auto-email/sms sent for request for applicant to fill out Hr form https://www.jmgroveconstruction.com/employment.php');
             document.getElementById('lightUploadBulk').style.display = 'block';
             document.getElementById('fadeUploadBulk').style.display = 'block';
             $("html, body").animate({ scrollTop: 0 }, "slow");
@@ -882,13 +918,14 @@
 
     </script>
     <script>
-        $(document).on('keyup','.txtSearch', function(e){
+        $(document).on('keyup', '.txtSearch', function (e) {
             if (e.keyCode == 13) {
                 $('.btnSearchGridData').trigger('click');
             }
+            e.stopPropagation();
         });
 
-        $(document).on('click','.ClearSearch', function(e){
+        $(document).on('click', '.ClearSearch', function (e) {
             $('.txtSearch').val('');
             $('.btnSearchGridData').trigger('click');
         });
@@ -1048,9 +1085,16 @@
             /*background-image:url(../img/starred.png);*/
         }
     </style>
-    <link href="../Styles/dd.css" rel="stylesheet" />
+    <link href="../Styles/dd.css?v=<%#JG_Prospect.Common.modal.SingletonGlobal.Instance.RandomGUID %>" rel="stylesheet" />
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
+    <%
+        string baseUrl = HttpContext.Current.Request.Url.Scheme +
+                            "://" + HttpContext.Current.Request.Url.Authority +
+                            HttpContext.Current.Request.ApplicationPath.TrimEnd('/') + "/";
+
+
+    %>
     <link href="../css/dropzone/css/basic.css" rel="stylesheet" />
     <link href="../css/dropzone/css/dropzone.css" rel="stylesheet" />
     <script type="text/javascript" src="../js/dropzone.js"></script>
@@ -1249,45 +1293,71 @@
             <br />
             <asp:UpdatePanel ID="upFilter" runat="server">
                 <ContentTemplate>
-                    <table style="width: 100%;">
+                    <table class="filter">
                         <tr style="background-color: #A33E3F; color: white; font-weight: bold; text-align: center; width: 100%;">
-                            <td>
-                                <asp:Label ID="lblUserStatus" Text="User Status" runat="server" /><span style="color: red">*</span></td>
-                            <td>
-                                <asp:Label ID="lblDesignation" Text="Designation" runat="server" /></td>
-                            <td>
-                                <asp:Label ID="lblAddedBy" Text="Added By" runat="server" /></td>
-                            <td>
-                                <asp:Label ID="lblSourceH" Text="Source" runat="server" /></td>
-                            <td colspan="2" style="text-align: left;">
-                                <asp:Label ID="Label2" Text="&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Select Period" runat="server" /></td>
+                            <td width="15%">
+                                <div class="filterdiv filterdivtop">
+                                    <asp:Label ID="lblUserStatus" Text="User Status" runat="server" /><span style="color: red">*</span>
+                                </div>
+                                <div class="filterdiv filterdivbottom">
+                                    <asp:Label ID="lblDesignation" Text="Designation" runat="server" />
+                                </div>
+                            </td>
+
+                            <td width="20%">
+                                <div class="filterdiv filterdivtop">
+                                    <span>Secondary Status</span>
+                                </div>
+                                <div class="filterdiv filterdivbottom">
+                                    <span>Saved Reports</span>
+                                </div>
+                            </td>
+                            <td width="15%">
+                                <div class="filterdiv filterdivtop">
+                                    <asp:Label ID="lblAddedBy" Text="Added By" runat="server" />
+                                </div>
+                                <div class="filterdiv filterdivbottom">
+                                    <asp:Label ID="lblSourceH" Text="Source" runat="server" />
+                                </div>
+
+                            </td>
+
+                            <td style="text-align: center;">
+                                <div class="filterdiv ">
+                                    <asp:Label ID="Label2" Text="Select Period" runat="server" />
+                                </div>
+                            </td>
+
                         </tr>
                         <tr style="text-align: center; width: 100%">
-                            <%-- <td style="text-align: center;">
-                                <asp:DropDownList ID="ddlUserStatus" runat="server" Width="140px" AutoPostBack="true"  OnSelectedIndexChanged="ddlFilter_SelectedIndexChanged" OnPreRender="ddlUserStatus_PreRender" />--%>
-                            <td style="text-align: center;">
-                                <style>
-                                    /*.form_panel ul li {
-                                    width: 90% !important;
-                                    }*/
-                                    .dd .ddChild li {
-                                        width: 95% !important;
-                                    }
-                                </style>
-                                <asp:DropDownList ID="ddlUserStatus" Style="text-align: left;" runat="server" Width="200px" AutoPostBack="true"
-                                    OnSelectedIndexChanged="ddlFilter_SelectedIndexChanged" OnPreRender="ddlUserStatus_PreRender" />
+                            <td style="text-align: center;" width="15%">
+                                <div class="filterdiv filterdivtop">
+                                    <asp:ListBox ID="ddlUserStatus" CssClass="chosen-select status-dd" SelectionMode="Multiple" runat="server" />
+                                    <input type="hidden" runat="server" id="hdnStatuses">
+                                </div>
+                                <div class="filterdiv filterdivbottom">
+                                    <asp:ListBox ID="ddlDesignation" CssClass="chosen-select" runat="server" SelectionMode="Multiple" />
+                                    <input type="hidden" runat="server" id="hdnDesignations">
+                                </div>
                             </td>
-                            <td>
-                                <asp:DropDownList ID="ddlDesignation" runat="server" Width="140px"
-                                    OnSelectedIndexChanged="ddlFilter_SelectedIndexChanged" AutoPostBack="true" />
+                            <td width="20%">
+                                <asp:DropDownList ID="ddlSavedReport" AutoPostBack="true" runat="server" CssClass="textbox" OnSelectedIndexChanged="ddlSavedReport_SelectedIndexChanged">
+                                    <asp:ListItem Text="Last Login &darr;" Selected="True" Value="LastLoginTimeStamp^DESC"></asp:ListItem>                                    
+                                    <asp:ListItem Text="Created On &darr;" Value="CreatedDateTime^DESC"></asp:ListItem>
+                                </asp:DropDownList>
                             </td>
-                            <td>
-                                <%--<asp:DropDownList ID="drpUser" runat="server" Width="140px" OnSelectedIndexChanged="ddlFilter_SelectedIndexChanged" AutoPostBack="true"></asp:DropDownList>--%>
-                                <asp:DropDownList ID="drpUser" runat="server" Width="130px" OnSelectedIndexChanged="ddlFilter_SelectedIndexChanged" AutoPostBack="true"></asp:DropDownList>
+                            <td width="15%">
+                                <div class="filterdiv filterdivtop">
+                                    <asp:ListBox ID="drpUser" SelectionMode="Multiple" CssClass="chosen-select" runat="server"></asp:ListBox>
+                                    <input type="hidden" runat="server" id="hdnFilterUsers">
+                                </div>
+                                <div class="filterdiv filterdivbottom">
+                                    <asp:ListBox ID="ddlSource" runat="server" CssClass="chosen-select" SelectionMode="Multiple"></asp:ListBox>
+                                    <input type="hidden" runat="server" id="hdnSources">
+                                </div>
+                                <asp:Button ID="btnSearchFilterwise" runat="server" OnClick="btnSearchFilterwise_Click" CssClass="hide" />
                             </td>
-                            <td>
-                                <asp:DropDownList ID="ddlSource" runat="server" Width="90px" OnSelectedIndexChanged="ddlFilter_SelectedIndexChanged" AutoPostBack="true"></asp:DropDownList>
-                            </td>
+
                             <td style="text-align: left; text-wrap: avoid;">
                                 <div style="float: left; width: 50%;">
                                     <ul class="userDatafilter">
@@ -1309,24 +1379,19 @@
                                             <asp:CheckBox ID="chkTwoWks" runat="server" Checked="false" Text=" 2 weeks (pay period!)" OnCheckedChanged="chkTwoWk_CheckedChanged" AutoPostBack="true" /></li>
                                     </ul>
                                 </div>
-                                <%--  <div style="clear: both;"></div>--%>
+
                                 <div>
                                     <asp:Label ID="Label3" Text="From :*" runat="server" />
-                                    <asp:TextBox ID="txtfrmdate" runat="server" TabIndex="2" CssClass="date"
-                                        onkeypress="return false" MaxLength="10" AutoPostBack="true"
-                                        Style="width: 60px;" OnTextChanged="txtfrmdate_TextChanged" Enabled="false"></asp:TextBox>
-                                    <cc1:CalendarExtender ID="calExtendFromDate" runat="server" TargetControlID="txtfrmdate">
-                                    </cc1:CalendarExtender>
+                                    <asp:TextBox ID="txtHRFromDate" runat="server" TabIndex="2" CssClass="date" MaxLength="10" Style="width: 60px;"></asp:TextBox>
+
                                     <asp:Label ID="Label4" Text="To :*" runat="server" />
-                                    <asp:TextBox ID="txtTodate" CssClass="date" onkeypress="return false"
-                                        MaxLength="10" runat="server" TabIndex="3" AutoPostBack="true"
-                                        Style="width: 65px;" OnTextChanged="txtTodate_TextChanged" Enabled="false"></asp:TextBox>
-                                    <cc1:CalendarExtender ID="CalendarExtender2" runat="server" TargetControlID="txtTodate">
-                                    </cc1:CalendarExtender>
-                                    <%--<br />--%>
-                                    <asp:RequiredFieldValidator ID="requirefrmdate" ControlToValidate="txtfrmdate"
+                                    <asp:TextBox ID="txtHRToDate" CssClass="date"
+                                        MaxLength="10" runat="server" TabIndex="3"
+                                        Style="width: 65px;"></asp:TextBox>
+
+                                    <asp:RequiredFieldValidator ID="requirefrmdate" ControlToValidate="txtHRFromDate"
                                         runat="server" ErrorMessage=" Select From date" ForeColor="Red" ValidationGroup="show">
-                                    </asp:RequiredFieldValidator><asp:RequiredFieldValidator ID="Requiretodate" ControlToValidate="txtTodate"
+                                    </asp:RequiredFieldValidator><asp:RequiredFieldValidator ID="Requiretodate" ControlToValidate="txtHRToDate"
                                         runat="server" ErrorMessage=" Select To date" ForeColor="Red" ValidationGroup="show">
                                     </asp:RequiredFieldValidator>
                                 </div>
@@ -1352,7 +1417,7 @@
                         <div style="float: right;">
                             <input type="button" class="btnSearc ClearSearch" value="Clear" />
                             <asp:TextBox ID="txtSearch" runat="server" CssClass="textbox txtSearch" placeholder="search users" MaxLength="15" />
-                            <asp:Button ID="btnSearchGridData" runat="server" Text="Search" Style="display: none;" class="btnSearc btnSearchGridData" OnClick="btnSearchGridData_Click" />
+                            <asp:Button ID="btnSearchGridData" runat="server" Text="Search" class="btnSearc btnSearchGridData" OnClick="btnSearchGridData_Click" />
 
                             Number of Records: 
                             <asp:DropDownList ID="ddlPageSize_grdUsers" runat="server" AutoPostBack="true"
@@ -1421,39 +1486,6 @@
                                     <ItemStyle HorizontalAlign="Center"></ItemStyle>
                                 </asp:TemplateField>
 
-                                <%--    <asp:TemplateField ShowHeader="True" HeaderText="Install Id" Visible="false" SortExpression="Id" ControlStyle-ForeColor="Black"
-                                    ItemStyle-HorizontalAlign="Center">
-                                    <EditItemTemplate>
-                                        <asp:TextBox ID="txtInstallid" runat="server" MaxLength="30" Text='<%#Eval("InstallId")%>'></asp:TextBox>
-                                    </EditItemTemplate>
-                                    <ItemTemplate>
-                                        <asp:Label ID="lblInstallid" runat="server" Text='<%#Eval("InstallId")%>'></asp:Label>
-                                    </ItemTemplate>
-                                    <ControlStyle ForeColor="Black" />
-                                    <ControlStyle ForeColor="Black" />
-                                    <ItemStyle HorizontalAlign="Center"></ItemStyle>
-                                </asp:TemplateField>
-                                <asp:TemplateField HeaderText="Picture" Visible="false" SortExpression="picture">
-                                    <ItemTemplate>
-                                        <asp:LinkButton ID="lbtnPicture" Text="Picture" CommandName="ShowPicture" runat="server"
-                                            CommandArgument='<%#Eval("picture")%>'></asp:LinkButton>
-                                    </ItemTemplate>
-                                </asp:TemplateField>--%>
-
-                                <%--<asp:TemplateField ShowHeader="True" HeaderText="First Name<br />Last Name" HeaderStyle-HorizontalAlign="Center" ItemStyle-HorizontalAlign="Center" HeaderStyle-Width="15%" ItemStyle-Width="15%" SortExpression="FristName" ControlStyle-ForeColor="Black">
-                                    <EditItemTemplate>
-                                        <asp:TextBox ID="txtFirstName" runat="server" MaxLength="30" Text='<%#Eval("FristName")%>'></asp:TextBox>
-                                    </EditItemTemplate>
-                                    <ItemTemplate>
-                                        <asp:Label ID="lblFirstName" runat="server" Text='<%#Eval("FristName")%>'></asp:Label>
-                                        <br />
-                                        <asp:Label ID="lblLastName" runat="server" Text='<%# Eval("Lastname") %>'></asp:Label>
-                                    </ItemTemplate>
-                                    <ControlStyle ForeColor="Black" />
-                                    <ControlStyle ForeColor="Black" />
-                                    <ItemStyle HorizontalAlign="Center"></ItemStyle>
-                                </asp:TemplateField>--%>
-
                                 <asp:TemplateField HeaderText="Last name" Visible="false" SortExpression="Lastname" ItemStyle-HorizontalAlign="Center">
                                     <EditItemTemplate>
                                         <asp:TextBox ID="txtlastname" runat="server" Text='<%# Bind("Lastname") %>'></asp:TextBox>
@@ -1474,7 +1506,7 @@
                                     <ItemTemplate>
                                         <asp:HiddenField ID="lblStatus" runat="server" Value='<%#Eval("Status")%>'></asp:HiddenField>
                                         <asp:HiddenField ID="lblOrderStatus" runat="server" Value='<%#(Eval("OrderStatus") == null || Eval("OrderStatus") == "") ? -99 : Eval("OrderStatus")%>'></asp:HiddenField>
-                                        <%--<asp:DropDownList ID="ddlStatus" CssClass="grd-status" Style="width: 95%;" AutoPostBack="true" OnSelectedIndexChanged="grdUsers_ddlStatus_SelectedIndexChanged" runat="server" OnPreRender="ddlUserStatus_PreRender"> </asp:DropDownList><br />--%>
+
                                         <asp:DropDownList ID="ddlStatus" Width="400px" CssClass="grd-status" Style="text-align: left; width: 95%;" OnSelectedIndexChanged="grdUsers_ddlStatus_SelectedIndexChanged" runat="server" onchange="javascript:GridstatusChanged(event,this);" OnPreRender="ddlUserStatus_PreRender">
                                         </asp:DropDownList>
                                         <asp:Label ID="hdnlblEmail" runat="server" CssClass="OffferMadeEmail hide" Text='<%#Eval("Email")%>'></asp:Label>
@@ -1503,8 +1535,7 @@
                                         <br />
                                         <span><%#Eval("AddedBy")%></span>
                                         <a href='<%#(string.IsNullOrEmpty(Eval("AddedById").ToString())) ? "#" : "ViewSalesUser.aspx?id=" + Eval("AddedById")%>'><%#(string.IsNullOrEmpty(Eval("AddedByUserInstallId").ToString())) ? "" : "- " + Eval("AddedByUserInstallId")%></a>
-                                        <%--<asp:LinkButton ID="lnkAddedByUserInstallId" Text='<%#(string.IsNullOrEmpty(Eval("AddedByUserInstallId").ToString()))?"":"-"+ Eval("AddedByUserInstallId")%>' CommandName="EditAddedByUserInstall" runat="server"
-                                            CommandArgument='<%#(string.IsNullOrEmpty(Eval("AddedById").ToString()))?"":Eval("AddedById")%>' Enabled='<%#(string.IsNullOrEmpty(Eval("AddedByUserInstallId").ToString()))?false:true%>'></asp:LinkButton>--%>
+
                                         <br />
                                         <span><%#String.Format("{0:M/d/yyyy}", Eval("CreatedDateTime"))%></span>&nbsp<span style="color: red"><%#String.Format("{0:hh:mm:ss tt}", Eval("CreatedDateTime"))%></span>&nbsp<span>(EST)</span>
                                     </ItemTemplate>
@@ -1516,15 +1547,14 @@
 
                                 <asp:TemplateField HeaderText="Email<br/>Phone Type - Phone" HeaderStyle-Width="15%" ItemStyle-Width="15%" ItemStyle-HorizontalAlign="left" SortExpression="Phone">
                                     <ItemTemplate>
-                                        <%-- ControlStyle-CssClass="wordBreak" <asp:Label ID="lblPhone" runat="server" Text='<%# Bind("Phone") %>'></asp:Label>--%>
-                                        <%--onclick="<%# "javascript:grdUsers_Email_OnClick(this,'" + Eval("Email") + "');"%>"--%>
+
                                         <div class="GrdPrimaryEmail">
                                             <asp:LinkButton ID="lbtnEmail" runat="server" Text='<%# Eval("Email") %>' ToolTip='<%# Eval("Email") %>'
                                                 CommandName="send-email" CommandArgument='<%# Container.DataItemIndex %>' />
                                         </div>
                                         <asp:Label ID="lblPrimaryPhone" CssClass="grd-lblPrimaryPhone" data-click-to-call="true" runat="server" Text='<%# Eval("PrimaryPhone") %>'></asp:Label>
                                         <br />
-                                        <%-- <label style="font-size: 16px; color: red;"><%#Eval("Id") %></label><br />--%>
+
                                         <ul class="contactGrid">
                                             <li>
                                                 <asp:CheckBox ID="chkEmailPrimary" CssClass="liCheck" AutoPostBack="true" OnCheckedChanged="chkPrimary_CheckedChanged" runat="server"></asp:CheckBox>&nbsp;
@@ -1551,35 +1581,14 @@
                                         </ul>
                                         <asp:Label ID="lblExt" CssClass="ext" runat="server" Visible="false"></asp:Label>
                                         <asp:TextBox ID="txtExt" Visible="false" placeholder="Ext" MaxLength="8" CssClass="ext" runat="server"></asp:TextBox>
-                                        <%-- <div class="GrdContainer" style="width: 90%">
-                                            <div class="GrdHeader">
-                                                <span>Click To Add Phone /Email</span>
-                                            </div>
-                                            <div class="GrdContent">                                                
-                                               <ul style="padding-left: 0px;">
-                                                    <li>
-                                                        <asp:CheckBox ID="chkIsPrimaryPhone" Text=" Is Primary contact" runat="server"></asp:CheckBox></li>
-                                                    <li>
-                                                        <asp:DropDownList ID="ddlContactType" runat="server">
-                                                            <asp:ListItem Text="Home Phone"></asp:ListItem>
-                                                            <asp:ListItem Text="Office Phone"></asp:ListItem>
-                                                            <asp:ListItem Text="Alt Phone"></asp:ListItem>
-                                                            <asp:ListItem Text="Email"></asp:ListItem>
-                                                        </asp:DropDownList></li>
-                                                    <li>
-                                                        <asp:TextBox ID="txtNewContact" runat="server"></asp:TextBox></li>
-                                                    <li>
-                                                        <asp:Button ID="btnAddPhone" CssClass="GrdBtnAdd" runat="server" Text="Add" CommandName="AddNewContact" CommandArgument='<%# Eval("Id") %>'></asp:Button></li>
-                                                </ul>
-                                            </div>
-                                        </div>--%>
+
                                     </ItemTemplate>
                                 </asp:TemplateField>
                                 <asp:TemplateField HeaderText="Country-Zip-City<br/>Type-Apptitude Test %<br/>Resume Attachment" HeaderStyle-Width="2%" ItemStyle-Width="2%" ItemStyle-HorizontalAlign="Center" SortExpression="Zip" ControlStyle-CssClass="wordBreak">
                                     <ItemTemplate>
                                         <div title='<%#Eval("Country") %>' style='<%# string.IsNullOrEmpty(Eval("CountryCode").ToString()) == true ? "": "background-image:url(img/flags24.png);background-repeat:no-repeat;float:left;height:22px;width:24px;margin-top:-5px;" %>' class='<%#Eval("CountryCode").ToString().ToLower()%>'>
                                         </div>
-                                        <%--<span><%# Eval("Zip") %></span>--%>
+
                                         <asp:Label ID="lblCity" runat="server" Text='<%#Eval("City") %>'></asp:Label>
                                         <asp:Label ID="lblZip" runat="server" Text='<%# " - " + Eval("Zip") %>'></asp:Label>
 
@@ -1600,11 +1609,11 @@
                                             <asp:ListItem Text="Part Time" Value="9"></asp:ListItem>
                                             <asp:ListItem Text="Sub" Value="10"></asp:ListItem>
                                         </asp:DropDownList><br />
-                                        <%--  <span><%# (Eval("EmpType").ToString() =="0")?"Not Selected -":Eval("EmpType") +" -" %></span>--%>
+
                                         <span class='<%# (string.IsNullOrEmpty(Eval("Aggregate").ToString())) ? "hide" : (Convert.ToDouble(Eval("Aggregate")) > JG_Prospect.Common.JGApplicationInfo.GetAcceptiblePrecentage()) ? "greentext" : "redtext" %>'><%#(string.IsNullOrEmpty(Eval("Aggregate").ToString())) ? "N/A" : string.Format("{0:#,##}", Eval("Aggregate")) + "%" %></span>
 
                                         <a href='<%# "~/Employee/Resume/"+Eval("Resumepath") %>' id="aReasumePath" runat="server" target="_blank"><%# System.IO.Path.GetFileName(Eval("Resumepath").ToString()) %></a>
-                                        <%--<span><%# Eval("EmpType") %></span> <span> - <span><%#(string.IsNullOrEmpty(Eval("Aggregate").ToString()))?"N/A":string.Format("{0:#,##}",Eval("Aggregate"))+ "%" %></span>--%>
+
                                     </ItemTemplate>
                                 </asp:TemplateField>
                                 <asp:TemplateField HeaderStyle-HorizontalAlign="Center" ItemStyle-HorizontalAlign="Center" HeaderStyle-Width="27%"
@@ -1625,7 +1634,7 @@
                                         </div>
                                         <div class="notes-inputs">
                                             <div class="first-col">
-                                                <input type="button" class="GrdBtnAdd" value="Add Notes" onclick="addNotes(this, '<%# Eval("Id") %>','<%#Eval("UserInstallId")%>')" />
+                                                <input type="button" class="GrdBtnAdd" value="Add Notes" onclick="addNotes(this, '<%# Eval("Id") %>    ','<%#Eval("UserInstallId")%>    ')" />
                                             </div>
                                             <div class="second-col">
                                                 <textarea class="note-text textbox" id="txt-<%# Eval("Id") %>"></textarea>
@@ -1875,6 +1884,17 @@
                                 </strong></td>
                                 <td align="left">
                                     <asp:Label ID="lblDesignation_OfferMade" runat="server" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="right" style="height: 15px;">
+                                    <br />
+                                    <label>
+                                        Branch Location<span><asp:Label ID="Label6" Text="*" runat="server" ForeColor="Red"></asp:Label></span></label>
+                                </td>
+                                <td>
+                                    <asp:DropDownList CssClass="branchLocationId" ID="ddlBranchLocation" runat="server"></asp:DropDownList>
+                                    <br />
                                 </td>
                             </tr>
                             <tr>
@@ -2229,8 +2249,8 @@
                     </div>
 
                 </div>
-             
-             
+
+
             </ContentTemplate>
             <Triggers>
                 <asp:AsyncPostBackTrigger ControlID="btnUploadNew" EventName="Click" />
@@ -2552,7 +2572,7 @@
 
                             <span ng-class="{'redtext': EditSalesUser.Aggregate < 33, 'greentext': EditSalesUser.Aggregate > 33, 'hide': EditSalesUser.Aggregate == null}">{{EditSalesUser.Aggregate | number:2}}%</span>
                             <br>
-                            <a ng-class="hide" ng-href="http://jmgroveconstruction.com/Resumes/{{EditSalesUser.Resumepath}}" target="_blank">{{EditSalesUser.Resumepath}}</a>
+                            <a ng-class="hide" ng-href="//jmgroveconstruction.com/Resumes/{{EditSalesUser.Resumepath}}" target="_blank">{{EditSalesUser.Resumepath}}</a>
 
                         </td>
                         <td style="width: 17%; text-align: left;">
@@ -2617,12 +2637,12 @@
         </div>
     </div>
     <script src="../Scripts/angular.min.js"></script>
-    <script src="../js/angular/scripts/jgapp.js"></script>
-    <script src="../js/angular/scripts/edituser-angular.js"></script>
+    <script src="../js/angular/scripts/jgapp.js?v=<%=JG_Prospect.Common.modal.SingletonGlobal.Instance.RandomGUID %>"></script>
+    <script src="../js/angular/scripts/edituser-angular.js?v=<%=JG_Prospect.Common.modal.SingletonGlobal.Instance.RandomGUID %>"></script>
     <script src="../js/jquery.dd.min.js"></script>
     <script type="text/javascript" src="../js/jquery.timepicker.js"></script>
-    <script src="../js/edituser.js"></script>
-
+    <script src="../js/edituser.js?v=<%=JG_Prospect.Common.modal.SingletonGlobal.Instance.RandomGUID %>"></script>
+    <script type="text/javascript" src="<%=Page.ResolveUrl("~/js/chosen.jquery.js")%>"></script>
     <script type="text/javascript">
 
         var UserGridId = "#<%=grdUsers.ClientID%>";
@@ -2643,11 +2663,78 @@
             EditUser_Initialize();
         });
 
-        function EditUser_Initialize() {
+        function ApplyDateTextBoxes() {
 
+            var txtHRFromDate = '#<%= txtHRFromDate.ClientID %>';
+            var txtHRToDate = '#<%= txtHRToDate.ClientID %>';
+            $(txtHRFromDate).datepicker().attr('readonly', 'readonly');;
+            $(txtHRToDate).datepicker().attr('readonly', 'readonly');;
+        }
+
+        var statusDropdown = '#<%= ddlUserStatus.ClientID %>';
+        var drpUser = '#<%= drpUser.ClientID %>';
+        var drpDesignation = '#<%= ddlDesignation.ClientID %>';
+        var drpSource = '#<%= ddlSource.ClientID %>';
+        var hdnStatuses = '#<%= hdnStatuses.ClientID %>';
+        var hdnSources = '#<%= hdnSources.ClientID %>';
+        var hdnDesignations = '#<%= hdnDesignations.ClientID %>';
+        var hdnFilterUsers = '#<%= hdnFilterUsers.ClientID %>';
+        var btnSearchFilterwise = '#<%= btnSearchFilterwise.ClientID %>';
+
+        function ApplyChoosenDropDown() {
+
+            $(statusDropdown + '> option').each(function (i, item) {
+                $(item).html($("<div/>").html($(item).html()).text());
+            });
+
+            $(drpUser + '> option').each(function (i, item) {
+                $(item).html($("<div/>").html($(item).html()).text());
+            });
+
+            $(statusDropdown).chosen();
+            $(drpDesignation).chosen();
+            $(drpUser).chosen();
+            $(drpSource).chosen();
+
+            setonChangeResetforChosen(statusDropdown, hdnStatuses);
+            setonChangeResetforChosen(drpDesignation, hdnDesignations);
+            setonChangeResetforChosen(drpUser, hdnFilterUsers);
+            setonChangeResetforChosen(drpSource, hdnSources);
+
+        }
+
+        function setonChangeResetforChosen(dropdown, hiddenfieldId) {
+            $(dropdown).change(function () {
+                resetChosen(dropdown, hiddenfieldId);
+            });
+        }
+
+        function resetChosen(selector, hiddenfieldId) {
+            var val = $(selector).val();
+
+            if (val != undefined && val != '') {
+                $(selector)
+                    .find('option:first-child').prop('selected', false)
+                    .end().trigger('chosen:updated');
+            } else {
+                $(selector)
+                    .find('option:first-child').prop('selected', true)
+                    .end().trigger('chosen:updated');
+            }
+
+            $(hiddenfieldId).val($(selector).val());
+            console.log($(hiddenfieldId).val());
+
+            $(btnSearchFilterwise).click();
+
+
+        }
+
+        function EditUser_Initialize() {
+            ApplyChoosenDropDown();
+            ApplyDateTextBoxes();
             SetSalesUserAutoSuggestion();
             SetSalesUserAutoSuggestionUI();
-
             ApplyDropZone();
 
             try {
@@ -2714,7 +2801,7 @@
                 },
                 _renderMenu: function (ul, items) {
                     var that = this,
-                      currentCategory = "";
+                        currentCategory = "";
                     $.each(items, function (index, item) {
                         var li;
                         if (item.Category != currentCategory) {
@@ -2760,13 +2847,13 @@
                     if (isdel == "0") {
                         // alert("if");
                         //alert($("#" + obj));
-                        $("#" + obj).removeAttr("src").prop('src', 'http://localhost:61394/img/starred.png?dummy=' + d.getTime());
+                        $("#" + obj).removeAttr("src").prop('src', '<%=baseUrl %>/img/starred.png?dummy=' + d.getTime());
                         $("#" + obj).removeAttr("class").attr('class', 'starimgred');
                         $("#" + obj).removeAttr("alt").attr('alt', bookmarkedUser);
                         $("#" + obj).removeAttr("onclick").attr('onclick', 'GotoStarUser("' + bookmarkedUser + '","1","' + obj + '")')
                     }
                     else {
-                        $("#" + obj).removeAttr("src").prop('src', 'http://localhost:61394/img/star.png?dummy=' + d.getTime());
+                        $("#" + obj).removeAttr("src").prop('src', '<%=baseUrl %>/img/star.png?dummy=' + d.getTime());
                         $("#" + obj).removeAttr("class").attr('class', 'starimg');
                         $("#" + obj).removeAttr("alt").attr('alt', bookmarkedUser);
                         $("#" + obj).removeAttr("onclick").attr('onclick', 'GotoStarUser("' + bookmarkedUser + '","0","' + obj + '")')
@@ -2791,7 +2878,6 @@
         }
 
         function GridstatusChanged(event, dropdown) {
-
             var selectedValue = $(dropdown).val();
 
             // If user status is offermade than dont postback.
@@ -2806,6 +2892,7 @@
                 var OldStatus = $(statustr).find(".OffferMadeOldStatus").html();
                 var DesignationID = $(statustr).find(".OffferMadeUserDesignID").html();
                 var UserID = $(statustr).find(".OffferMadeUserID").html();
+                
 
                 $('#<%=lblName_OfferMade.ClientID%>').html(FirstName + ' ' + LastName);
                 $('#<%=lblDesignation_OfferMade.ClientID%>').html(Designation);
@@ -2823,8 +2910,8 @@
 
 
                 $('#<%=btnSaveOfferMade.ClientID%>').click(function () {
-
-                    SendOfferMadeEmail(UserID, Email, DesignationID);
+                    var branchLocationId = $('#DivOfferMade').find('.branchLocationId').find('option:selected').val();
+                    SendOfferMadeEmail(UserID, Email, DesignationID, branchLocationId);
                     return false;
                 });
 
@@ -2842,12 +2929,13 @@
             return false;
         }
 
-        function SendOfferMadeEmail(UserID, Email, DesignationID) {
+        function SendOfferMadeEmail(UserID, Email, DesignationID, branchLocationId) {
 
             var postData = {
                 UserEmail: Email,
                 UserID: parseInt(UserID),
-                DesignationID: DesignationID
+                DesignationID: DesignationID,
+                branchLocationId:branchLocationId
             };
 
             CallJGWebService('SendOfferMadeToCandidate', postData, OnSendOfferMadeToCandidateSuccess, OnSendOfferMadeToCandidateError);
@@ -2868,7 +2956,7 @@
 
         $(document).ready(function () {
             var notesEmail = '<%=notesUserEmail %>';
-            if(notesEmail!=''){
+            if (notesEmail != '') {
                 $('.txtSearch').val(notesEmail);
                 $('.btnSearchGridData').trigger('click');
             }
@@ -2900,7 +2988,7 @@
 
                             $('div.startooltip').remove();
                             $('<div class="startooltip">' + str + '</div>')
-                                  .appendTo('body');
+                                .appendTo('body');
                             changeTooltipPosition(event);
                         }
                         // $(".loading").show();
@@ -2944,23 +3032,23 @@
                 });
             }
             //============== End DP ==============
-       
+
             function showBulkUploadProgressPopup() {
 
-                $('#bulkUpload').removeClass('hide');               
+                $('#bulkUpload').removeClass('hide');
 
                 $('#bulkUpload').dialog({
                     modal: false,
                     height: 700,
                     width: 1000,
                     title: "Bulk upload progress...",
-                    
+
                 }).parent().appendTo($("form:first"));
 
                 $('#bulkUpload').show();
-                
-                
-                
+
+
+
                 return true;
             }
 

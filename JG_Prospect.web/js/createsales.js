@@ -2,7 +2,7 @@
 
     var isPageValid = Page_ClientValidate("vgQuickSave");
 
-    alert(isPageValid);
+
 
     if (isPageValid) {
         ShowAjaxLoader();
@@ -55,5 +55,66 @@
 
         return false;
     }
+
+}
+function QuickSaveUserWithEmailorPhone() {
+
+
+
+    if (ValidateQuickSave()) {
+        ShowAjaxLoader();
+
+        var postData = {
+            FirstName: txtFirstName.val(),
+            LastName: txtLastName.val(),
+            Email: txtEmailQs.val(),
+            Phone: txtPhoneQs.val(),
+            AddedByUserId: hdnAddedByUserId.val()
+        };
+
+        console.log(postData);
+
+        CallJGWebService('QuickSaveUserwithEmailOrPhone', postData, OnQuickSaveUserSuccess, OnQuickSaveUserError);
+
+        function OnQuickSaveUserSuccess(data) {
+            console.log(data);
+            if (data.d) {
+
+                if (data.d != '') {
+                    alert(data.d);
+                }
+
+            }
+            else {
+                alert('User cannot be saved. Please try again.');
+            }
+            HideAjaxLoader();
+        }
+
+        function OnQuickSaveUserError(err) {
+            console.log(err);
+            HideAjaxLoader();
+            alert('User cannot be saved. Please try again.');
+        }
+
+
+    }
+    else {
+        alert('Please enter Email!');
+    }
+
+    return false;
+
+}
+
+function ValidateQuickSave() {
+
+    var returnVal = true;
+
+    if (txtEmailQs.val() == '') {
+        returnVal = false;
+    }
+
+    return returnVal;
 
 }

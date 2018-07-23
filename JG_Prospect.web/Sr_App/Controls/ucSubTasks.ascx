@@ -9,7 +9,7 @@
 <script type="text/javascript" src="../js/jquery.magnific-popup.min.js"></script>
 
 <script type="text/javascript" src="../js/lightslider.js"></script>
-<script type="text/javascript" src="../js/Common.js"></script>
+<script type="text/javascript" src="../js/jg-common.js"></script>
 
 <style type="text/css">
     .notes-section {
@@ -298,7 +298,7 @@
     }
     .listId {
         float:left;
-        width: 30px;
+        width: 32px;
         margin-top: 7px;
     }
     .taskSubPoints {
@@ -322,13 +322,14 @@
         border-width: thin;
         border-top-style: dotted;
         padding-top: 5px;
+        padding-bottom:15px;
     }
     .selectchildren{
         float:right;
     }
     .indentButtonRight{
         float: left;        
-        margin-top: 10px;
+        margin-top: 5px;
         background-image: url(/img/indent_right.jpg);
         height: 21px;
         width: 26px;
@@ -337,12 +338,50 @@
     .indentButtonLeft{
         float: left;
         margin-left: 4px;
-        margin-top: 10px;
+        margin-top: 5px;
         background-image: url(/img/indent_left.jpg);
         height: 21px;
         width: 26px;
         background-repeat: no-repeat;
     }
+    .roman-save{
+        padding-left: 15px;
+        padding-right: 15px;
+        padding-top: 5px;
+        padding-bottom: 5px;
+        margin-top: 2px;
+        float: right;
+        background-color: #c05154;
+        color: #fff;
+        margin-right:20px;
+    }
+    .roman-title{
+        font-weight: bold;
+    }
+    .cke_textarea_inline i{
+        color:red;
+    }
+    .multileveledittext .cke_textarea_inline{
+        overflow-y:auto;
+        height:45px !important;
+    }
+    /*For Placeholder*/
+    label.roman-placeholder{
+	    position : relative
+    }
+    label.roman-placeholder>span{
+	    position: absolute;
+        left: 7px;
+        top: 0px;
+        font-weight: normal;
+        color: #9d9d9d;
+        font-style:italic;
+    }
+    input.roman-placeholder{
+	    position : relative;
+	    background : none;
+    }
+    /*For Placeholder*/
     .multileveledittext{
         width: 90%;
     text-align: left;
@@ -360,6 +399,7 @@
         background-color: #fff;
         height: 34px;
         float:left;
+        width:98%;
     }
     .TaskloaderDiv{
         float:right;
@@ -374,6 +414,27 @@
         float: left;
         width: 92%;
     }
+    /*For Roman Freeze(hours) popup*/
+        .roman-data{
+            margin-top: 15px;
+        }
+        #ITLeadFreezeHours,#ITLeadFreezeData,#UserFreezeHours,#UserFreezeData{
+            display:none;
+        }
+        #ITLeadFreezeData,#UserFreezeData{
+            margin-top:10px;
+        }
+        /*For Roman Freeze(hours) popup*/
+
+        /*Sequence Popup*/
+        .divDesigDropDown{
+            float:left;
+        }
+        .divPageSize{
+            float:right;
+            display:none;
+        }
+        /*Sequence Popup*/
 </style>
 
 <fieldset class="tasklistfieldset">
@@ -558,7 +619,6 @@
 
                     </select>
                     </div>
-                    <div data-ng-controller="TaskGeneratorController">
                         <div>
                             <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table edit-subtask">
                             <thead>
@@ -738,14 +798,24 @@
                                             <div class="nestedChildren">
                                                 <div ng-repeat="Child in MultiLevelChildren | filter: {ParentTaskId: SubTask.TaskId} : true"
                                                     class="ChildRow{{SubTask.TaskId}}" data-level="{{Child.IndentLevel}}" data-label="{{Child.Label}}"
-                                                    style="clear: both; padding: 5px;">
+                                                    style="clear: both; padding: 5px;" repeat-end="onRomansLoad({{SubTask.TaskId}})" data-tid="{{SubTask.TaskId}}">
                                                     <div ng-class="{level2: Child.IndentLevel==2, level3: Child.IndentLevel==3, parentdiv: Child.IndentLevel==1}"
                                                         style="float:left;width: 95%;">
                                                         <div style="float: left" id="selectboxes{{SubTask.TaskId}}">
-                                                            <input ng-class="{hide: Child.IndentLevel!= 1}" type="checkbox" />
+                                                            <input ng-class="{hide: Child.IndentLevel!= 1}" type="checkbox" data-taskid="{{Child.Id}}" onclick="ShowFeedbackFreezePopup(this)" />
                                                             <a href="#" style="color: blue" class="context-menu-child" data-childid="{{Child.Id}}" data-highlighter="{{SubTask.TaskId}}">{{Child.Label}}.</a>
                                                         </div>
-                                                        <div ng-bind-html="Child.Description | trustAsHtml" class="ChildEdit" id="ChildEdit{{Child.Id}}" data-parentid="{{SubTask.TaskId}}" data-taskid="{{Child.Id}}"></div>
+                                                        <div>
+                                                            <div style="display:table-column; float:left; width:68%">
+                                                                <div ng-bind-html="Child.Title | trustAsHtml" class="roman-title ChildEditTitle" id="ChildEditTitle{{Child.Id}}" data-parentid="{{SubTask.TaskId}}" data-taskid="{{Child.Id}}"></div>
+                                                                <div ng-bind-html="Child.Description | trustAsHtml" class="ChildEdit" id="ChildEdit{{Child.Id}}" data-parentid="{{SubTask.TaskId}}" data-taskid="{{Child.Id}}"></div>
+                                                            </div>
+                                                            <div class="right" style="display:table-column; font-size:11px !important">
+                                                                <a href="/sr_app/CreateSalesUser.aspx?id={{Child.UpdatedByUserId}}" style="color: Blue;">{{Child.UpdatedByUserId}}# {{Child.UpdatedBy}}</a><br>
+                                                                <span>{{ Child.DateUpdated | date:'M/d/yyyy' }}</span>&nbsp;<span style="color: red">{{ Child.DateUpdated | date:'shortTime' }}</span>&nbsp;<span>(EST)</span><br />
+                                                                <span>Updated On:<br /> {{ Child.DateUpdated | date:'M/d/yyyy' }}</span>&nbsp;<span style="color: red">{{ Child.DateUpdated | date:'shortTime' }}</span>&nbsp;<span>(EST)</span>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                     <div class="delete-icon"><img src="../img/delete.jpg" alt="Delete" data-childid="{{Child.Id}}" onclick="DeleteChild(this, false)"/></div>
                                                 </div>
@@ -753,22 +823,28 @@
                                             <%--SubTask Part Starts--%>
                                             <div id="Div1" runat="server" align="center" class="taskSubPoints" style="background-color:white;padding-top: 5px;">
                                                 <div class="listId">
+                                                    <input type="checkbox" />
                                                     <a href="#" data-listid="{{SubTask.InstallId}}" data-level="{{SubTask.Indent}}" data-label="{{LevelToRoman(SubTask.LastChild,SubTask.Indent)}}" 
                                                         id="listId{{SubTask.TaskId}}" style="color:blue">{{LevelToRoman(SubTask.LastChild,SubTask.Indent)}}</a>
                                                     <input id="nestLevel{{SubTask.TaskId}}" value="{{SubTask.Indent}}" data-label="{{LevelToRoman(SubTask.LastChild,SubTask.Indent)}}" type="hidden" />
                                                     <input id="lastData{{SubTask.TaskId}}" value="{{SubTask.Indent}}" data-label="{{LevelToRoman(SubTask.LastChild,SubTask.Indent)}}" type="hidden" />
                                                 </div>
                                                 <div>
-                                                    <div class="multileveledittext" >
-                                                        <textarea style="width:80%" rows="1" id="subtaskDesc{{SubTask.TaskId}}" data-taskid="{{SubTask.TaskId}}" onkeypress="OnMultiLevelChildSave()" onclick="SetCKEditorForChildren(this.id)"></textarea>
-                                                    </div>                                                
+                                                    <div class="multileveledittext">
+                                                        <label class="roman-placeholder">
+                                                            <span id="sp" class="roman-placeholder"><span style="color:red">*</span> Sub Task Title</span>
+                                                            <input onfocus="hidePlaceholder(this);" onblur="showPlaceHolder(this);" type="text" id="txtRomanTitle{{SubTask.TaskId}}" class="roman-placeholder"
+                                                                style="width: 99%; margin-bottom: 2px; height: 22px; padding-left: 5px">
+                                                        </label>
+                                                        <textarea placeholder="<i>*</i> Description" style="width: 80%" rows="3" class="ChildDescField" id="subtaskDesc{{SubTask.TaskId}}" data-taskid="{{SubTask.TaskId}}" onkeypress="OnMultiLevelChildSave()"></textarea>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div id="NewChildDiv">&nbsp;
-                                                <div class="btn_sec" id="indentDiv">
+                                                <div class="" id="indentDiv">
                                                     <button class="indentButtonLeft" type="button" id="btnLeft{{SubTask.TaskId}}" data-taskid="{{SubTask.TaskId}}" data-action="left" onclick="OnIndent(this)" ></button>
                                                     <button class="indentButtonRight" type="button" id="btnRight{{SubTask.TaskId}}" data-taskid="{{SubTask.TaskId}}" data-action="right" onclick="OnIndent(this)" ></button>
-                                                    <%--<input type="button" style="padding-left:12px;padding-right:12px" value="Save" onclick="OnSaveSubTask(this)" data-taskid="{{SubTask.TaskId}}"/>--%>
+                                                    <input type="button" class="roman-save" value="Save" onclick="OnSaveRoman(this)" data-taskid="{{SubTask.TaskId}}"/>
                                                 </div>
                                                 <div id="TaskloaderDiv{{SubTask.TaskId}}" class="TaskloaderDiv">
                                                     <img src="../../img/ajax-loader.gif" style="height:16px; vertical-align:bottom" /> Auto Saving...
@@ -814,6 +890,9 @@
                                             <li>
                                                 <input <%=IsAdminMode?"":"disabled" %> id="chkTechSubTask" type="checkbox" name="chkTechTask" ng-checked="{{SubTask.IsTechTask}}" onclick="setTaskType(this)" data-taskid="{{SubTask.TaskId}}"><label for="chkTechTask"> Tech Task?</label>
                                             </li>
+                                            <li>
+                                                <input <%=IsAdminMode?"":"disabled" %> id="chkRASSubTask" type="checkbox" name="chkTechTask" ng-checked="{{SubTask.IsReassignable}}" onclick="setReassignableTaskType(this)" data-taskid="{{SubTask.TaskId}}"><label for="chkTechTask">Reoccuring Task</label>
+                                            </li>
                                             <li></li>
                                             <li>Priority/Sequence
                                             </li>
@@ -838,8 +917,7 @@
                                                 </select>
                                             </li>
 
-                                            <li>Status
-                                            </li>
+                                            <li>Status</li>
                                             <li>
                                                 <select id="drpStatusSubsequenceFrozen" onchange="changeTaskStatusClosed(this);" data-highlighter="{{SubTask.TaskId}}">
                                                     <option ng-selected="{{SubTask.Status == '1'}}" value="1">Open</option>
@@ -869,7 +947,7 @@
                                             <div style="clear:both"></div>
                                             <select id="ddcbSeqAssignedStaff" style="width: 180px;" multiple data-assignedusers="{{SubTask.TaskAssignedUserIds}}" 
                                                 data-chosen="1" data-placeholder="Select Users" onchange="EditAssignedSubTaskUsers(this);" data-taskid="{{SubTask.TaskId}}" 
-                                                data-taskstatus="{{SubTask.Status}}" class="chosen-input">
+                                                data-taskstatus="{{SubTask.Status}}" class="chosen-input task-users">
                                                 <option
                                                     ng-repeat="item in Users"
                                                     value="{{item.Id}}"
@@ -948,7 +1026,10 @@
                                                                     <h5>
                                                                         <span class="sub-task-user" id="ltlCreatedUser">{{File.FirstName}}</span></h5>
                                                                     <div>
+                                                                        <%if (IsAdminMode)
+                                                                            {%>
                                                                         <a class="sub-task-link" id="lbtnDelete" data-aid="{{File.Id}}" onclick="OnDeleteAttachment(this);" href="#">Delete</a>
+                                                                        <%} %>
                                                                     </div>
                                                                     <br />
                                                                     <a class="image-link" href="/TaskAttachments/{{File.attachment.split('@')[0]}}">
@@ -979,7 +1060,6 @@
                         <img src="../img/ajax-loader.gif" />
                     </div>
    
-                    </div>
                     
                                         
                     <div id="divSubTasks_Empty" runat="server" class="hide">
@@ -1003,9 +1083,23 @@
                     <h5>Sequenced Tasks: </h5>
                     <table class="table">
                         <tr>
-                            <td>Designation
-                <br />
-                                <asp:DropDownList ID="ddlDesigSeq" CssClass="textbox" runat="server" AutoPostBack="false"></asp:DropDownList>
+                            
+                            <td style="width:100%">
+                                <div class="divDesigDropDown">
+                                    Designation
+                                    <asp:DropDownList ID="ddlDesigSeq" CssClass="textbox" runat="server" AutoPostBack="false"></asp:DropDownList>
+                                </div>
+                                <div class="divPageSize">
+                                    Page Size
+                                    <select id="seqPageSizeDropDown" class="textbox">
+                                        <option value="0">All</option>
+                                        <option value="5">5</option>
+                                        <option value="10" selected>10</option>
+                                        <option value="15">15</option>
+                                        <option value="20">20</option>
+                                        <option value="25">25</option>
+                                    </select>
+                                </div>
                             </td>
                             <td>
                                 <label>
@@ -1773,6 +1867,7 @@
 <%--<script src="../js/angular/scripts/jgapp.js"></script>--%>
 <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-sanitize.js"></script>
 <script src="../js/angular/scripts/TaskSequence.js"></script>
+<script src="../js/angular/scripts/TaskShare.js"></script>
 <script src="../js/TaskSequencing.js"></script>
 <%--<script src="../js/angular/scripts/TaskSequence-UiGrid.js"></script>--%>
 
@@ -1786,7 +1881,6 @@
     </div>
 </div>
 <%--Popup Ends--%>
-<script type="text/javascript" src="<%=Page.ResolveUrl("~/js/chosen.jquery.js")%>"></script>
 <script type="text/javascript" src="<%=Page.ResolveUrl("~/js/handleCounter.js")%>"></script>
 
 
@@ -2257,7 +2351,8 @@
         DestroyCKEditors();
     });
     var IsAdminMode = 'False';
-    $(document).ready(function () {        
+    $(document).ready(function () {
+        TouchPointSource =<%=(int)JG_Prospect.Common.TouchPointSource.TaskGenerator %>;
         IsAdminMode = '<%=IsAdminMode%>';
         //SubTask Enter Event
         $("#subtaskDesc").keyup(function (event) {
@@ -2317,6 +2412,27 @@
         });
     }
 
+
+    function setReassignableTaskType(Task) {
+        if (IsAdminMode == 'True') {
+            var Checked = $(Task).is(':checked');
+            var TaskId = Task.getAttribute('data-taskid');
+            var data = { intTaskId: TaskId, TaskType: Checked };
+            $.ajax({
+                type: "POST",
+                url: url + "SetReassignableTaskType",
+                data: data,
+                success: function (result) {
+                    alert("Task set to reoccuring successfully.");
+                    LoadSubTasks();
+                },
+                error: function (errorThrown) {
+                    alert("Failed!!!");
+                }
+            });
+        }
+    }
+
     function setTaskType(Task) {
         if (IsAdminMode=='True') {
             var Checked = $(Task).is(':checked');
@@ -2328,6 +2444,7 @@
                 data: data,
                 success: function (result) {
                     alert("Task Type Changed.");
+                    LoadSubTasks();
                 },
                 error: function (errorThrown) {
                     alert("Failed!!!");
@@ -2337,8 +2454,7 @@
     }
 
     var control;
-    var isadded = false;
-    var idAttachments = false;
+    var isadded = false;    
 
     function pageLoad(sender, args) {
         $('#closebtn').bind("click", function () {
@@ -2590,61 +2706,7 @@
             }
         );
     }
-    function EditDesc(tid, tdetail,autosave) {
-
-        if (autosave)
-            ShowAutoSaveProgress(tid);
-        else
-            ShowAjaxLoader();
-
-        
-        var postData = {
-            tid: tid,
-            Description: tdetail
-        };
-
-        $.ajax
-            (
-            {
-                url: '../WebServices/JGWebService.asmx/UpdateTaskDescriptionById',
-                contentType: 'application/json; charset=utf-8;',
-                type: 'POST',
-                dataType: 'json',
-                data: JSON.stringify(postData),
-                asynch: false,
-                success: function (data) {
-                    if (idAttachments) {
-                        //$('#<%=btnSaveGridAttachment.ClientID%>').click();
-                        if (!autosave)
-                            RefreshData = true;
-                        else
-                            RefreshData = false;
-
-                        SaveAttchmentToDB();
-                    }
-                    else {
-                        HideAjaxLoader();
-                    }
-
-                    if ($('#lblStatus').length > 0) {
-                        $('#lblStatus').html('Changes saved successfully.');
-                    }
-
-                    //alert(autosave);
-                    if (autosave) {
-                        HideAutoSaveProgress(tid);
-                    }
-                    else {
-                        alert('Description saved successfully.');
-                    }
-                    isBtnSave = false;
-                },
-                error: function (a, b, c) {
-                    HideAjaxLoader();
-                }
-            }
-            );
-    }
+    
         function EditAssignedTaskUsers(sender) {
             ShowAjaxLoader();
 
@@ -3149,10 +3211,7 @@
                 }
             }
 
-            var uid = '';
-            var SearchTargetEmail = true;
-            var urltoCopy = '';
-            var TIdToDel = '';
+            
 
             function ApplySubtaskLinkContextMenu() {
 
@@ -3162,120 +3221,9 @@
                 });
             }
 
-            function sharePopup(obj) {
-                TIdToDel = $(obj).attr('data-highlighter');
-                urltoCopy = updateQueryStringParameterTP(window.location.href, "hstid", TIdToDel);
-                var taskfid = $(obj).attr('data-taskfid');
-                var tasktitle = $(obj).attr('data-tasktitle');
-                var AssignedUserId = $(obj).attr('data-AssignedUserId');
-                var uname = $(obj).attr('data-uname');
-                urltoCopy = urltoCopy + '&task=' + taskfid + '&title=' + tasktitle + '&assigneduser=' + AssignedUserId + '&name=' + uname;
-                //copyToClipboard(urltoCopy);
-                // Get the modal
-                var modal = document.getElementById('myModal');
+            
 
-                // Get the <span> element that closes the modal
-                var span = document.getElementsByClassName("close")[0];
-
-                // When the user clicks the button, open the modal 
-                modal.style.display = "block";
-
-                // When the user clicks on <span> (x), close the modal
-                span.onclick = function () {
-                    modal.style.display = "none";
-                }
-
-                // When the user clicks anywhere outside of the modal, close it
-                window.onclick = function (event) {
-                    if (event.target == modal) {
-                        modal.style.display = "none";
-                    }
-                }
-
-                $('#txtTaskLink').val(urltoCopy);
-                $('#txtSearchUser').val('');
-                
-                return false;
-            }
-
-            $('.search-target').click(function () {
-                SearchTargetEmail = $(this).attr('data-target') == 'emails' ? true : false;
-                $('#txtSearchUser').val('');
-                $('#txtSearchUser').focus();
-                $('.search-label').html(SearchTargetEmail ? 'Search: Email' : 'Search: User');
-            });
-            $('#btnShare').on('click', function () {
-                if (SearchTargetEmail) {
-                    var contents = urltoCopy;
-                    sendEmail(this, contents, uid);
-                }
-                else {
-                    var note = 'Shared: ' + $('#txtTaskLink').val();
-                    addNote(this, uid, note);
-                }
-                return false;
-            });
-            $('#btnDelete').on('click', function () {
-                if (confirm('It will delete this task and all its child tasks. Are you sure?')) {
-                    CallJGWebService('HardDeleteTask', { TaskId: parseInt(TIdToDel) },
-                        function (data) {
-                            if (data) {
-                                LoadSubTasks();
-                                alert('Task deleted successfully.');
-                                $('#myModal').css('display', 'none');
-                            }
-                        },
-                        function (err) {
-                            alert('Error deleting task.');
-                        });
-                }
-                return false;
-            });
-            $('#btnCopy').on('click', function () {
-                $('#txtTaskLink').select();
-                var successful = document.execCommand('copy');
-                return false;
-            });
-
-            $('#txtSearchUser').on('keyup', function () {
-                $('.auto-complete-users').remove();
-                var keywords = '', keyword = '';
-                if (SearchTargetEmail == false) {
-                    keywords = $(this).val().split('@');
-                    keyword = keywords[keywords.length - 1];
-                }
-                else {
-                    keyword = $(this).val();
-                }
-                if (SearchTargetEmail == false && keywords.length < 2)
-                    return;
-                if (keyword != '')
-                    ajaxExt({
-                        url: SearchTargetEmail == false ? '/Sr_App/ajaxcalls.aspx/GetInstallUsersByPrefix' : '/Sr_App/EditUser.aspx/GetUsers',
-                        type: 'POST',
-                        data: '{ keyword: "' + keyword + '" }',
-                        showThrobber: true,
-                        throbberPosition: { my: "left center", at: "right center", of: $(this), offset: "5 0" },
-                        success: function (data, msg) {
-                            if (data.Results.length > 0) {
-                                $('.auto-complete-users').remove();
-                                var tbl = '<ul class="auto-complete-users">';
-                                $(data.Results).each(function (i) {
-                                    if (name != null && name != undefined) {
-                                        var data = (SearchTargetEmail == true ? this.Email : this.FirstName);
-                                        tbl += '<li>' +
-                                            '<div onclick="setUserData(this, \'' + data + '\',' + this.ID + ')">' + data + '</div>' +
-                                            '</li>';
-                                    }
-                                });
-                                tbl += '</ul>';
-                                $('.users-container').append(tbl);
-                            } else {
-                                $('.users-container').append('<ul class="auto-complete-users"><li>Not found</li></ul>');
-                            }
-                        }
-                    });
-            });
+            
 
             // check if user has selected any designations or not.
             function SubTasks_checkDesignations(oSrc, args) {
@@ -3418,6 +3366,7 @@
         }
     }
     function SaveAttchmentToDB() {
+        debugger;
         if (IsAdminMode == 'True') {
             var data = {
                 TaskId: $('#<%=hdDropZoneTaskId.ClientID%>').val(), attachments: $('#<%=hdnGridAttachment.ClientID%>').val()
@@ -3440,35 +3389,40 @@
                     console.log(errorThrown);
                     alert("Failed!!!");
                 }
-            });
+            });            
+            $('#ContentPlaceHolder1_objucSubTasks_Admin_hdnGridAttachment').val('');
         }
     }
 
-function setSelectedUsersLink() {
-
-    $('.search-choice').each(function () {
-        var itemIndex = $(this).children('.search-choice-close').attr('data-option-array-index');
-        //console.log(itemIndex);
-        if (itemIndex) {
-            //console.log($(this).parent('.chosen-choices').parent('.chosen-container'));
-            var selectoptionid = '#' + $(this).parent('.chosen-choices').parent('.chosen-container').attr('id').replace("_chosen", "") + ' option';
-            var chspan = $(this).children('span');
-            if (chspan) {
-                chspan.html('<a style="color:blue;" href="/Sr_App/ViewSalesUser.aspx?id=' + $(selectoptionid)[itemIndex].value + '">' + chspan.text() + '</a>');
-                chspan.bind("click", "a", function () {
-                    window.open($(this).children("a").attr("href"), "_blank", "", false);
-                });
+    function setSelectedUsersLink() {       
+        $('.search-choice').each(function () {
+            var itemIndex = $(this).children('.search-choice-close').attr('data-option-array-index');
+            //console.log(itemIndex);
+            if (itemIndex) {
+                //console.log($(this).parent('.chosen-choices').parent('.chosen-container'));
+                var id = $(this).parent('.chosen-choices').parent('.chosen-container').attr('id');
+                if (id != undefined) {
+                    var selectoptionid = '#' + id.replace("_chosen", "") + ' option';
+                    var chspan = $(this).children('span');
+                    if (chspan) {
+                        if (selectoptionid != undefined && $(selectoptionid)[itemIndex] != undefined) {
+                            chspan.html('<a style="color:blue;" href="/Sr_App/ViewSalesUser.aspx?id=' + $(selectoptionid)[itemIndex].value + '">' + chspan.text() + '</a>');
+                            chspan.bind("click", "a", function () {
+                                window.open($(this).children("a").attr("href"), "_blank", "", false);
+                            });
+                        }
+                    }
+                }
             }
-        }
-    });
-}
+        });
+    }
 
     function Paging(sender) {
             $('#PageIndex').val(paging.currentPage);
             ajaxExt({
                 url: '/Sr_App/edituser.aspx/GetUserTouchPointLogs',
                 type: 'POST',
-                data: '{ pageNumber: ' + $('#PageIndex').val() + ', pageSize: ' + paging.pageSize + ', userId: ' + <%=loggedInUserId%> + ' }',
+                data: '{ pageNumber: ' + $('#PageIndex').val() + ', pageSize: ' + paging.pageSize + ', userId: ' + <%=loggedInUserId%> + ',chatSourceId:<%=(int)JG_Prospect.Common.ChatSource.TaskGenerator%> }',
                 showThrobber: true,
                 throbberPosition: { my: "left center", at: "right center", of: $(sender), offset: "5 0" },
                 success: function (data, msg) {
@@ -3520,22 +3474,7 @@ function setSelectedUsersLink() {
                     }
                 });
         }
-        function addNote(sender, uid, note) {
-            if (note != '') {
-                $('.search-label').html('Please Wait...');
-                ajaxExt({
-                    url: '/Sr_App/edituser.aspx/AddNotes',
-                    type: 'POST',
-                    data: '{ id: ' + uid + ', note: "' + note + '", touchPointSource: ' + <%=(int)JG_Prospect.Common.TouchPointSource.TaskGenerator %> + ' }',
-                    showThrobber: true,
-                    throbberPosition: { my: "left center", at: "right center", of: $(sender), offset: "5 0" },
-                    success: function (data, msg) {
-                        $('#txtSearchUser').val('');
-                        $('.search-label').html('Note Sent.');
-                    }
-                });
-            }
-        }
+        
 
 
 

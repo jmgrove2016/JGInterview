@@ -764,13 +764,67 @@ namespace JG_Prospect.MCQTest
 
                 //All exams finished.
 
+                #region "-- Aptitude test result based status change - OLD --"
+                // Changed By - Yogesh Keraliya
+                //  Reference:  Skype Chat JG-KY 03/23/2018
+                //// If obtained aggregated percentage is less than acceptable level, user is unfit to join JG.
+                //if (overAllPercentageScored < JGApplicationInfo.GetAcceptiblePrecentage())
+                //{
+                //    //Set User status as rejected.
+                //    UpdateUserStatusAsRejectedWithReason(UserID, "Didn't Passed apptitude test.");
+                //    LogoutUser(true);
+
+                //}
+                //else // User is pass into our application.
+                //{
+                //    //After successfully completed test , Status will be applicant again.
+                //    UpdateUserStatusAsApplicantWithReason(UserID, "Completed apptitude test successfully.");
+
+                //    //Response.Redirect("~/ViewApplicantUser.aspx?Id="+UserID+"&IE=1");
+
+                //    #region "-- old cold commented --"
+                //    /// Modified By: Yogesh Keraliya
+                //    /// Modified Date: 11/16/2017
+                //    /// Description: Flow changed after discussion with JG, http://web.jmgrovebuildingsupply.com/Sr_App/TaskGenerator.aspx?TaskId=686&hstid=722
+                //    /// Point X. 2,3
+                //    /// If user successfully completed test, but haven't accepted task their status is still in "Applicant"
+                //    //UpdateUserStatusAsInterviewDateWithReason(DateTime.Now.AddDays(2), "Exam successfully cleared!s"); 
+                //    #endregion
+
+                //    ScriptManager.RegisterStartupScript(this, this.Page.GetType(), "ExamPassed", "SuccessRedirect(" + UserID + ");", true);
+
+                //    //Get latest task to be assigned for user's designation.
+                //    //DataSet dsTaskToBeAssigned = TaskGeneratorBLL.Instance.GetDesignationTaskToAssignWithSequence(this.DesignationID, true);
+
+                //    //if (dsTaskToBeAssigned != null && dsTaskToBeAssigned.Tables.Count > 0 && dsTaskToBeAssigned.Tables[0].Rows.Count > 0)
+                //    //{
+                //    //    // Assign automatic task to user.
+                //    //    AssignedTaskToUser(UserID, Convert.ToUInt64(dsTaskToBeAssigned.Tables[0].Rows[0]["TaskId"]), Convert.ToUInt64(dsTaskToBeAssigned.Tables[0].Rows[0]["ParentTaskId"]), Convert.ToString(dsTaskToBeAssigned.Tables[0].Rows[0]["Title"]), Convert.ToString(dsTaskToBeAssigned.Tables[0].Rows[0]["InstallId"]));
+
+                //    //    //Update automatic task sequence  assignment
+                //    //    InsertAssignedTaskSequenceInfo(Convert.ToInt64(dsTaskToBeAssigned.Tables[0].Rows[0]["TaskId"]), this.DesignationID, Convert.ToInt64(dsTaskToBeAssigned.Tables[0].Rows[0]["AvailableSequence"]), true);
+
+                //    //    //SetInterviewDateNTime();
+
+                //    //    SetExamPassedMessage(dsTaskToBeAssigned.Tables[0].Rows[0]["InstallId"].ToString(), dsTaskToBeAssigned.Tables[0].Rows[0]["Title"].ToString(), Convert.ToInt64(dsTaskToBeAssigned.Tables[0].Rows[0]["TaskId"]), Convert.ToInt64(dsTaskToBeAssigned.Tables[0].Rows[0]["ParentTaskId"]));
+
+                //    //    ScriptManager.RegisterStartupScript(this, this.Page.GetType(), "ExamPassed", "showExamPassPopup();", true);
+                //    //}
+                //}
+                #endregion
+
+                #region "-- Aptitude test result based status change - NEW --"
                 // If obtained aggregated percentage is less than acceptable level, user is unfit to join JG.
                 if (overAllPercentageScored < JGApplicationInfo.GetAcceptiblePrecentage())
                 {
+                    // Changed By - Yogesh Keraliya
+                    // Reference:  Skype Chat JG-KY 03/23/2018
                     //Set User status as rejected.
-                    UpdateUserStatusAsRejectedWithReason(UserID, "Didn't Passed apptitude test.");
-                    LogoutUser(true);
+                    //UpdateUserStatusAsRejectedWithReason(UserID, "Didn't Passed apptitude test.");
+                    //LogoutUser(true);
 
+                    //keep user status as applicant but set message of fail.
+                    UpdateUserStatusAsApplicantWithReason(UserID, "Didn't Passed apptitude test.");
                 }
                 else // User is pass into our application.
                 {
@@ -788,8 +842,8 @@ namespace JG_Prospect.MCQTest
                     //UpdateUserStatusAsInterviewDateWithReason(DateTime.Now.AddDays(2), "Exam successfully cleared!s"); 
                     #endregion
 
-                    ScriptManager.RegisterStartupScript(this, this.Page.GetType(), "ExamPassed", "SuccessRedirect(" + UserID + ");", true);
-                    
+                  
+
                     //Get latest task to be assigned for user's designation.
                     //DataSet dsTaskToBeAssigned = TaskGeneratorBLL.Instance.GetDesignationTaskToAssignWithSequence(this.DesignationID, true);
 
@@ -808,6 +862,10 @@ namespace JG_Prospect.MCQTest
                     //    ScriptManager.RegisterStartupScript(this, this.Page.GetType(), "ExamPassed", "showExamPassPopup();", true);
                     //}
                 }
+
+                ScriptManager.RegisterStartupScript(this, this.Page.GetType(), "ExamPassed", "SuccessRedirect(" + UserID + ");", true);
+
+                #endregion
 
             }
             else
@@ -853,7 +911,10 @@ namespace JG_Prospect.MCQTest
 
         private void UpdateUserStatusAsRejectedWithReason(int userID, String ReasonMessage)
         {
-            InstallUserBLL.Instance.ChangeUserStatusToReject(Convert.ToInt32(JGConstant.InstallUserStatus.Rejected), DateTime.Now.Date, DateTime.Now.ToShortTimeString(), JGApplicationInfo.GetJMGCAutoUserID(), Convert.ToInt32(Session["ID"]), ReasonMessage);
+            // Changed By Yogesh Keraliya
+            // Reference : JG-YK skype chat 03/23/2018
+            //InstallUserBLL.Instance.ChangeUserStatusToReject(Convert.ToInt32(JGConstant.InstallUserStatus.Rejected), DateTime.Now.Date, DateTime.Now.ToShortTimeString(), JGApplicationInfo.GetJMGCAutoUserID(), Convert.ToInt32(Session["ID"]), ReasonMessage);
+            InstallUserBLL.Instance.ChangeUserStatusToReject(Convert.ToInt32(JGConstant.InstallUserStatus.Applicant), DateTime.Now.Date, DateTime.Now.ToShortTimeString(), JGApplicationInfo.GetJMGCAutoUserID(), Convert.ToInt32(Session["ID"]), ReasonMessage);
         }
 
         private void UpdateUserStatusAsApplicantWithReason(int userID, String ReasonMessage)

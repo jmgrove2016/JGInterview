@@ -1,12 +1,12 @@
 ﻿$(document).ready(function () {
     //Initialize CKEditor
     SetCKEditorForTaskPopup('txtTaskDescription');
-    SetCKEditorForChildrenPopup('multilevelChildDesc');
+    SetCKEditorForChildrenPopup('multilevelChildDesc');    
 
     //Attach Change event to Designation DropDown
-    $('#ddlTasksDesignations').on('change', function () {
-        resetChosen('#ddlTasksDesignations');
-        loadUsers('ddlTasksDesignations', 'ddlTaskUsers', 'lblStatus');
+    $(ddlTasksDesignations).on('change', function () {
+        resetChosen(ddlTasksDesignations);
+        loadUsers(ddlTasksDesignations.replace("#", ""), 'ddlTaskUsers', 'lblStatus');
     });
     $('#ddlTaskUsers').on('change', function () {
         resetChosen('#ddlTaskUsers');        
@@ -19,13 +19,14 @@
 
     //sequenceScopeTG.TaskLastChild = '';
     //sequenceScopeTG.TaskIndent = 1;
+    $('#modalAddTaskDrag').draggable({ handle: '.ui-dialog-titlebar' });
 });
 
 //Event Handlers
-function AddNewTaskPopup() {
+function AddNewTaskPopup() {    
     $('#txtTitle').val(''); $('#txtURL').val(''); $('#txtTaskDescription').val('');
     $('#txtListId').val($('#hdnNextInstallId').val());
-    showAddNewTaskPopup();    
+    showAddNewTaskPopup();
 }
 
 function SaveSubTask(Silent) {       
@@ -47,9 +48,12 @@ function SaveSubTask(Silent) {
     var Attachments = '';
     var type = $('#ddlTaskType').val();
     var users = $("#ddlTaskUsers").val();
-    var designations = $("#ddlTasksDesignations").val().join();
+    var designations = $(ddlTasksDesignations).val().join();
     var blTechTask = $('#chkIsTechTask').prop('checked');
     var sequence = $('#txtSeqAdd').val();
+
+    if (sequence == undefined)
+        sequence = '';
 
     //Validate Form
     if (!Silent) {
@@ -109,25 +113,26 @@ function SaveSubTask(Silent) {
                 //PreventScroll = 1;
                 
                 $('#lblStatus').html('Task saved successfully.');
-                $('#<%=hdTaskId.ClientID%>').val(tid);
 
-                //URL Processing
-                var url = getUrlVars();
-                switch (url.length) {
-                    case 1: { }
-                    case 2: {
-                        var param1;
-                        param1 = url['TaskId'];
-                        window.history.pushState("", "", "TaskGenerator.aspx?TaskId=" + param1 + "&hstid=" + tid);
-                        break;
+                if (Page == 'TG') {
+                    //URL Processing
+                    var url = getUrlVars();
+                    switch (url.length) {
+                        case 1: { }
+                        case 2: {
+                            var param1;
+                            param1 = url['TaskId'];
+                            window.history.pushState("", "", "TaskGenerator.aspx?TaskId=" + param1 + "&hstid=" + tid);
+                            break;
+                        }
+                        //case 3: {
+                        //    var param1;
+                        //    param1 = url['TaskId'];
+                        //    param2 = url['hstid'];
+                        //    window.history.pushState("", "", "TaskGenerator.aspx?TaskId=" + param1 + "&hstid=" + param2 + "&mcid=" + tid);
+                        //    break;
+                        //}
                     }
-                    //case 3: {
-                    //    var param1;
-                    //    param1 = url['TaskId'];
-                    //    param2 = url['hstid'];
-                    //    window.history.pushState("", "", "TaskGenerator.aspx?TaskId=" + param1 + "&hstid=" + param2 + "&mcid=" + tid);
-                    //    break;
-                    //}
                 }
                 if (!Silent) {
                     //closePopup();
@@ -156,6 +161,7 @@ function SaveSubTask(Silent) {
     }
     else {
         $('#lblStatus').html('Saving Changes...');
+        idAttachments = false;
         EditDesc(SavedTaskID, desc, true);
     }
 }
@@ -213,19 +219,6 @@ function SetupNewTaskData(cmdArg, cName, TaskLevel, strInstallId) {
         data: JSON.stringify(postData),
         asynch: false,
         success: function (data) {
-            if (TaskLevel == "2") {
-                var taskid = GetParameterValues('TaskId');                
-                $('#<%=hdParentTaskId.ClientID%>').val(data.d.hdParentTaskId);
-                $('#<%=hdMainParentId.ClientID%>').val(taskid);                
-                $('#<%=hdTaskId.ClientID%>').val(cmdArg);
-            }
-            else {
-                $('#<%=txtTaskListID.ClientID%>').val(data.d.txtInstallId);
-                $('#<%=hdParentTaskId.ClientID%>').val(data.d.hdParentTaskId);
-                
-                $('#<%=hdTaskId.ClientID%>').val(cmdArg);
-            }
-
             ParentTaskId = data.d.hdParentTaskId;
             TaskLvl = data.d.hdTaskLvl;
             InstallId = data.d.txtInstallId;
@@ -256,7 +249,7 @@ function SetupChildInfo(taskid) {
 }
 
 function SaveAttchmentToDBPopup() {
-    if (IsAdminMode == 'True') {
+    //if (IsAdminMode == 'True') {
         var data = {
             TaskId: SavedTaskID, attachments: $('#ContentPlaceHolder1_objucSubTasks_Admin_hdnGridAttachment').val()
         };
@@ -274,7 +267,8 @@ function SaveAttchmentToDBPopup() {
                 alert("Failed!!!");
             }
         });
-    }
+        $('#ContentPlaceHolder1_objucSubTasks_Admin_hdnGridAttachment').val('');
+    //}
 }
 
 function resetData(level) {    
@@ -338,7 +332,11 @@ function closePopup() {
     }
     //Reload Tasks
     if (TaskSaved) {
-        LoadSubTasks();
+        if (Page == 'TG') {
+            LoadSubTasks();
+        }
+        else {
+        }
     }
     //Clear Memory
     LastIndent = 1;
@@ -354,9 +352,11 @@ function showAddNewTaskPopup() {
     $('.chosen-dropdown').chosen({ width: "225px" });
     $('#myModalAddTask div.modal-content').addClass('ui-dialog');
     $('#myModalAddTask').css('display', 'block');
+    clearCKEditor('txtTaskDescription');
+    clearCKEditor('multilevelChildDesc');
 
     //Load Users
-    loadUsers('ddlTasksDesignations', 'ddlTaskUsers', 'lblStatus');
+    loadUsers(ddlTasksDesignations.replace("#", ""), 'ddlTaskUsers', 'lblStatus');
 }
 
 function loadUsers(selector, destination, loader) {
@@ -412,6 +412,8 @@ function resetChosen(selector) {
     }
 }
 
+
+
 //For new task
 var TaskLvl;
 var ParentTaskId;
@@ -422,3 +424,4 @@ var LastIndent;
 var LastChild;
 var CurrentEditor;
 var CurrentFileName;
+var Page = 'TG';

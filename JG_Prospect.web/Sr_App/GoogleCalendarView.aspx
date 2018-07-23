@@ -5,6 +5,7 @@
 <%--<%@ Register Src="~/Controls/left.ascx" TagName="leftmenu" TagPrefix="uc1" %>--%>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
+
     <script src="../datetime/js/jquery.ptTimeSelect.js" type="text/javascript"></script>
     <link href="../datetime/js/jquery.ptTimeSelect.css" rel="stylesheet" type="text/css" />
 
@@ -473,5 +474,11 @@
     <div id="DivOfferMadefade" class="black_overlay">
     </div>
     <asp:ValidationSummary ID="ValidationSummary1" runat="server" ValidationGroup="Submit" ShowSummary="False" ShowMessageBox="True" />
-
+    <script type="text/javascript" src="<%=Page.ResolveUrl("~/js/chosen.jquery.js")%>"></script>
+     <script src="../js/angular/scripts/jgapp.js"></script>
+        <script src="../js/angular/scripts/TaskSequence.js"></script>
+        <script src="../js/angular/scripts/FrozenTask.js"></script>
+        <script src="../js/TaskSequencing.js"></script>
+        <script src="../js/jquery.dd.min.js"></script>
+        <script src="../js/angular/scripts/ClosedTasls.js"></script>
 </asp:Content>

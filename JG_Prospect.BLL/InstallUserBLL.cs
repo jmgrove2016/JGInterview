@@ -8,6 +8,7 @@ using JG_Prospect.Common.modal;
 using System.Data;
 using System.Xml;
 using System.Web.UI.HtmlControls;
+using static JG_Prospect.Common.JGCommon;
 
 namespace JG_Prospect.BLL
 {
@@ -24,12 +25,12 @@ namespace JG_Prospect.BLL
             private set {; }
         }
 
-        public ActionOutput<LoginUser> GetUsers(string keyword, string exceptUserIds = null)
+        public ActionOutput<LoginUser> GetUsers(string keyword, string exceptUserIds = null, int? LoggedInUserId = null)
         {
-            return InstallUserDAL.Instance.GetUsers(keyword, exceptUserIds);
+            return InstallUserDAL.Instance.GetUsers(keyword, exceptUserIds, LoggedInUserId);
         }
 
-        
+
 
         public void AddUserNotes(string Notes, int UserID, int AddedByID)
         {
@@ -193,6 +194,11 @@ namespace JG_Prospect.BLL
         public DataSet GetSource()
         {
             return InstallUserDAL.Instance.getSource();
+        }
+
+        public List<UserSource> GetSourceList()
+        {
+            return InstallUserDAL.Instance.GetSourceList();
         }
 
         public bool DeleteSource(string Source)
@@ -552,9 +558,9 @@ namespace JG_Prospect.BLL
             InstallUserDAL.Instance.ChangeStatusToInterviewDate(Status, StatusId, RejectionDate, RejectionTime, RejectedUserId, time, StatusReason);
         }
 
-        public bool UpdateOfferMade(int Id, string Email, string password)
+        public bool UpdateOfferMade(int Id, string Email, string password, string branchLocationId = null)
         {
-            return InstallUserDAL.Instance.UpdateOfferMade(Id, Email, password);
+            return InstallUserDAL.Instance.UpdateOfferMade(Id, Email, password, branchLocationId);
         }
 
 
@@ -596,9 +602,9 @@ namespace JG_Prospect.BLL
 
         //--------- end DP ----------
 
-        public DataSet GetSalesUsersStaticticsAndData(string strSearchTerm, string strStatus, Int32 intDesignationId, Int32 intSourceId, DateTime? fromdate, DateTime? todate, int userid, int intPageIndex, int intPageSize, string strSortExpression)
+        public DataSet GetSalesUsersStaticticsAndData(string strSearchTerm, string strStatus, String strDesignationId, string strSourceId, DateTime? fromdate, DateTime? todate, string struserid, int intPageIndex, int intPageSize, string strSortExpression)
         {
-            return InstallUserDAL.Instance.GetSalesUsersStaticticsAndData(strSearchTerm, strStatus, intDesignationId, intSourceId, fromdate, todate, userid, intPageIndex, intPageSize, strSortExpression);
+            return InstallUserDAL.Instance.GetSalesUsersStaticticsAndData(strSearchTerm, strStatus, strDesignationId, strSourceId, fromdate, todate, struserid, intPageIndex, intPageSize, strSortExpression);
         }
 
         public DataSet GetHrData(DateTime? fromdate, DateTime? todate, int userid)
@@ -656,6 +662,11 @@ namespace JG_Prospect.BLL
             return InstallUserDAL.Instance.GeAddedBytUsers();
         }
 
+        public List<UserAddedBy> GeAddedBytUsersFormatted()
+        {
+            return InstallUserDAL.Instance.GeAddedBytUsersFormatted();
+        }
+
         public string AddUserEmails(string hidExtEmail, int UserId)
         {
             return InstallUserDAL.Instance.AddUserEmails(hidExtEmail, UserId);
@@ -671,7 +682,7 @@ namespace JG_Prospect.BLL
         public string AddUserPhone(bool isPrimaryPhone, string phoneText, int phoneType, int UserID, string PhoneExtNo, string PhoneISDCode, bool ClearDataBeforInsert)
         {
             return InstallUserDAL.Instance.AddUserPhone(isPrimaryPhone, phoneText, phoneType, UserID, PhoneExtNo, PhoneISDCode, ClearDataBeforInsert);
-        }        
+        }
 
         public int AddTouchPointLogRecord(int LoginUserID, int UserID, string LoginUserInstallID, DateTime now, string ChangeLog, string strGUID, int touchPointSource)
         {
@@ -706,7 +717,7 @@ namespace JG_Prospect.BLL
                 toEmail = "hr@jmgroveconstruction.com";
                 messageUrl = baseUrl + "Sr_App/edituser.aspx?TUID=" + UserID + "&NID=" + UserTouchPointLogID + "&auth=" + loginCode;
             }
-            else if (LastUserTouchPoint != null && LoginUserID == UserID) // send email to receiver
+            else if (LastUserTouchPoint != null && LastUserTouchPoint.Count() > 0 && LoginUserID == UserID) // send email to receiver
             {
                 // send email to user
                 var lastSender = getuserdetails(LastUserTouchPoint.First().UpdatedByUserID).Tables[0].Rows[0];
@@ -848,12 +859,17 @@ namespace JG_Prospect.BLL
 
         public int UpdateUsersLastLoginTime(int loginUserID, DateTime LogInTime)
         {
-            return InstallUserDAL.Instance.UpdateUsersLastLoginTime(loginUserID,LogInTime);
+            return InstallUserDAL.Instance.UpdateUsersLastLoginTime(loginUserID, LogInTime);
         }
 
         public int QuickSaveInstallUser(user objInstallUser)
         {
             return InstallUserDAL.Instance.QuickSaveInstallUser(objInstallUser);
+        }
+
+        public DataSet QuickSaveUserWithEmailorPhone(user objInstallUser)
+        {
+            return InstallUserDAL.Instance.QuickSaveUserWithEmailorPhone(objInstallUser);
         }
 
         public DataSet BulkIntsallUserDuplicateCheck(string xmlDoc)
@@ -866,11 +882,50 @@ namespace JG_Prospect.BLL
             return InstallUserDAL.Instance.UpdateUserProfile(objuser);
 
         }
+        public int UserExists(int userId, string email, string phone)
+        {
+            return InstallUserDAL.Instance.UserExists(userId,email, phone);
+
+        }
 
         public DataSet getInstallUserDetailsById(Int32 UserId)
         {
             return InstallUserDAL.Instance.getInstallUserDetailsById(UserId);
         }
 
+        public void SavePhoneCallLog(PhoneCallLog phLog)
+        {
+            InstallUserDAL.Instance.SavePhoneCallLog(phLog);
+        }
+
+        public List<PhoneCallLog> GetPhoneCallLog(int index = 1, int pageSize = 5)
+        {
+            return InstallUserDAL.Instance.GetPhoneCallLog(index, pageSize);
+        }
+
+        public PhoneCallStatistics GetPhoneCallStatistics()
+        {
+            return InstallUserDAL.Instance.GetPhoneCallStatistics();
+        }
+
+        public void UpdateSecondaryStatus(int userId, int newStatus, int loggedInUserId)
+        {
+            InstallUserDAL.Instance.UpdateSecondaryStatus(userId, newStatus, loggedInUserId);
+        }
+
+        public BranchLocation GetUserBranchLocation(int userId)
+        {
+            return InstallUserDAL.Instance.GetUserBranchLocation(userId);
+        }
+
+        public List<BranchLocation> GetBranchLocations()
+        {
+            return InstallUserDAL.Instance.GetBranchLocations();
+        }
+
+        public DataSet GetBranchLocationsDataSet()
+        {
+            return InstallUserDAL.Instance.GetBranchLocationsDataSet();
+        }
     }
 }

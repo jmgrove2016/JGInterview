@@ -781,6 +781,25 @@ namespace JG_Prospect.Sr_App
         /// </summary>
         private void FillDropdowns()
         {
+            DataSet dsDesignation = new DataSet();
+            dsDesignation = DesignationBLL.Instance.GetAllDesignationsForHumanResource();
+            if (dsDesignation != null && dsDesignation.Tables.Count > 0)
+            {
+                ddlTasksDesignations.DataSource = dsDesignation.Tables[0];
+                ddlTasksDesignations.DataTextField = "DesignationName";
+                ddlTasksDesignations.DataValueField = "ID";
+                ddlTasksDesignations.DataBind();
+
+
+                ddlDesignationSeq.DataSource = dsDesignation.Tables[0];
+                ddlDesignationSeq.DataTextField = "DesignationName";
+                ddlDesignationSeq.DataValueField = "ID";
+                ddlDesignationSeq.DataBind();
+            }
+
+            ddlTasksDesignations.Items.Insert(0, new ListItem("Select Designation", "0"));
+            ddlDesignationSeq.Items.Insert(0, new ListItem("Select Designation", "0"));
+
             cmbStatus.DataSource = CommonFunction.GetTaskStatusList();
             cmbStatus.DataTextField = "Text";
             cmbStatus.DataValueField = "Value";
@@ -1128,7 +1147,7 @@ namespace JG_Prospect.Sr_App
             objTask.Hours = txtHours.Text;
             objTask.CreatedBy = userId;
             objTask.Mode = Convert.ToInt32(controlMode.Value);
-            objTask.InstallId = GetInstallIdFromDesignation(ddlDesignationSeq.Value);            
+            objTask.InstallId = GetInstallIdFromDesignation(ddlDesignationSeq.SelectedItem.Value);            
             objTask.IsTechTask = chkTechTask.Checked;
 
             Int64 ItaskId = TaskGeneratorBLL.Instance.SaveOrDeleteTask(objTask,0,0);    // save task master details
@@ -1840,7 +1859,7 @@ namespace JG_Prospect.Sr_App
 
         #region Web Methods
         [WebMethod]
-        public static string SendEmailToSharedTaskUser(string contents, int InstallUserIDs)
+        public string SendEmailToSharedTaskUser(string contents, int InstallUserIDs)
         {
             try
             {

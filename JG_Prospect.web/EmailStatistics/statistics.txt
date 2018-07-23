@@ -59,3 +59,4 @@ error@kerconsultancy.com  - 11/1/2017 9:32:50 PM
 error@kerconsultancy.com  - 11/1/2017 9:32:57 PM
 error@kerconsultancy.com  - 11/1/2017 9:36:59 PM
 error@kerconsultancy.com  - 11/1/2017 9:41:17 PM
+Failure sending mail.  - 2/1/2018 12:05:11 PM

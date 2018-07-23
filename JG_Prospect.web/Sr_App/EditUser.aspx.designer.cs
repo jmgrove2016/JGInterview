@@ -343,7 +343,16 @@ namespace JG_Prospect {
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlUserStatus;
+        protected global::System.Web.UI.WebControls.ListBox ddlUserStatus;
+        
+        /// <summary>
+        /// hdnStatuses control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlInputHidden hdnStatuses;
         
         /// <summary>
         /// ddlDesignation control.
@@ -352,7 +361,25 @@ namespace JG_Prospect {
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlDesignation;
+        protected global::System.Web.UI.WebControls.ListBox ddlDesignation;
+        
+        /// <summary>
+        /// hdnDesignations control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlInputHidden hdnDesignations;
+        
+        /// <summary>
+        /// ddlSavedReport control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddlSavedReport;
         
         /// <summary>
         /// drpUser control.
@@ -361,7 +388,16 @@ namespace JG_Prospect {
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList drpUser;
+        protected global::System.Web.UI.WebControls.ListBox drpUser;
+        
+        /// <summary>
+        /// hdnFilterUsers control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlInputHidden hdnFilterUsers;
         
         /// <summary>
         /// ddlSource control.
@@ -370,7 +406,25 @@ namespace JG_Prospect {
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlSource;
+        protected global::System.Web.UI.WebControls.ListBox ddlSource;
+        
+        /// <summary>
+        /// hdnSources control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlInputHidden hdnSources;
+        
+        /// <summary>
+        /// btnSearchFilterwise control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnSearchFilterwise;
         
         /// <summary>
         /// chkAllDates control.
@@ -427,22 +481,13 @@ namespace JG_Prospect {
         protected global::System.Web.UI.WebControls.Label Label3;
         
         /// <summary>
-        /// txtfrmdate control.
+        /// txtHRFromDate control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtfrmdate;
-        
-        /// <summary>
-        /// calExtendFromDate control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::AjaxControlToolkit.CalendarExtender calExtendFromDate;
+        protected global::System.Web.UI.WebControls.TextBox txtHRFromDate;
         
         /// <summary>
         /// Label4 control.
@@ -454,22 +499,13 @@ namespace JG_Prospect {
         protected global::System.Web.UI.WebControls.Label Label4;
         
         /// <summary>
-        /// txtTodate control.
+        /// txtHRToDate control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtTodate;
-        
-        /// <summary>
-        /// CalendarExtender2 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::AjaxControlToolkit.CalendarExtender CalendarExtender2;
+        protected global::System.Web.UI.WebControls.TextBox txtHRToDate;
         
         /// <summary>
         /// requirefrmdate control.
@@ -1001,6 +1037,24 @@ namespace JG_Prospect {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Label lblDesignation_OfferMade;
+        
+        /// <summary>
+        /// Label6 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label Label6;
+        
+        /// <summary>
+        /// ddlBranchLocation control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddlBranchLocation;
         
         /// <summary>
         /// lblReqEmail control.

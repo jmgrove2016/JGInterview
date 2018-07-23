@@ -1297,7 +1297,14 @@ namespace JG_Prospect
                     //Condition 2: User is applicant and redirected from login page, check if he has already given test, if given then directly show success popup.
                     if ((Request.QueryString.Count > 0 && !String.IsNullOrEmpty(Request.QueryString["IE"]) && UserGivenAllTests(this.UserID)) || (UserGivenAllTests(this.UserID)))
                     {
-                        SetAutoTaskSequence();
+
+                        //Commented by : Yogesh Keraliya
+                        //Reason: https://web.jmgrovebuildingsupply.com/Sr_App/TaskGenerator.aspx?TaskId=686&hstid=722
+                        // Now success popup is getting seperated from other pages so better to make it clean and tiny.
+
+                        Response.Redirect(String.Format("~/postapptitude.aspx?DId={0}&UId={1}",this.DesignationID,this.UserID));
+
+                        //SetAutoTaskSequence();
 
                         //Page.ClientScript.RegisterStartupScript(Page.GetType(), Guid.NewGuid().ToString(), "ShowPopupWithTitle('#" + divStartTest.ClientID + "','Apptitude Test');", true);
                     }

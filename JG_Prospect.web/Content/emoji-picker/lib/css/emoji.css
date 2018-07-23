@@ -88,16 +88,13 @@ img.emoji {
     content: none;
 }
 
-.emoji-wysiwyg-editor {
-    padding: 6px;
+.telecom-dashboard-popup .emoji-wysiwyg-editor {
+    padding: 3px;
     padding-right: 35px;
     margin-bottom: 0px;
-    min-height: 35px; /* 35 */
-    height: 30px;
-    max-height: 284px;
-    overflow: auto;
+    overflow: hidden;
     line-height: 17px;
-    border: 1px solid #d2dbe3;
+    border: 1px solid #bbb;
     border-radius: 2px;
     -webkit-box-shadow: none;
     box-shadow: none;
@@ -105,6 +102,32 @@ img.emoji {
     transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
     -webkit-user-select: text;
     word-wrap: break-word;
+    position: absolute;
+    bottom: -27px;
+    width: 66%;
+    height: 19px !important;
+    font-size: 12px;
+}
+
+.telecom-dashboard-popup.fullscreen-chat .emoji-wysiwyg-editor {
+    padding: 6px;
+    padding-right: 35px;
+    margin-bottom: 0px;
+    overflow: hidden;
+    line-height: 17px;
+    border: 1px solid #bbb;
+    border-radius: 2px;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    -webkit-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+    transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+    -webkit-user-select: text;
+    word-wrap: break-word;
+    position: absolute;
+    bottom: -38px;
+    width: 75%;
+    height: 24px !important;
+    font-size: 14px;
 }
 
 .emoji-wysiwyg-editor.parent-has-scroll {
@@ -125,7 +148,8 @@ img.emoji {
 
 .emoji-menu {
     position: absolute;
-    right: 0;
+    right: 72px;
+    bottom: 0;
     z-index: 999;
     width: 225px;
     overflow: hidden;
@@ -239,13 +263,11 @@ img.emoji {
 .emoji-menu .emoji-items a:hover {
     background-color: #edf2f5;
 }
-
 .emoji-menu:after {
     content: ' ';
     display: block;
     clear: left;
-}
-
+} 
 .emoji-menu a .label {
-    display: none;
+    display: none; 
 }

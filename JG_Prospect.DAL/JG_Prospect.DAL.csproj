@@ -70,6 +70,7 @@
     <Compile Include="AptitudeTestDAL.cs" />
     <Compile Include="ChatDAL.cs" />
     <Compile Include="CountryDAL.cs" />
+    <Compile Include="CurrencyDAL.cs" />
     <Compile Include="CustomDAL.cs" />
     <Compile Include="Database\MSSQLDataBase.cs" />
     <Compile Include="DepartmentDAL.cs" />
@@ -77,7 +78,10 @@
     <Compile Include="DLLAttendence.cs" />
     <Compile Include="ErrorLogDAL.cs" />
     <Compile Include="existing_customerDAL.cs" />
+    <Compile Include="FilesDAL.cs" />
+    <Compile Include="FoldersDAL.cs" />
     <Compile Include="HTMLTemplateDAL.cs" />
+    <Compile Include="PayRateDAL.cs" />
     <Compile Include="JobSchedulerDAL.cs" />
     <Compile Include="Roles_ApplicationFeaturesDAL.cs" />
     <Compile Include="EmployeeInstructionDAL.cs" />

@@ -5,6 +5,8 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Configuration;
+using JG_Prospect.BLL;
+using JG_Prospect.Common.modal;
 
 namespace JG_Prospect.Controls
 {
@@ -14,6 +16,13 @@ namespace JG_Prospect.Controls
         {
             if (Session["loginid"] != null)
             {
+                // branch location on header
+                BranchLocation loc = InstallUserBLL.Instance.GetUserBranchLocation(JGSession.UserId);
+                BranchAddress1.InnerText = loc.BranchAddress1;
+                BranchAddress2.InnerText = loc.BranchAddress2;
+                Department.InnerText = loc.Department;
+                Phone.InnerText = loc.PhoneNumber;
+                Email.InnerText = loc.Email;
 
                 lbluser.Text = Session["Username"].ToString().Trim();
                 string AdminId = ConfigurationManager.AppSettings["AdminUserId"].ToString();

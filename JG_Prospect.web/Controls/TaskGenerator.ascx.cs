@@ -951,12 +951,12 @@ namespace JG_Prospect.Sr_App.Controls
         {
             if (!this.IsAdminMode)
             {
-                tdAdd.Visible = false;
-                tdAddCap.Visible = false;
-                tdDesig.Visible = false;
-                tdDesigCap.Visible = false;
-                tdUserCap.Visible = false;
-                tdUsers.Visible = false;
+                //tdAdd.Visible = false;
+                //tdAddCap.Visible = false;
+                //tdDesig.Visible = false;
+                //tdDesigCap.Visible = false;
+                //tdUserCap.Visible = false;
+                //tdUsers.Visible = false;
             }
         }
 
@@ -971,31 +971,31 @@ namespace JG_Prospect.Sr_App.Controls
             {
                 DataTable dtUsers = dsFilters.Tables[0];
 
-                ddlTaskStatus.DataSource = CommonFunction.GetTaskStatusList();
-                ddlTaskStatus.DataTextField = "Text";
-                ddlTaskStatus.DataValueField = "Value";
-                ddlTaskStatus.DataBind();
-                ddlTaskStatus.Items.Insert(0, new ListItem("--All--", "0"));
+                //ddlTaskStatus.DataSource = CommonFunction.GetTaskStatusList();
+                //ddlTaskStatus.DataTextField = "Text";
+                //ddlTaskStatus.DataValueField = "Value";
+                //ddlTaskStatus.DataBind();
+                //ddlTaskStatus.Items.Insert(0, new ListItem("--All--", "0"));
 
-                //if (!this.IsAdminMode)
-                //{
-                //    ddlTaskStatus.Items.FindByValue(Convert.ToByte(JGConstant.TaskStatus.SpecsInProgress).ToString()).Enabled = false;
-                //}
+                ////if (!this.IsAdminMode)
+                ////{
+                ////    ddlTaskStatus.Items.FindByValue(Convert.ToByte(JGConstant.TaskStatus.SpecsInProgress).ToString()).Enabled = false;
+                ////}
 
-                ddlUsers.DataSource = dtUsers;
-                ddlUsers.DataTextField = "FirstName";
-                ddlUsers.DataValueField = "Id";
-                ddlUsers.DataBind();
+                //ddlUsers.DataSource = dtUsers;
+                //ddlUsers.DataTextField = "FirstName";
+                //ddlUsers.DataValueField = "Id";
+                //ddlUsers.DataBind();
 
-                ddlUsers.Items.Insert(0, new ListItem("--All--", "0"));
-                DataSet dsDesignation = DesignationBLL.Instance.GetActiveDesignationByID(0, 1);
-                ddlDesignation.Items.Clear();
-                ddlDesignation.DataValueField = "Id";
-                ddlDesignation.DataTextField = "DesignationName";
-                ddlDesignation.DataSource = dsDesignation.Tables[0];
-                ddlDesignation.DataBind();
-                ddlDesignation.Items.Insert(0, new ListItem("--All--", "0"));
-                HighlightInterviewUsers(dtUsers, null, ddlUsers);
+                //ddlUsers.Items.Insert(0, new ListItem("--All--", "0"));
+                //DataSet dsDesignation = DesignationBLL.Instance.GetActiveDesignationByID(0, 1);
+                //ddlDesignation.Items.Clear();
+                //ddlDesignation.DataValueField = "Id";
+                //ddlDesignation.DataTextField = "DesignationName";
+                //ddlDesignation.DataSource = dsDesignation.Tables[0];
+                //ddlDesignation.DataBind();
+                //ddlDesignation.Items.Insert(0, new ListItem("--All--", "0"));
+                //HighlightInterviewUsers(dtUsers, null, ddlUsers);
             }
         }
 
@@ -1027,8 +1027,8 @@ namespace JG_Prospect.Sr_App.Controls
 
             if (dsFilters != null && dsFilters.Tables.Count > 0)
             {
-                gvTasks.DataSource = dsFilters;
-                gvTasks.DataBind();
+                //gvTasks.DataSource = dsFilters;
+                //gvTasks.DataBind();
             }
 
         }
@@ -1251,16 +1251,16 @@ namespace JG_Prospect.Sr_App.Controls
 
             // DropDownCheckBoxes ddlAssign = (FindControl("ddcbAssigned") as DropDownCheckBoxes);
             // DropDownList ddlDesignation = (DropDownList)sender;
-            string designation = ddlDesignation.SelectedValue;
+            //string designation = ddlDesignation.SelectedValue;
 
-            dsUsers = TaskGeneratorBLL.Instance.GetInstallUsers(2, designation);
+            //dsUsers = TaskGeneratorBLL.Instance.GetInstallUsers(2, designation);
 
-            ddlUsers.DataSource = dsUsers;
-            ddlUsers.DataTextField = "FristName";
-            ddlUsers.DataValueField = "Id";
-            ddlUsers.DataBind();
+            //ddlUsers.DataSource = dsUsers;
+            //ddlUsers.DataTextField = "FristName";
+            //ddlUsers.DataValueField = "Id";
+            //ddlUsers.DataBind();
 
-            ddlUsers.Items.Insert(0, new ListItem("--All--", "0"));
+            //ddlUsers.Items.Insert(0, new ListItem("--All--", "0"));
 
         }
 
@@ -1277,29 +1277,31 @@ namespace JG_Prospect.Sr_App.Controls
 
             if (this.IsAdminMode)
             {
-                if (ddlUsers.SelectedIndex > 0)
-                {
-                    UserID = Convert.ToInt32(ddlUsers.SelectedItem.Value);
-                }
+                //if (ddlUsers.SelectedIndex > 0)
+                //{
+                //    UserID = Convert.ToInt32(ddlUsers.SelectedItem.Value);
+                //}
 
-                if (ddlDesignation.SelectedIndex > 0)
-                {
-                    Designations =
-                    Designation = ddlDesignation.SelectedItem.Value;
-                }
-                else
-                {
-                    //foreach (ListItem item in ddlDesignation.Items)
-                    //{
-                    //    Designations += (item.Value + ","); 
-                    //}
-                    //Designations = Designations.Trim(',');
-                    Designations =
-                    Designation = "0";
-                }
+                //if (ddlDesignation.SelectedIndex > 0)
+                //{
+                //    Designations =
+                //    Designation = ddlDesignation.SelectedItem.Value;
+                //}
+                //else
+                //{
+                //    //foreach (ListItem item in ddlDesignation.Items)
+                //    //{
+                //    //    Designations += (item.Value + ","); 
+                //    //}
+                //    //Designations = Designations.Trim(',');
+                //    Designations =
+                //    Designation = "0";
+                //}
             }
             else
             {
+                if (Session["DesigNew"] == null)
+                    Response.Redirect("/");
                 UserID = Convert.ToInt32(Session[JG_Prospect.Common.SessionKey.Key.UserId.ToString()]);
 
                 Designation =
@@ -1309,20 +1311,20 @@ namespace JG_Prospect.Sr_App.Controls
                 Statuses = "1,2,3,4,5,6";
             }
 
-            if (!String.IsNullOrEmpty(txtSearch.Text))
-            {
-                Title = txtSearch.Text;
-            }
-            if (ddlTaskStatus.SelectedIndex > 0)
-            {
-                Status = Convert.ToInt16(ddlTaskStatus.SelectedItem.Value);
-            }
+            //if (!String.IsNullOrEmpty(txtSearch.Text))
+            //{
+            //    Title = txtSearch.Text;
+            //}
+            //if (ddlTaskStatus.SelectedIndex > 0)
+            //{
+            //    Status = Convert.ToInt16(ddlTaskStatus.SelectedItem.Value);
+            //}
 
-            if (!String.IsNullOrEmpty(txtFromDate.Text) && !String.IsNullOrEmpty(txtToDate.Text))
-            {
-                CreatedFrom = Convert.ToDateTime(txtFromDate.Text);
-                CreatedTo = Convert.ToDateTime(txtToDate.Text);
-            }
+            //if (!String.IsNullOrEmpty(txtFromDate.Text) && !String.IsNullOrEmpty(txtToDate.Text))
+            //{
+            //    CreatedFrom = Convert.ToDateTime(txtFromDate.Text);
+            //    CreatedTo = Convert.ToDateTime(txtToDate.Text);
+            //}
 
         }
 

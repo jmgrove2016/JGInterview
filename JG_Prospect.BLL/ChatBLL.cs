@@ -3,12 +3,13 @@ using JG_Prospect.Common.modal;
 using JG_Prospect.DAL;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace JG_Prospect.BLL
-{
+{ 
     public class ChatBLL
     {
         private static ChatBLL m_ChatBLL = new ChatBLL();
@@ -49,24 +50,44 @@ namespace JG_Prospect.BLL
             return ChatDAL.Instance.GetOnlineUsers(LoggedInUserId);
         }
 
-        public ActionOutput<ChatMessage> GetChatMessages(string ChatGroupId, string receiverIds)
+        public ActionOutput<ActiveUser> GetAllChatHistory()
         {
-            return ChatDAL.Instance.GetChatMessages(ChatGroupId, receiverIds);
+            return ChatDAL.Instance.GetAllChatHistory();
         }
 
-        public ActionOutput SetChatMessageRead(int ChatMessageId, int ReceiverId)
+        public ActionOutput<ChatMessage> GetChatMessages(int LoggedInUserId, string ChatGroupId, string receiverIds, int chatSourceId, int userChatGroupId)
         {
-            return ChatDAL.Instance.SetChatMessageRead(ChatMessageId, ReceiverId);
+            return ChatDAL.Instance.GetChatMessages(LoggedInUserId,ChatGroupId, receiverIds, chatSourceId, userChatGroupId);
         }
 
-        public ActionOutput SetChatMessageRead(string ChatGroupId, int ReceiverId)
+        public ActionOutput<ChatMessage> GetTaskChatMessages(int loggedInUserId, int chatSourceId, int TaskId, int TaskMultilevelListId = 0)
         {
-            return ChatDAL.Instance.SetChatMessageRead(ChatGroupId, ReceiverId);
+            return ChatDAL.Instance.GetTaskChatMessages(loggedInUserId, chatSourceId, TaskId, TaskMultilevelListId);
+        }
+
+        public ActionOutput<int> GetTaskUsers(int TaskId)
+        {
+            return ChatDAL.Instance.GetTaskUsers(TaskId);
+        }
+
+        public ChatFile GetChatFile(int id)
+        {
+            return ChatDAL.Instance.GetChatFile(id);
+        }
+
+        public ActionOutput<bool> SetChatMessageRead(string ChatGroupId, int ReceiverId, int UserChatGroupId)
+        {
+            return ChatDAL.Instance.SetChatMessageRead(ChatGroupId, ReceiverId, UserChatGroupId);
         }
 
         public int GetChatUserCount()
         {
             return ChatDAL.Instance.GetChatUserCount();
+        }
+
+        public int SaveChatFile(string imageName, string newImageName, string contentType)
+        {
+            return ChatDAL.Instance.SaveChatFile(imageName, newImageName, contentType);
         }
 
         public void DeleteChatUser(string ConnectionId)
@@ -79,6 +100,10 @@ namespace JG_Prospect.BLL
             ChatDAL.Instance.SaveChatMessage(message, ChatGroupId, ReceiverIds, SenderUserId);
         }
 
+        public int CreateTaskChatGroup(int taskId, int? taskMultilevelListId)
+        {
+            return ChatDAL.Instance.CreateTaskChatGroup(taskId, taskMultilevelListId);
+        }
 
         public void ChatLogger(string chatGroupId, string message, int chatSourceId, int UserId, string IP)
         {
@@ -109,16 +134,62 @@ namespace JG_Prospect.BLL
             var receiver = InstallUserBLL.Instance.getuserdetails(UserID).Tables[0].Rows[0];
             toEmail = receiver["Email"].ToString();
             messageUrl = BaseUrl + "Sr_App/TouchPointLog.aspx?TUID=" + UserID + "&CGID=" + chatGroupId +
-                                    "&auth=" + loginCode + "&RcvrID=" + LoginUserID;
-            
+                                    "&auth=" + loginCode + "&RcvrID=" + LoginUserID + "&Src=" + ChatSource;
+
+
             body = (html.Header + html.Body + html.Footer).Replace("{MessageUrl}", messageUrl);
             EmailManager.SendEmail("New Message", toEmail, html.Subject, body, null);
         }
 
 
-        public ActionOutput<ChatMessage> GetChatMessages(int userId, int receiverId)
+        public ActionOutput<ChatMessage> GetChatMessages(int userId, int receiverId, int chatSourceId)
         {
-            return ChatDAL.Instance.GetChatMessages(userId, receiverId);
+            return ChatDAL.Instance.GetChatMessages(userId, receiverId, chatSourceId);
+        }
+
+        public ActionOutput<ChatUnReadCount> GetChatUnReadCount(int LoggedInUserId)
+        {
+            return ChatDAL.Instance.GetChatUnReadCount(LoggedInUserId);
+        }
+
+        public int AddMemberToChatGroup(string chatGroupId, int userId, int loggedInUserId, string existingUsers, int? userChatGroupId)
+        {
+            return ChatDAL.Instance.AddMemberToChatGroup(chatGroupId, userId, loggedInUserId, existingUsers, userChatGroupId);
+        }
+        
+        public int? GetUserChatGroupId(string chatGroupId)
+        {
+            return ChatDAL.Instance.GetUserChatGroupId(chatGroupId);
+        }
+
+        public List<ChatUser> GetChatGroupMembers(int loggedInUserId,int? userChatGroupId)
+        {
+            return ChatDAL.Instance.GetChatGroupMembers(loggedInUserId, userChatGroupId);
+        }
+
+        public List<ChatUser> GetChatGroupMembers(int userChatGroupId)
+        {
+            return ChatDAL.Instance.GetChatGroupMembers(userChatGroupId);
+        }
+
+        public void RemoveChatGroupMember(int userChatGroupId, int userId)
+        {
+            ChatDAL.Instance.RemoveChatGroupMember(userChatGroupId, userId);
+        }
+
+        public DateTime SaveLastChatSeen(int senderUserId, int userChatGroupId, int receiverId)
+        {
+            return ChatDAL.Instance.SaveLastChatSeen(senderUserId, userChatGroupId, receiverId);
+        }
+
+        public DateTime? GetLastChatSeen(int senderUserId, int userChatGroupId, int receiverId)
+        {
+            return ChatDAL.Instance.GetLastChatSeen(senderUserId, userChatGroupId, receiverId);
+        }
+
+        public DataSet GetSalesUsersStaticticsAndData(string strSearchTerm, string strStatus, Int32 intDesignationId, Int32 intSourceId, DateTime? fromdate, DateTime? todate, int userid, int intPageIndex, int intPageSize, string strSortExpression)
+        {
+            return ChatDAL.Instance.GetSalesUsersStaticticsAndData(strSearchTerm, strStatus, intDesignationId, intSourceId, fromdate, todate, userid, intPageIndex, intPageSize, strSortExpression);
         }
     }
 }

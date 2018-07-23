@@ -12,6 +12,7 @@ using JG_Prospect.Common.modal;
 using System.Xml;
 using System.Web.UI.HtmlControls;
 using System.Data.SqlClient;
+using static JG_Prospect.Common.JGCommon;
 
 namespace JG_Prospect.DAL
 {
@@ -615,7 +616,143 @@ namespace JG_Prospect.DAL
             }
         }
 
-        public ActionOutput<LoginUser> GetUsers(string keyword, string exceptUserIds = null)
+        public PhoneCallStatistics GetPhoneCallStatistics()
+        {
+            PhoneCallStatistics stats = new PhoneCallStatistics();
+            try
+            {
+                SqlDatabase database = MSSQLDataBase.Instance.GetDefaultDatabase();
+                {
+                    returndata = new DataSet();
+                    DbCommand command = database.GetStoredProcCommand("GetPhoneCallStatistics");
+
+                    command.CommandType = CommandType.StoredProcedure;
+                    returndata = database.ExecuteDataSet(command);
+                    if (returndata != null && returndata.Tables[0] != null && returndata.Tables[0].Rows.Count > 0)
+                    {
+                        DataRow dr = returndata.Tables[0].Rows[0];
+                        {
+                            stats.Mode = dr["Mode"].ToString();
+                            stats.TotalApplicantCalled = Convert.ToInt32(dr["TotalApplicantCalled"]);
+                            stats.TotalApplicantDuration = Convert.ToDouble(dr["TotalApplicantDuration"]);
+                            stats.TotalApplicantDurationFormatted = (TimeSpan.FromSeconds(Convert.ToInt32(dr["TotalApplicantDuration"]))).ToString(@"hh\:mm\:ss");
+
+                            stats.TotalOutbound = Convert.ToInt32(dr["TotalOutbound"]);
+                            stats.TotalCallDurationInSeconds = Convert.ToDouble(dr["TotalCallDurationInSeconds"]);
+                            stats.TotalCallDurationFormatted = (TimeSpan.FromSeconds(Convert.ToInt32(dr["TotalCallDurationInSeconds"]))).ToString(@"hh\:mm\:ss");
+
+                            stats.TotalInterviewDateCalled = Convert.ToInt32(dr["TotalInterviewDateCalled"]);
+                            stats.TotalInterviewDateDuration = Convert.ToDouble(dr["TotalInterviewDateDuration"]);
+                            stats.TotalInterviewDateFormatted = (TimeSpan.FromSeconds(Convert.ToInt32(dr["TotalInterviewDateDuration"]))).ToString(@"hh\:mm\:ss");
+
+                            stats.TotalReferralApplicantCalled = Convert.ToInt32(dr["TotalReferralApplicantCalled"]);
+                            stats.TotalReferralApplicantDuration = Convert.ToDouble(dr["TotalReferralApplicantDuration"]);
+                            stats.TotalReferralApplicantFormatted = (TimeSpan.FromSeconds(Convert.ToInt32(dr["TotalReferralApplicantDuration"]))).ToString(@"hh\:mm\:ss");
+                        }
+                    }
+                }
+                return stats;
+            }
+            catch (Exception ex)
+            {
+                return stats;
+            }
+        }
+
+        public void UpdateSecondaryStatus(int userId, int newStatus, int loggedInUserId)
+        {
+            try
+            {
+                SqlDatabase database = MSSQLDataBase.Instance.GetDefaultDatabase();
+                {
+                    returndata = new DataSet();
+                    DbCommand command = database.GetStoredProcCommand("UpdateSecondaryStatus");
+                    database.AddInParameter(command, "@SecondaryStatus", DbType.Int32, newStatus);
+                    database.AddInParameter(command, "@UserId", DbType.Int32, userId);
+                    database.AddInParameter(command, "@LoggedInUserId", DbType.Int32, loggedInUserId);
+
+                    command.CommandType = CommandType.StoredProcedure;
+                    database.ExecuteDataSet(command);
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+
+        public List<PhoneCallLog> GetPhoneCallLog(int index = 1, int pageSize = 5)
+        {
+            List<PhoneCallLog> logs = new List<PhoneCallLog>();
+            try
+            {
+                SqlDatabase database = MSSQLDataBase.Instance.GetDefaultDatabase();
+                {
+                    returndata = new DataSet();
+                    DbCommand command = database.GetStoredProcCommand("GetPhoneCallLog");
+                    database.AddInParameter(command, "@PageIndex", DbType.Int32, index);
+                    database.AddInParameter(command, "@PageSize", DbType.Int32, pageSize);
+
+                    command.CommandType = CommandType.StoredProcedure;
+                    returndata = database.ExecuteDataSet(command);
+                    if (returndata != null && returndata.Tables[0] != null && returndata.Tables[0].Rows.Count > 0)
+                    {
+                        foreach (DataRow dr in returndata.Tables[0].Rows)
+                        {
+                            logs.Add(new PhoneCallLog
+                            {
+                                CallDurationInSeconds = Convert.ToDouble(dr["CallDurationInSeconds"]),
+                                CallDurationFormatted = (TimeSpan.FromSeconds(Convert.ToInt32(dr["CallDurationInSeconds"]))).ToString(@"hh\:mm\:ss"),
+                                CallerNumber = dr["CallerNumber"].ToString(),
+                                CallStartTime = Convert.ToDateTime(dr["CallStartTime"]),
+                                CallStartTimeFormatted = Convert.ToDateTime(dr["CallStartTime"]).ToString(),
+                                CreatedBy = Convert.ToInt32(dr["CreatedBy"]),
+                                CreatedOn = Convert.ToDateTime(dr["CreatedOn"]),
+                                Id = Convert.ToInt32(dr["Id"]),
+                                Mode = dr["Mode"].ToString(),
+                                ReceiverUserId = string.IsNullOrEmpty(dr["ReceiverUserId"].ToString()) ? null : (int?)Convert.ToInt32(dr["ReceiverUserId"]),
+                                ReceiverNumber = dr["ReceiverNumber"].ToString(),
+                                ReceiverProfilePic = dr["ReceiverProfilePic"].ToString(),
+                                ReceiverFullName = string.IsNullOrEmpty(dr["ReceiverUserId"].ToString()) ?
+                                                        dr["ReceiverNumber"].ToString() : dr["FristName"].ToString() + " " + dr["LastName"].ToString()
+                            });
+                        }
+                    }
+                }
+                return logs;
+            }
+            catch (Exception ex)
+            {
+                return logs;
+            }
+        }
+
+        public void SavePhoneCallLog(PhoneCallLog phLog)
+        {
+            try
+            {
+                SqlDatabase database = MSSQLDataBase.Instance.GetDefaultDatabase();
+                {
+                    returndata = new DataSet();
+                    DbCommand command = database.GetStoredProcCommand("SavePhoneCallLog");
+                    database.AddInParameter(command, "@CallDurationInSeconds", DbType.Decimal, phLog.CallDurationInSeconds);
+                    database.AddInParameter(command, "@CallerNumber", DbType.String, phLog.CallerNumber);
+                    database.AddInParameter(command, "@Mode", DbType.String, phLog.Mode);
+                    database.AddInParameter(command, "@CreatedBy", DbType.Int32, phLog.CreatedBy);
+                    database.AddInParameter(command, "@ReceiverNumber", DbType.String, phLog.ReceiverNumber);
+                    database.AddInParameter(command, "@ReceiverUserId", DbType.Int32, phLog.ReceiverUserId);
+
+                    command.CommandType = CommandType.StoredProcedure;
+                    returndata = database.ExecuteDataSet(command);
+
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public ActionOutput<LoginUser> GetUsers(string keyword, string exceptUserIds = null, int? LoggedInUserId = null)
         {
             try
             {
@@ -626,6 +763,7 @@ namespace JG_Prospect.DAL
                     DbCommand command = database.GetStoredProcCommand("GetUsersByKeyword");
                     database.AddInParameter(command, "@Keyword", DbType.String, keyword);
                     database.AddInParameter(command, "@ExceptUserIds", DbType.String, exceptUserIds);
+                    database.AddInParameter(command, "@LoggedInUserId", DbType.Int32, LoggedInUserId);
 
                     command.CommandType = CommandType.StoredProcedure;
                     returndata = database.ExecuteDataSet(command);
@@ -1741,6 +1879,36 @@ namespace JG_Prospect.DAL
             }
         }
 
+        public List<UserSource> GetSourceList()
+        {
+            List<UserSource> list = new List<UserSource>();
+            try
+            {
+                SqlDatabase database = MSSQLDataBase.Instance.GetDefaultDatabase();
+                {
+                    returndata = new DataSet();
+                    DbCommand command = database.GetStoredProcCommand("UDP_GetSource");
+                    command.CommandType = CommandType.StoredProcedure;
+                    returndata = database.ExecuteDataSet(command);
+                    if (returndata != null && returndata.Tables[0] != null)
+                    {
+                        foreach (DataRow item in returndata.Tables[0].Rows)
+                        {
+                            list.Add(new UserSource
+                            {
+                                Id = Convert.ToInt32(item["Id"].ToString()),
+                                Source = item["Source"].ToString()
+                            });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+            return list;
+        }
+
         public DataSet CheckDuplicateSource(string Source)
         {
             try
@@ -2722,8 +2890,7 @@ namespace JG_Prospect.DAL
 
             catch (Exception ex)
             {
-                return false;
-                //LogManager.Instance.WriteToFlatFile(ex);
+                return false;               
             }
 
         }
@@ -2839,7 +3006,7 @@ namespace JG_Prospect.DAL
             }
         }
 
-        public bool UpdateOfferMade(int Id, string Email, string password)
+        public bool UpdateOfferMade(int Id, string Email, string password, string branchLocationId)
         {
             StringBuilder strerr = new StringBuilder();
 
@@ -2852,6 +3019,7 @@ namespace JG_Prospect.DAL
                     database.AddInParameter(command, "@Id", DbType.Int32, Id);
                     database.AddInParameter(command, "@Email", DbType.String, Email);
                     database.AddInParameter(command, "@password", DbType.String, password);
+                    database.AddInParameter(command, "@branchLocationId", DbType.String, branchLocationId);
                     database.ExecuteNonQuery(command);
                     return true;
                 }
@@ -3001,7 +3169,7 @@ namespace JG_Prospect.DAL
 
         //------------- end DP -------------
 
-        public DataSet GetSalesUsersStaticticsAndData(string strSearchTerm, string strStatus, Int32 intDesignationId, Int32 intSourceId, DateTime? fromdate, DateTime? todate, int userid, int intPageIndex, int intPageSize, string strSortExpression)
+        public DataSet GetSalesUsersStaticticsAndData(string strSearchTerm, string strStatus, string strDesignationId, string strSourceId, DateTime? fromdate, DateTime? todate, string struserid, int intPageIndex, int intPageSize, string strSortExpression)
         {
             DataSet dsResult = null;
             try
@@ -3014,10 +3182,10 @@ namespace JG_Prospect.DAL
                     {
                         database.AddInParameter(command, "@SearchTerm", DbType.String, strSearchTerm);
                     }
-                    database.AddInParameter(command, "@Status", DbType.String, strStatus);
-                    database.AddInParameter(command, "@DesignationId", DbType.Int32, intDesignationId);
-                    database.AddInParameter(command, "@SourceId", DbType.Int32, intSourceId);
-                    database.AddInParameter(command, "@AddedByUserId", DbType.Int16, userid);
+                    database.AddInParameter(command, "@Status", DbType.String, String.IsNullOrEmpty(strStatus.Trim()) == true ? null : strStatus);
+                    database.AddInParameter(command, "@DesignationId", DbType.String, String.IsNullOrEmpty(strDesignationId.Trim()) == true ? null : strDesignationId);
+                    database.AddInParameter(command, "@SourceId", DbType.String, String.IsNullOrEmpty(strSourceId.Trim()) == true ? null : strSourceId);
+                    database.AddInParameter(command, "@AddedByUserId", DbType.String, String.IsNullOrEmpty(struserid.Trim()) == true ? null : struserid);
                     if (fromdate != null)
                     {
                         database.AddInParameter(command, "@FromDate", DbType.Date, fromdate);
@@ -3261,6 +3429,39 @@ namespace JG_Prospect.DAL
             return returndata;
         }
 
+        public List<UserAddedBy> GeAddedBytUsersFormatted()
+        {
+            List<UserAddedBy> list = new List<UserAddedBy>();
+            returndata = new DataSet();
+            try
+            {
+                SqlDatabase database = MSSQLDataBase.Instance.GetDefaultDatabase();
+                {
+                    DbCommand command = database.GetStoredProcCommand("usp_GeAddedBytUsersFilter");
+
+                    command.CommandType = CommandType.StoredProcedure;
+                    returndata = database.ExecuteDataSet(command);
+                    if (returndata != null && returndata.Tables[0] != null)
+                    {
+                        foreach (DataRow item in returndata.Tables[0].Rows)
+                        {
+                            list.Add(new UserAddedBy
+                            {
+                                UserId = Convert.ToInt32(item["Id"].ToString()),
+                                FormattedName = item["FirstName"].ToString()
+                            });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+                //LogManager.Instance.WriteToFlatFile(ex);
+            }
+            return list;
+        }
+
         public void UpdateEmpType(int ID, string EmpType)
         {
             try
@@ -3311,7 +3512,7 @@ namespace JG_Prospect.DAL
             return returndata;
         }
 
-        public int UpdateUsersLastLoginTime(int loginUserID,  DateTime LogInTime)
+        public int UpdateUsersLastLoginTime(int loginUserID, DateTime LogInTime)
         {
             try
             {
@@ -3319,7 +3520,7 @@ namespace JG_Prospect.DAL
                 {
                     DbCommand command = database.GetStoredProcCommand("usp_UpdateUserLoginTimeStamp");
                     command.CommandType = CommandType.StoredProcedure;
-                    database.AddInParameter(command, "@Id", DbType.Int32, loginUserID);                    
+                    database.AddInParameter(command, "@Id", DbType.Int32, loginUserID);
                     database.AddInParameter(command, "@LastLoginTimeStamp", DbType.DateTime, LogInTime);
                     int retrunVal = database.ExecuteNonQuery(command);
                     return retrunVal;
@@ -3379,6 +3580,45 @@ namespace JG_Prospect.DAL
             }
         }
 
+        public DataSet QuickSaveUserWithEmailorPhone(user objuser)
+        {
+            try
+            {
+                SqlDatabase database = MSSQLDataBase.Instance.GetDefaultDatabase();
+                {
+                    DbCommand command = database.GetStoredProcCommand("usp_QuickSaveUserWithEmailorPhone");
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    database.AddInParameter(command, "@FirstName", DbType.String, objuser.fristname);
+                    database.AddInParameter(command, "@LastName", DbType.String, objuser.lastname);
+                    database.AddInParameter(command, "@Email", DbType.String, objuser.email);
+                    database.AddInParameter(command, "@Phone", DbType.String, objuser.phone);
+                    //database.AddInParameter(command, "@DesignationText", DbType.String, objuser.designation);
+                    //database.AddInParameter(command, "@DesignationID", DbType.String, objuser.DesignationID);
+                    database.AddInParameter(command, "@AddedByUserId", DbType.Int32, objuser.AddedBy);
+                    database.AddInParameter(command, "@Status", DbType.String, objuser.status);
+                    database.AddOutParameter(command, "@Id", DbType.Int32, 1);
+                    database.AddOutParameter(command, "@EmailExists", DbType.Binary, 1);
+                    database.AddOutParameter(command, "@PhoneExists", DbType.Binary, 1);
+
+                    DataSet ds = database.ExecuteDataSet(command);
+
+                    //bool EmailExists = Convert.ToBoolean(database.GetParameterValue(command, "@EmailExists"));
+                    //bool PhoneExists = Convert.ToBoolean(database.GetParameterValue(command, "@PhoneExists"));
+
+                    return ds;
+                }
+            }
+
+            catch (Exception ex)
+            {
+                return null;
+
+            }
+        }
+
+
+
         public Boolean UpdateUserProfile(user objuser)
         {
             try
@@ -3390,6 +3630,8 @@ namespace JG_Prospect.DAL
 
                     database.AddInParameter(command, "@UserId", DbType.Int32, objuser.id);
                     database.AddInParameter(command, "@PositionAppliedFor", DbType.String, objuser.PositionAppliedFor);
+                    database.AddInParameter(command, "@Designation", DbType.String, objuser.designation);
+                    database.AddInParameter(command, "@DesignationId", DbType.String, objuser.DesignationID);
                     database.AddInParameter(command, "@SourceID", DbType.Int32, objuser.SourceId);
                     database.AddInParameter(command, "@Source", DbType.String, objuser.Source);
                     database.AddInParameter(command, "@FristName", DbType.String, objuser.fristname);
@@ -3417,7 +3659,7 @@ namespace JG_Prospect.DAL
                     database.AddInParameter(command, "@Notes", DbType.String, objuser.Notes);
                     database.AddInParameter(command, "@Picture", DbType.String, objuser.picture);
                     database.AddInParameter(command, "@ResumePath", DbType.String, objuser.picture);
-
+                    database.AddInParameter(command, "@CurrencyId", DbType.Int32, objuser.CurrencyId);
 
                     database.ExecuteScalar(command);
 
@@ -3473,6 +3715,116 @@ namespace JG_Prospect.DAL
             {
             }
             return dsTemp;
+        }
+
+        public BranchLocation GetUserBranchLocation(int userId)
+        {
+            DataSet dsTemp = new DataSet();
+
+            try
+            {
+                SqlDatabase database = MSSQLDataBase.Instance.GetDefaultDatabase();
+                {
+                    DbCommand command = database.GetStoredProcCommand("GetUserBranchLocation");
+                    database.AddInParameter(command, "@UserId", SqlDbType.Int, userId);
+                    dsTemp = database.ExecuteDataSet(command);
+                    if (dsTemp != null && dsTemp.Tables[0] != null && dsTemp.Tables[0].Rows.Count > 0)
+                    {
+                        DataRow row = dsTemp.Tables[0].Rows[0];
+                        return new BranchLocation
+                        {
+                            BranchAddress1 = row["BranchAddress1"].ToString(),
+                            BranchAddress2 = row["BranchAddress2"].ToString(),
+                            CreatedOn = Convert.ToDateTime(row["CreatedOn"]),
+                            Department = row["DepartmentName"].ToString(),
+                            DepartmentId = Convert.ToInt32(row["DepartmentId"]),
+                            Email = row["Email"].ToString(),
+                            Id = Convert.ToInt32(row["Id"]),
+                            PhoneNumber = row["PhoneNumber"].ToString().Replace("(", "").Replace(")", "").Replace("-", "").Trim()
+                        };
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+            return null;
+        }
+
+        public List<BranchLocation> GetBranchLocations()
+        {
+            DataSet dsTemp = new DataSet();
+            List<BranchLocation> branches = new List<BranchLocation>();
+            try
+            {
+                SqlDatabase database = MSSQLDataBase.Instance.GetDefaultDatabase();
+                {
+                    DbCommand command = database.GetStoredProcCommand("GetBranchLocations");
+                    dsTemp = database.ExecuteDataSet(command);
+                    if (dsTemp != null && dsTemp.Tables[0] != null && dsTemp.Tables[0].Rows.Count > 0)
+                    {
+                        foreach (DataRow row in dsTemp.Tables[0].Rows)
+                        {
+                            branches.Add(new BranchLocation
+                            {
+                                BranchLocationTitle = row["BranchLocationTitle"].ToString(),
+                                BranchAddress1 = row["BranchAddress1"].ToString(),
+                                BranchAddress2 = row["BranchAddress2"].ToString(),
+                                CreatedOn = Convert.ToDateTime(row["CreatedOn"]),
+                                //Department = row["DepartmentName"].ToString(),
+                                DepartmentId = Convert.ToInt32(row["DepartmentId"]),
+                                Email = row["Email"].ToString(),
+                                Id = Convert.ToInt32(row["Id"]),
+                                PhoneNumber = row["PhoneNumber"].ToString().Replace("(", "").Replace(")", "").Replace("-", "").Trim()
+                            });
+                        }
+                    }
+                    return branches;
+                }
+            }
+            catch (Exception ex)
+            {
+                return branches;
+            }
+        }
+
+        public DataSet GetBranchLocationsDataSet()
+        {
+            DataSet dsTemp = new DataSet();
+            try
+            {
+                SqlDatabase database = MSSQLDataBase.Instance.GetDefaultDatabase();
+                {
+                    DbCommand command = database.GetStoredProcCommand("GetBranchLocations");
+                    return database.ExecuteDataSet(command);                    
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        public int UserExists(int userId,string email,string phone)
+        {
+            try
+            {
+                SqlDatabase database = MSSQLDataBase.Instance.GetDefaultDatabase();
+                {
+                    DbCommand command = database.GetStoredProcCommand("usp_UserExists");
+                    command.CommandType = CommandType.StoredProcedure;
+                    database.AddInParameter(command, "@UserId", DbType.Int32, userId);
+                    database.AddInParameter(command, "@Email", DbType.String, email);
+                    database.AddInParameter(command, "@Phone", DbType.String, phone);
+                    var returndata = database.ExecuteScalar(command);
+                    return (int)returndata;
+                }
+            }
+
+            catch (Exception ex)
+            {
+                return -1;
+            }
         }
     }
 }

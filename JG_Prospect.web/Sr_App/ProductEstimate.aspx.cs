@@ -60,16 +60,20 @@ namespace JG_Prospect.Sr_App
         {
             DataSet dds = new DataSet();
             dds = new_customerBLL.Instance.GetCustomerForDropDown();
-            DataRow dr = dds.Tables[0].NewRow();
-            dr["id"] = "0";
-            dr["CustomerName"] = "--Select--";
-            dds.Tables[0].Rows.InsertAt(dr, 0);
-            if (dds.Tables[0].Rows.Count > 0)
+            if (dds != null && dds.Tables.Count>0)
             {
-                //ddlCustomer.DataSource = dds.Tables[0];
-                //ddlCustomer.DataValueField = "id";
-                //ddlCustomer.DataTextField = "CustomerName";
-                //ddlCustomer.DataBind();
+                DataRow dr = dds.Tables[0].NewRow();
+                dr["id"] = "0";
+                dr["CustomerName"] = "--Select--";
+                dds.Tables[0].Rows.InsertAt(dr, 0);
+                if (dds.Tables[0].Rows.Count > 0)
+                {
+                    //ddlCustomer.DataSource = dds.Tables[0];
+                    //ddlCustomer.DataValueField = "id";
+                    //ddlCustomer.DataTextField = "CustomerName";
+                    //ddlCustomer.DataBind();
+
+                }
             }
 
         }

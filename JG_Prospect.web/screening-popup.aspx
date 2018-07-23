@@ -10,6 +10,7 @@
     <link href="css/intTel/intlTelInput.css" rel="stylesheet" />
 </head>
 <body>
+    
     <form id="formScreening" runat="server">
         <asp:ScriptManager ID="scmPopup" runat="server" ScriptMode="Auto">
         </asp:ScriptManager>
@@ -252,13 +253,13 @@
 
         </div>
 
-        <div id="divWait" class="hide" style="margin:20% auto;text-align:center;">
+        <div id="divWait" class="hide" style="margin: 20% auto; text-align: center;">
             <h2>We are redirecting you to your dashboard, Please wait for few seconds...</h2>
             <img src="img/ui-anim_basic_16x16.png" />
         </div>
-        <div class="progress"  style="display: none">Loading&#8230;</div>
+        <div class="progress" style="display: none">Loading&#8230;</div>
         <script src="//code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
-        <script src="//code.jquery.com/ui/1.10.1/jquery-ui.js" type="text/javascript"></script>
+        <script src="https://code.jquery.com/ui/1.10.1/jquery-ui.js" type="text/javascript"></script>
         <script src="js/intTel/intlTelInput.js"></script>
         <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyCn_qhX9dltK0qQfjmEfqlJ-FjU9tUb408"></script>
         <script type="text/javascript">
@@ -304,10 +305,10 @@
             }
 
             function closeScreeningPopup(URLtoRedirect) {
-                
+
                 $('#profileMaster').addClass('hide');
                 $('#divWait').removeClass('hide');
-                
+
                 window.top.location.href = URLtoRedirect;
 
             }
@@ -429,14 +430,14 @@
                 else {
                     $("#spnProfilePic").addClass("errortext");
                 }
-
+                //alert('profile pic is : ' +  valid);
                 args.IsValid = valid;
             }
 
             function validateResume(sender, args) {
 
                 var valid = false;
-                var fileExtension = ['jpeg', 'jpg', 'gif', 'png', 'pdf', 'doc', 'txt'];
+                var fileExtension = ['jpeg', 'jpg', 'gif', 'png', 'pdf', 'doc', 'txt', 'docx'];
                 var maxFileSize = 2097152; // 2MB -> 2 * 1024 * 1024
 
                 var fileUpload = $(fupResume);
@@ -473,7 +474,7 @@
                 else {
                     $("#spnResume").addClass("errortext");
                 }
-
+                //alert('resume is : ' + valid);
                 args.IsValid = valid;
             }
 

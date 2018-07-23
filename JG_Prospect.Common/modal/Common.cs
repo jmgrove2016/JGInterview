@@ -10,6 +10,12 @@ namespace JG_Prospect.Common.modal
         LoggedOut = 201,
         Unauthorized = 202
     }
+
+    public class ListResult
+    {
+        public int Id { get; set; }
+        public string Value { get; set; }
+    }
     public class ActionOutputBase
     {
         public ActionStatus Status { get; set; }
@@ -36,5 +42,12 @@ namespace JG_Prospect.Common.modal
     public class PagingResult<T> : PagingResultBase
     {
         public List<T> Data { get; set; }
+    }
+
+    public class PagingResult<T,Q,R> : PagingResultBase
+    {
+        public List<T> Data { get; set; }
+        public List<Q> QData { get; set; }
+        public List<R> RData { get; set; }
     }
 }

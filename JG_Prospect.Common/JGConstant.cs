@@ -11,7 +11,7 @@ namespace JG_Prospect.Common
     public class JGConstant
     {
         #region '--Constants--'
-        
+
         public static CultureInfo CULTURE = System.Globalization.CultureInfo.GetCultureInfo("en-US");
 
         public const string JUSTIN_LOGIN_ID = "jgrove@jmgroveconstruction.com";//"jgtest2@gmail.com"; //" jgrove@jmgroveconstruction.com"
@@ -76,13 +76,17 @@ namespace JG_Prospect.Common
         public const string ProfilPic_Upload_Folder = "~/UploadeProfile";
 
         public const string Default_PassWord = "jmgrove";
-        
+
 
         //-------- start DP ---------
         public const string EventCalendar_Upload_Folder = "~/EventCalendar";
         //-------- End DP ------------
 
-        public static string RandomGUID = Guid.NewGuid().ToString();
+        //public static string RandomGUID = Guid.NewGuid().ToString();
+
+        public const string ChatFilePath = "~/Chat/Attachments";
+
+        public const string ResourceFilePath = "~/Upload/Resources";
 
         #endregion
 
@@ -140,7 +144,7 @@ namespace JG_Prospect.Common
             Finished = 10,
             Test = 11,
             Live = 12,
-            Billed=14
+            Billed = 14
         }
 
         public enum TaskPriority
@@ -224,25 +228,36 @@ namespace JG_Prospect.Common
             Active = 1
             ,
             Applicant = 2
-                ,
+            ,
             Deactive = 3
-                ,
+            ,
             InstallProspect = 4
-                ,
+            ,
             InterviewDate = 5
-                ,
+            ,
             OfferMade = 6
-                ,
+            ,
             PhoneScreened = 7
-                ,
+            ,
             Phone_VideoScreened = 8
-                ,
+            ,
             Rejected = 9
-                ,
+            ,
             ReferralApplicant = 10
-                , Deleted = 11,
+            ,
+            Deleted = 11,
             Hidden = 15,
             InterviewDateExpired = 16
+        }
+
+        public enum UserSecondaryStatus
+        {
+            [Description("Answered")]
+            Answered = 3,
+            [Description("Not Answered")]
+            NotAnswered = 2,
+            [Description("Left A Message")]
+            LeftAMessage = 1
         }
 
         public enum UserRoles
@@ -251,7 +266,7 @@ namespace JG_Prospect.Common
         }
 
         public enum ExamPerformanceStatus
-        { 
+        {
             Pass = 1,
             Fail = 0
         }
@@ -265,7 +280,7 @@ namespace JG_Prospect.Common
 
         }
 
-        
+
         /// <summary>
         /// Get employment statuses for system.
         /// </summary>
@@ -279,14 +294,14 @@ namespace JG_Prospect.Common
             [Description("Part Time - Onsite")]
             PartTimeOnsite = 3,
             [Description("Full Time - Onsite")]
-            FullTimeOnsite = 4, 
+            FullTimeOnsite = 4,
             [Description("Internship")]
             Internship = 5,
             [Description("Temp")]
             Temp = 6,
             [Description("Sub")]
             Sub = 7
-            
+
         }
         #endregion
 

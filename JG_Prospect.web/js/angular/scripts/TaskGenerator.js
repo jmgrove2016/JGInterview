@@ -8,12 +8,13 @@ function callWebServiceMethod($http, methodName, filters) {
 };
 
 function _applyFunctions($scope, $compile, $http, $timeout, $filter) {
-
     $scope.UsersByDesignation = [];
     $scope.UserSelectedDesigIds = [];
     $scope.DesignationAssignUsers = [];
     $scope.Users = [];
     $scope.SelectedUserId = 0;
+    $scope.RootTasks = [];
+    $scope.ChildTasks = [];
     $scope.SubTasks = [];
     $scope.TaskFiles = [];
     $scope.pageSize = 5;
@@ -36,7 +37,7 @@ function _applyFunctions($scope, $compile, $http, $timeout, $filter) {
     $scope.getFileData = function (fileName, targetEditor) {
         callWebServiceMethod($http, "GetTaskUserFileByFileName", { FileName: fileName }).then(function (data) {
             FileData = JSON.parse(data.data.d);
-            var imgHtml = '<div class="attachmentImageDiv"><a class="image-link" href="/TaskAttachments/' + fileName + '"><img src="/TaskAttachments/' + fileName + '" ></a>';
+            var imgHtml = '<div class="attachmentImageDiv"><a class="image-link" href="/TaskAttachments/' + fileName + '"><img width="100px" src="/TaskAttachments/' + fileName + '" ></a>';
             var date = $filter('date')(new Date(FileData.FileData.File.AttachDate), 'MM/dd/yyyy hh:mm a') + '</span>(EST)</p>';
             date = date.replace(' ', '&nbsp;<span style="color:red">');
             var ulHtml = '<b>' +
@@ -75,7 +76,6 @@ function _applyFunctions($scope, $compile, $http, $timeout, $filter) {
         callWebServiceMethod($http, "GetSubTasks", { TaskId: TaskId, strSortExpression: "CreatedOn DESC", vsearch: skey, intPageIndex: page != undefined ? page : 0, intPageSize: sequenceScopeTG.pageSize, intHighlightTaskId: 0 }).then(function (data) {
             var resultArray = JSON.parse(data.data.d);
             var result = resultArray.TaskData;
-
             $scope.page = result.Pages.PageIndex;
             $scope.TotalRecords = result.RecordCount.TotalRecords;
             $scope.pagesCount = Math.ceil(result.RecordCount.TotalRecords / sequenceScopeTG.pageSize);
@@ -85,6 +85,40 @@ function _applyFunctions($scope, $compile, $http, $timeout, $filter) {
             var NextInstallId = result.Table4.LastSubTaskInstallId;
             $('#ContentPlaceHolder1_objucSubTasks_Admin_txtTaskListID').val(NextInstallId);
             HideAjaxLoader();
+        });
+    }
+
+    $scope.getRootTasks = function (CurrentTaskId) {
+        ShowShareMoveLoading('Getting Root Tasks...');
+        callWebServiceMethod($http, "GetRootTasks", { ExcludedTaskId: CurrentTaskId}).then(function (data) {
+            var resultArray = JSON.parse(data.data.d);
+            var result = resultArray.TasksDataSet;
+            $scope.RootTasks = $scope.correctDataforAngular(result.Tasks);        
+            ShowShareMoveLoading('');
+        });
+    }
+
+    $scope.onRootTasksEnd = function () {        
+        setTimeout(function () {
+            $('#ddlRootTasks').trigger('change');
+            $('#ddlRootTasks').trigger('chosen:updated');
+        }, 1000);
+
+
+    }
+
+    $scope.getChildTasks = function (ParentTaskId) {
+        ShowShareMoveLoading('Getting Child Tasks...');
+        callWebServiceMethod($http, "GetChildTasks", { ParentTaskId: ParentTaskId }).then(function (data) {
+            var resultArray = JSON.parse(data.data.d);
+            var result = resultArray.TasksDataSet;
+            if (result != null && result != undefined) {
+                $scope.ChildTasks = $scope.correctDataforAngular(result.Tasks);
+            }
+            else {
+                $scope.ChildTasks = [];
+            }
+            ShowShareMoveLoading('');
         });
     }
 
@@ -170,10 +204,13 @@ function _applyFunctions($scope, $compile, $http, $timeout, $filter) {
     };
 
     $scope.getAssignUser = function () {
-        getDesignationAssignUsers($http, "GetAssignUsers", { TaskDesignations: $scope.UserSelectedDesigIds != "" ? $scope.UserSelectedDesigIds.join():"" }).then(function (data) {
-            var AssignedUsers = JSON.parse(data.data.d);
-            $scope.DesignationAssignUsers = AssignedUsers;
-            $scope.Users = AssignedUsers;
+        getDesignationAssignUsers($http, "GetAssignUsers", { TaskDesignations: $scope.UserSelectedDesigIds != "" ? $scope.UserSelectedDesigIds.join() : "" }).then(function (data) {
+            try {
+                var AssignedUsers = JSON.parse(data.data.d);
+                $scope.DesignationAssignUsers = AssignedUsers;
+                $scope.Users = AssignedUsers;
+            } catch (Exp) {
+            }
         });
     };
 
@@ -381,145 +418,241 @@ function _applyFunctions($scope, $compile, $http, $timeout, $filter) {
         //GridDropZone();
     };
 
+    $scope.onRomansLoad = function (tid) {        
+        //$timeout(function () {
+        //    debugger;
+        //    if (tid != undefined) {
+        //        SetCKEditorForChildren('subtaskDesc' + tid);
+        //    }
+        //}, 4);
+    }
+
     //Helper Functions
     $scope.LoadFeedbackPoints = function () {
         callWebServiceMethod($http, "GetMultilevelChildren", { ParentTaskId: ParentIds.join() }).then(function (data) {
-            var result = JSON.parse(data.data.d);
-            if (result.ChildrenData != null) {
-                $scope.MultiLevelChildren = $scope.correctDataforAngular(result.ChildrenData.Children);
-                $timeout(function () {
-
-                    //Add Blink Class
-                    var ChildId = getUrlVars()["mcid"];
-                    var hstid = getUrlVars()["hstid"];
-
-                    if (ChildId != undefined) {
-                        $('#ChildEdit' + ChildId).addClass('yellowthickborder');
-                    } else {
-                        $('#datarow' + hstid).addClass('yellowthickborder');
-                    }
-
-                    //Apply Context Menu
-                    $(".context-menu-child").bind("contextmenu", function () {
-                        var url = window.location.href;
-                        url = url.split('&')[0];
-                        var urltoCopy = url + '&hstid=' + $(this).attr('data-highlighter') + '&mcid=' + $(this).attr('data-childid');
-                        //var urltoCopy = updateQueryStringParameterTP(window.location.href, "hstid", $(this).attr('data-highlighter'));
-                        copyToClipboard(urltoCopy);
-                        return false;
-                    });
-
-                    if (PreventScroll == 0) {
-                        if (ChildId == undefined)
-                            ScrollTo($('.yellowthickborder'));
-                        else
-                            ScrollToChild($('.yellowthickborder'), ChildId, hstid);
-                    }
-                    else
-                        PreventScroll = 0;
-
-                    $(".yellowthickborder").bind("click", function () {
-                        $(this).removeClass("yellowthickborder");
-                    });
-                    if (IsAdminMode == 'True') {
-                        $(".ChildEdit").each(function (index) {
-                            // This section is available to admin only.
-
-                            $(this).bind("dblclick", function () {
-                                if (!isadded) {
-                                    var tid = $(this).attr("data-taskid");
-                                    var ptid = $(this).attr("data-parentid");
-                                    var titledetail = $(this).html();
-                                    var fName = $("<textarea id=\"txteditChild\" style=\"width:80%;\" class=\"editedTitle\" rows=\"10\" >" + titledetail + "</textarea><input id=\"btnSave\" type=\"button\" value=\"Save\" />");
-                                    $(this).html(fName);
-                                    $('#ContentPlaceHolder1_objucSubTasks_Admin_hdDropZoneTaskId').val(tid);
-                                    SetCKEditorForSubTask('txteditChild');
-                                    $('#txteditChild').focus();
-                                    control = $(this);
-
-                                    isadded = true;
-                                    $('#btnSave').bind("click", function () {
-                                        var htmldata = GetCKEditorContent('txteditChild');
-                                        ShowAjaxLoader();
-                                        var postData = {
-                                            tid: tid,
-                                            Description: htmldata
-                                        };
-
-                                        $.ajax({
-                                            url: '../../../WebServices/JGWebService.asmx/UpdateTaskDescriptionChildById',
-                                            contentType: 'application/json; charset=utf-8;',
-                                            type: 'POST',
-                                            dataType: 'json',
-                                            data: JSON.stringify(postData),
-                                            asynch: false,
-                                            success: function (data) {
-                                                CKEDITOR.instances['txteditChild'].destroy();
-                                                alert('Child saved successfully.');
-                                                HideAjaxLoader();
-                                                $('#ChildEdit' + tid).html(htmldata);
-                                                isadded = false;
-                                            },
-                                            error: function (a, b, c) {
-                                                HideAjaxLoader();
-                                            }
-                                        });
-                                        $(this).css({ 'display': "none" });
-                                    });
-                                    CurrentEditingTaskId = tid;
-                                    pid = ptid;
-                                }
-                                return false;
-                            });
-                        });
-                    }
-                    $('.image-link').magnificPopup({ type: 'image' });
-
-                    $('.image-link img').mouseover(function () {
-
-                        if ($(this).attr('id') != 'imgIcon') {
-                            //alert('click');
-                            // Returns width of browser viewport
-                            var width = $(window).width();
-
-                            //Show Popover
-                            var src = $(this).attr('src');
-                            var h = $(this).attr('height');
-                            var w = $(this).attr('width');
-
-                            var parentOffset = $(this).parent().offset();
-
-                            var relX = parentOffset.left;
-                            var relY = parentOffset.top - 200;
-
-                            if (relX >= (width / 2)) {
-                                relX = parentOffset.left - 100;
-                            }
-                            else {
-                                relX = parentOffset.left + 98;
-                            }
-
-                            $('.popover__content img').attr('height', 150);
-                            $('.popover__content img').attr('src', src);
-                            $('.popover__content').css({ "height": h });
-                            $('.popover__content').css({ "width": w });
-                            $('.popover__content').css({ "left": relX });
-                            $('.popover__content').css({ "top": relY });
-                            $('.popover__content').fadeIn(200);
-                        }
-                    });
-
-                    $('.image-link img').mouseleave(function () {
-                        //$('.popover__content img').attr('src', "");
-                        $('.popover__content').fadeOut(200);
-                    });
-
-                    if (NewTaskSaved) {
-                        SetCKEditorForChildren('subtaskDesc' + CurrentTaskId);
-                        NewTaskSaved = false;
-                    }
-                }, 1);
+            if (data.data.d != undefined && data.data.d != '' && data.data.d != null) {
+                var result = JSON.parse(data.data.d);
+                if (result.ChildrenData != null) {
+                    $scope.MultiLevelChildren = $scope.correctDataforAngular(result.ChildrenData.Children);
+                }
             }
+            $timeout(function () {
+
+                $('.ChildDescField').each(function (i, obj) {
+                    var id = $(obj).attr('id');
+                    SetCKEditorForRomanDesc(id);
+                });
+
+                //For Placeholder
+                setTimeout(function () {
+                    var placetext = '<i>*</i> <span style="color:darkgrey;font-style:italic">Description</span>';
+                    $('div.cke_editable').html(placetext);
+                    $('div.cke_editable').on('click focusin', function () {
+                        var cid = $(this).prev('textarea').attr('id');
+                        var c = GetCKEditorContent(cid).replace('<em>*</em> <em style="color:darkgrey; font-style:italic">Description</em>', '');
+
+                        if (c.length == 0) {
+                            $('textarea#' + cid).next('div.cke_editable').html('');
+                        }                        
+                    });
+                    $('div.cke_editable').on('blur', function () {
+                        var cid = $(this).prev('textarea').attr('id');
+                        var c = GetCKEditorContent(cid);
+                        if (c.length == 0) {
+                            $('textarea#' + cid).next('div.cke_editable').html(placetext);
+                        }                       
+                    });
+                }, 2000);
+
+                //Add Blink Class
+                var ChildId = getUrlVars()["mcid"];
+                var hstid = getUrlVars()["hstid"];
+                if (ChildId != undefined)
+                    ChildId = ChildId.replace('#', '');
+                if (hstid != undefined)
+                    hstid = hstid.replace('#', '');
+
+                if (ChildId != undefined) {
+                    $('#ChildEdit' + ChildId).addClass('yellowthickborder');
+                } else {
+                    $('#datarow' + hstid).addClass('yellowthickborder');
+                }
+
+                //Apply Context Menu
+                $(".context-menu-child").bind("contextmenu", function () {
+                    var url = window.location.href;
+                    url = url.split('&')[0];
+                    var urltoCopy = url + '&hstid=' + $(this).attr('data-highlighter') + '&mcid=' + $(this).attr('data-childid');
+                    //var urltoCopy = updateQueryStringParameterTP(window.location.href, "hstid", $(this).attr('data-highlighter'));
+                    copyToClipboard(urltoCopy);
+                    return false;
+                });
+
+                if (PreventScroll == 0) {
+                    if (ChildId == undefined)
+                        ScrollTo($('.yellowthickborder'));
+                    else
+                        ScrollToChild($('.yellowthickborder'), ChildId, hstid);
+                }
+                else
+                    PreventScroll = 0;
+
+                //set focus for next entry
+                setTimeout(function () {
+                    $('#txtRomanTitle' + CurrentTaskId).focus();
+                }, 1000);
+
+                $(".yellowthickborder").bind("click", function () {
+                    $(this).removeClass("yellowthickborder");
+                });
+                if (IsAdminMode == 'True') {
+                    $(".ChildEditTitle").each(function (index) {
+                        // This section is available to admin only.
+
+                        $(this).bind("dblclick", function () {
+                            if (!isadded) {
+                                var tid = $(this).attr("data-taskid");
+                                var ptid = $(this).attr("data-parentid");
+                                var titledetail = $(this).html();
+                                var fName = $("<textarea id=\"txteditChild\" style=\"width:80%;\" class=\"editedTitle\" rows=\"1\" >" + titledetail + "</textarea><input id=\"btnSave\" type=\"button\" value=\"Save\" />");
+                                $(this).html(fName);
+                                $('#ContentPlaceHolder1_objucSubTasks_Admin_hdDropZoneTaskId').val(tid);
+                                SetCKEditorForSubTask('txteditChild');
+                                $('#txteditChild').focus();
+                                control = $(this);
+
+                                isadded = true;
+                                $('#btnSave').bind("click", function () {
+                                    var htmldata = GetCKEditorContent('txteditChild');
+                                    ShowAjaxLoader();
+                                    var postData = {
+                                        RomanId: tid,
+                                        Title: htmldata
+                                    };
+
+                                    $.ajax({
+                                        url: '../../../WebServices/JGWebService.asmx/UpdateRomanTitle',
+                                        contentType: 'application/json; charset=utf-8;',
+                                        type: 'POST',
+                                        dataType: 'json',
+                                        data: JSON.stringify(postData),
+                                        asynch: false,
+                                        success: function (data) {
+                                            CKEDITOR.instances['txteditChild'].destroy();
+                                            alert('Title updated successfully.');
+                                            HideAjaxLoader();
+                                            $('#ChildEditTitle' + tid).html(htmldata);
+                                            isadded = false;
+                                        },
+                                        error: function (a, b, c) {
+                                            HideAjaxLoader();
+                                        }
+                                    });
+                                    $(this).css({ 'display': "none" });
+                                });
+                                CurrentEditingTaskId = tid;
+                                pid = ptid;
+                            }
+                            return false;
+                        });
+                    });
+                    $(".ChildEdit").each(function (index) {
+                        // This section is available to admin only.
+
+                        $(this).bind("dblclick", function () {
+                            if (!isadded) {
+                                var tid = $(this).attr("data-taskid");
+                                var ptid = $(this).attr("data-parentid");
+                                var titledetail = $(this).html();
+                                var fName = $("<textarea id=\"txteditChild\" style=\"width:80%;\" class=\"editedTitle\" rows=\"10\" >" + titledetail + "</textarea><input id=\"btnSave\" type=\"button\" value=\"Save\" />");
+                                $(this).html(fName);
+                                $('#ContentPlaceHolder1_objucSubTasks_Admin_hdDropZoneTaskId').val(tid);
+                                SetCKEditorForSubTask('txteditChild');
+                                $('#txteditChild').focus();
+                                control = $(this);
+
+                                isadded = true;
+                                $('#btnSave').bind("click", function () {
+                                    var htmldata = GetCKEditorContent('txteditChild');
+                                    ShowAjaxLoader();
+                                    var postData = {
+                                        tid: tid,
+                                        Description: htmldata
+                                    };
+
+                                    $.ajax({
+                                        url: '../../../WebServices/JGWebService.asmx/UpdateTaskDescriptionChildById',
+                                        contentType: 'application/json; charset=utf-8;',
+                                        type: 'POST',
+                                        dataType: 'json',
+                                        data: JSON.stringify(postData),
+                                        asynch: false,
+                                        success: function (data) {
+                                            CKEDITOR.instances['txteditChild'].destroy();
+                                            alert('Description updated successfully.');
+                                            HideAjaxLoader();
+                                            $('#ChildEdit' + tid).html(htmldata);
+                                            isadded = false;
+                                        },
+                                        error: function (a, b, c) {
+                                            HideAjaxLoader();
+                                        }
+                                    });
+                                    $(this).css({ 'display': "none" });
+                                });
+                                CurrentEditingTaskId = tid;
+                                pid = ptid;
+                            }
+                            return false;
+                        });
+                    });
+                }
+                $('.image-link').magnificPopup({ type: 'image' });
+
+                $('.image-link img').mouseover(function () {
+
+                    if ($(this).attr('id') != 'imgIcon') {
+                        //alert('click');
+                        // Returns width of browser viewport
+                        var width = $(window).width();
+
+                        //Show Popover
+                        var src = $(this).attr('src');
+                        var h = $(this).attr('height');
+                        var w = $(this).attr('width');
+
+                        var parentOffset = $(this).parent().offset();
+
+                        var relX = parentOffset.left;
+                        var relY = parentOffset.top - 200;
+
+                        if (relX >= (width / 2)) {
+                            relX = parentOffset.left - 100;
+                        }
+                        else {
+                            relX = parentOffset.left + 98;
+                        }
+
+                        $('.popover__content img').attr('height', 150);
+                        $('.popover__content img').attr('src', src);
+                        $('.popover__content').css({ "height": h });
+                        $('.popover__content').css({ "width": w });
+                        $('.popover__content').css({ "left": relX });
+                        $('.popover__content').css({ "top": relY });
+                        $('.popover__content').fadeIn(200);
+                    }
+                });
+
+                $('.image-link img').mouseleave(function () {
+                    //$('.popover__content img').attr('src', "");
+                    $('.popover__content').fadeOut(200);
+                });
+
+                if (NewTaskSaved) {
+                    SetCKEditorForChildren('subtaskDesc' + CurrentTaskId);
+                    NewTaskSaved = false;
+                }
+            }, 1);
         });
     }
     $scope.trustedHtml = function (plainText) {
@@ -543,7 +676,7 @@ function _applyFunctions($scope, $compile, $http, $timeout, $filter) {
                 return romanize(levelChar);
         }
     }
-
+    
     //Create a Scope
     sequenceScopeTG = $scope;
 }

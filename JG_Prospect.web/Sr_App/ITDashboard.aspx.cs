@@ -1,13 +1,18 @@
 ﻿using JG_Prospect.App_Code;
 using JG_Prospect.BLL;
 using JG_Prospect.Common;
+using JG_Prospect.Common.modal;
 using JG_Prospect.DAL.Database;
 using Microsoft.Practices.EnterpriseLibrary.Data.Sql;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Text;
+using System.Web;
+using System.Web.Script.Serialization;
+using System.Web.Services;
 using System.Web.UI;
 using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
@@ -21,10 +26,12 @@ namespace JG_Prospect.Sr_App
         public int loggedInUserId = 0;
         public bool TaskListView = true;
         public int UserDesignationId = 0;
+        //public string RandomGUID;
         #endregion
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            // RandomGUID = SingletonGlobal.Instance.RandomGUID;
             JG_Prospect.App_Code.CommonFunction.AuthenticateUser();
             UserDesignationId = JGSession.DesignationId;
 
@@ -50,14 +57,14 @@ namespace JG_Prospect.Sr_App
                 FillDesignation();
 
                 //if ((string)Session["DesigNew"] == "ITLead" || (string)Session["DesigNew"] == "Admin" || (string)Session["DesigNew"] == "Office Manager")
-                if(UserDesignationId==4 || UserDesignationId == 6 || UserDesignationId == 18 || UserDesignationId == 21 || IsSuperUser)
+                if (UserDesignationId == 4 || UserDesignationId == 6 || UserDesignationId == 18 || UserDesignationId == 21 || IsSuperUser)
                 {
                     IsSuperUser = true;
                     lblalertpopup.Visible = true;
                     DataSet ds = TaskGeneratorBLL.Instance.GetFrozenNonFrozenTaskCount();
-                    if(ds!=null && ds.Tables.Count>0 && ds.Tables[0].Rows.Count > 0)
+                    if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                     {
-                        lblFrozenTaskCounter.InnerHtml = "Partial Frozen Tasks :<div class='badge1 badge-error' style='width:20px;'>" +ds.Tables[0].Rows[0][0].ToString() + "</div>";
+                        lblFrozenTaskCounter.InnerHtml = "Partial Frozen Tasks :<div class='badge1 badge-error' style='width:20px;'>" + ds.Tables[0].Rows[0][0].ToString() + "</div>";
                         lblNonFrozenTaskCounter.InnerHtml = "Non Frozen Tasks :<div class='badge1 badge-error' style='width:20px;'>" + ds.Tables[1].Rows[0][0].ToString() + "</div>";
                     }
                 }
@@ -750,7 +757,7 @@ namespace JG_Prospect.Sr_App
                 }
                 else if ((string)Session["DesigNew"] == "ITLead" || (string)Session["DesigNew"] == "Office Manager")
                 {
-                    arrStatus = new string[] { JGConstant.TaskStatus.Open.ToString(),JGConstant.TaskStatus.Requested.ToString(), 
+                    arrStatus = new string[] { JGConstant.TaskStatus.Open.ToString(),JGConstant.TaskStatus.Requested.ToString(),
                         JGConstant.TaskStatus.Assigned.ToString(), JGConstant.TaskStatus.InProgress.ToString(),
                         JGConstant.TaskStatus.Pending.ToString(),  JGConstant.TaskStatus.ReOpened.ToString(),
                         JGConstant.TaskStatus.SpecsInProgress.ToString(),
@@ -857,7 +864,7 @@ namespace JG_Prospect.Sr_App
                     e.Row.BackColor = clr;
                 }
 
-                
+
 
                 // fill status dropdowns
                 //----- If manager level then show all statuses
@@ -1026,7 +1033,7 @@ namespace JG_Prospect.Sr_App
 
                 drpStatusFrozen.Attributes.Add("data-task-id", lblTaskIdInPro.Value);
             }
-        }      
+        }
 
         private string GetSelectedDesignationsString(ListBox drpChkBoxes)
         {
@@ -1092,6 +1099,113 @@ namespace JG_Prospect.Sr_App
             return objListItemCollection;
         }
 
+        [WebMethod]
+        public static string GetTaskChatMessages(int taskId, int chatSourceId, int taskMultilevelListId = 0)
+        {
+            var users = ChatBLL.Instance.GetTaskUsers(taskId).Results;
+            string receiverId = string.Empty;
+            if (users != null && users.Count() > 0)
+            {
+                receiverId = string.Join(",", users.OrderBy(m => m).ToList());
+            }
+            List<ChatMessage> chatMessages = ChatBLL.Instance.GetTaskChatMessages(JGSession.UserId, chatSourceId, taskId, taskMultilevelListId).Results;
+            PagingResult<Notes> notes = new PagingResult<Notes>();
+            notes.Status = ActionStatus.Successfull;
+            notes.TotalResults = chatMessages.Count();
+            notes.Message = receiverId;
+            notes.Data = chatMessages.Select(m => new Notes
+            {
+                UserChatGroupId = m.UserChatGroupId,
+                TaskMultilevelListId = taskMultilevelListId,
+                TaskId = taskId,
+                UpdatedByUserID = m.UserId,
+                UpdatedUserInstallID = m.UserInstallId,
+                ChangeDateTime = m.MessageAt,
+                LogDescription = m.Message,
+                UpdatedByFirstName = m.UserFullname.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[0],
+                UpdatedByLastName = m.UserFullname.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Count() > 1 ? m.UserFullname.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[1] : "",
+                UpdatedByEmail = "",
+                FristName = m.UserFullname.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[0],
+                LastName = m.UserFullname.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Count() > 1 ? m.UserFullname.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[1] : "",
+                Email = "",
+                Phone = "",
+                ChangeDateTimeFormatted = m.MessageAtFormatted,
+                SourceUser = m.UserFullname.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[0],
+                SourceUserInstallId = m.UserInstallId,
+                SourceUsername = m.UserFullname,
+                TouchPointSource = m.ChatSourceId,
+                IsRead = m.IsRead
+            }).OrderByDescending(x => x.ChangeDateTime).OrderByDescending(x => x.ChangeDateTime).Take(5).ToList();
+            //PagingResult<Notes> notes = InstallUserBLL.Instance.GetUserTouchPointLogs(pageNumber, pageSize, userId);
+            return new JavaScriptSerializer().Serialize(notes);
+        }
+
+        [WebMethod]
+        public static string AddNotes(int taskId, int taskMultilevelListId, string note, int touchPointSource)
+        {
+            var users = ChatBLL.Instance.GetTaskUsers(taskId).Results;
+            string receiverId = string.Empty;
+            if (users != null && users.Count() > 0)
+            {
+                receiverId = string.Join(",", users.OrderBy(m => m).ToList());
+            }
+            if (string.IsNullOrEmpty(note) || string.IsNullOrEmpty(receiverId))
+            {
+                return new JavaScriptSerializer().Serialize(new ActionOutput { Status = ActionStatus.Successfull });
+            }
+            string strUserInstallId = JGSession.Username + " - " + JGSession.LoginUserID;
+            int userID = Convert.ToInt32(JGSession.LoginUserID);
+            string ChatGroupId = string.Empty;
+            //InstallUserBLL.Instance.AddTouchPointLogRecord(userID, id, strUserInstallId, DateTime.UtcNow, "Note : " + note, "", touchPointSource);
+            var chat = ChatBLL.Instance.GetTaskChatMessages(JGSession.UserId, touchPointSource, taskId, taskMultilevelListId);
+            if (chat != null && chat.Results != null && chat.Results.Count() > 0)
+            {
+                ChatGroupId = chat.Results[0].ChatGroupId;
+            }
+            else
+            {
+                ChatGroupId = Guid.NewGuid().ToString();
+            }
+            ChatBLL.Instance.SaveChatMessage(new ChatMessage
+            {
+                TaskId = taskId,
+                TaskMultilevelListId = taskMultilevelListId,
+                Message = note,
+                FileId = null,
+                ChatSourceId = touchPointSource,
+                UserId = userID,
+                UserProfilePic = "",
+                UserFullname = "",
+                UserInstallId = "",
+                MessageAt = DateTime.UtcNow.ToEST(),
+                MessageAtFormatted = DateTime.UtcNow.ToEST().ToString()
+            }, ChatGroupId, receiverId, JGSession.UserId);
+
+            bool sendEmail = false;
+            // sort ReceiverIds into Asc
+            List<int?> ids = receiverId.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                                       .Select(m => (int?)Convert.ToInt32(m))
+                                       .Distinct()
+                                       .ToList();
+
+            // Remove SenderId From ReceiverIds
+            if (ids.Count() > 0 && ids.Contains(JGSession.UserId))
+                ids.Remove(JGSession.UserId);
+            // Send Email notification to all offline users
+            if (SingletonUserChatGroups.Instance.ActiveUsers.Where(m => ids.Contains(m.UserId)).Any())
+            {
+                string baseurl = HttpContext.Current.Request.Url.Scheme + "://" +
+                                    HttpContext.Current.Request.Url.Authority +
+                                    HttpContext.Current.Request.ApplicationPath.TrimEnd('/') + "/";
+                foreach (ActiveUser item in SingletonUserChatGroups.Instance.ActiveUsers.Where(m => ids.Contains(m.UserId) && !m.OnlineAt.HasValue).ToList())
+                {
+                    ChatBLL.Instance.SendOfflineChatEmail(userID, item.UserId.Value, strUserInstallId,
+                                                            note, touchPointSource, baseurl, ChatGroupId);
+                }
+            }
+
+            return new JavaScriptSerializer().Serialize(new ActionOutput { Status = ActionStatus.Successfull });
+        }
     }
 
 }

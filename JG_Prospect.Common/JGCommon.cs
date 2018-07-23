@@ -7,6 +7,103 @@ namespace JG_Prospect.Common
 {
     public class JGCommon
     {
+        public class UserSource
+        {
+            public int Id { get; set; }
+            public string Source { get; set; }
+        }
+        public class UserAddedBy
+        {
+            public int UserId { get; set; }
+            public string FormattedName { get; set; }
+        }
+        public class UserDesignation
+        {
+            public int Id { get; set; }
+            public string DesignationName { get; set; }
+            public int DepartmentId { get; set; }
+            public string DesignationCode { get; set; }
+        }
+
+        public class FilterDesignation
+        {
+            public int Id { get; set; }
+            public string DesignationName { get; set; }
+        }
+        public class UserStatus
+        {
+            public string Status { get; set; }
+            public string StatusValue { get; set; }
+        }
+
+        public class TechTask
+        {
+            public int Id { get; set; }
+            public string Title { get; set; }
+        }
+        public class SubTechTask
+        {
+            public int Id { get; set; }
+            public string Title { get; set; }
+        }
+
+        public class Recruiter
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public string optionCss { get; set; }
+        }
+
+        public class ReminderEmail
+        {
+            public int UserId { get; set; }
+            public string Email { get; set; }
+            public string Subject { get; set; }
+            public string Body { get; set; }
+            public string CustomMessage { get; set; }
+        }
+
+        public class callLog
+        {
+            public string mode { get; set; }
+            public DateTime startTime { get; set; }
+            public string num { get; set; }
+            public string dur { get; set; }
+        }
+
+        public class PhoneCallStatistics
+        {
+            public int TotalOutbound { get; set; }
+            public double TotalCallDurationInSeconds { get; set; }
+            public string TotalCallDurationFormatted { get; set; }
+            public string Mode { get; set; }
+            public int TotalApplicantCalled { get; set; }
+            public double TotalApplicantDuration { get; set; }
+            public string TotalApplicantDurationFormatted { get; set; }
+            public int TotalReferralApplicantCalled { get; set; }
+            public double TotalReferralApplicantDuration { get; set; }
+            public string TotalReferralApplicantFormatted { get; set; }
+            public int TotalInterviewDateCalled { get; set; }
+            public double TotalInterviewDateDuration { get; set; }
+            public string TotalInterviewDateFormatted { get; set; }
+        }
+
+        public class PhoneCallLog
+        {
+            public int Id { get; set; }
+            public string Mode { get; set; }
+            public string CallerNumber { get; set; }
+            public string ReceiverNumber { get; set; }
+            public string ReceiverFullName { get; set; }
+            public int? ReceiverUserId { get; set; }
+            public double CallDurationInSeconds { get; set; }
+            public string CallDurationFormatted { get; set; }
+            public DateTime CallStartTime { get; set; }
+            public string CallStartTimeFormatted { get; set; }
+            public DateTime CreatedOn { get; set; }
+            public int CreatedBy { get; set; }
+            public string ReceiverProfilePic { get; set; }
+        }
         public static string GenerateOTP(int length)
         {
             const string valid = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789011223344556677889900";
@@ -22,7 +119,7 @@ namespace JG_Prospect.Common
         public static string GetEmailUnSubscribeSection()
         {
             String html = "<div style=\"clear:both;\"></div><div style=\"text-align:center;\">if you do not want to continue receiving emails from us, Please <a href =\"#URL#/unsubscribe.aspx?e=#UNSEMAIL#\" > Unsubscribe here.</a> </div>";
-            html = html.Replace("#URL#",JGApplicationInfo.GetSiteURL());
+            html = html.Replace("#URL#", JGApplicationInfo.GetSiteURL());
 
             return html;
         }
@@ -139,6 +236,13 @@ namespace JG_Prospect.Common
 
             return prefix;
         }
+
+        public static void CreateIfNotExists(string path)
+        {
+            bool isExists = System.IO.Directory.Exists(path);
+            if (!isExists)
+                System.IO.Directory.CreateDirectory(path);
+        }
     }
 
     public class JGApplicationInfo
@@ -173,11 +277,13 @@ namespace JG_Prospect.Common
 
             if (ConfigurationManager.AppSettings["AllowEmailSendingExceptionEmail"].Equals("1"))
             {
-                returnVal = true; 
+                returnVal = true;
             }
 
             return returnVal;
         }
+
+       
     }
 
 }

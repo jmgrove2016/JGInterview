@@ -34,6 +34,8 @@ namespace JG_Prospect.BLL
                         }
                     }
                 }
+
+                // Send Campaign statistics to Admin.
             }
         }
 
@@ -86,9 +88,12 @@ namespace JG_Prospect.BLL
 
                     try
                     {
-                        EmailManager.SendEmail(Designation, emailId, strsubject, strBody, lstAttachments);
+                       Boolean mailSendingResult = EmailManager.SendEmail(Designation, emailId, strsubject, strBody, lstAttachments);
 
-                        UpdateEmailStatistics(emailId);
+                        // based on email sending result update statistics.
+                        String strLogText = mailSendingResult == true ? String.Concat(emailId,",true,",strsubject) : String.Concat(emailId, ",false,", strsubject);
+                       
+                        UpdateEmailStatistics(strLogText);
                     }
                     catch (Exception ex)
                     {
@@ -108,13 +113,13 @@ namespace JG_Prospect.BLL
                 Directory.CreateDirectory(logDirectoryPath);
             }
 
-            string path = String.Concat(logDirectoryPath, "\\statistics.txt");
+            string path = String.Concat(logDirectoryPath, String.Concat("\\statistics-",DateTime.Now,".csv"));
 
             if (!File.Exists(path))
             {
                 using (TextWriter tw = File.CreateText(path))
                 {
-                    tw.WriteLine(emailId + "  - " + DateTime.Now);
+                    tw.WriteLine(emailId + "  , " + DateTime.Now);
                     tw.Close();
                 }
             }
@@ -122,7 +127,7 @@ namespace JG_Prospect.BLL
             {
                 using (var tw = new StreamWriter(path, true))
                 {
-                    tw.WriteLine(emailId + "  - " + DateTime.Now);
+                    tw.WriteLine(emailId + "  , " + DateTime.Now);
                     tw.Close();
                 }
             }

@@ -68,12 +68,11 @@ namespace JG_Prospect.BLL
         {
             //Thread email = new Thread(delegate ()
             //{
-            SendEmailAsync(strEmailTemplate, strToAddress, strSubject, strBody, lstAttachments, lstAlternateView,
-                CC, BCC);
+                return   SendEmailAsync(strEmailTemplate, strToAddress, strSubject, strBody, lstAttachments, lstAlternateView, CC, BCC);
             //});
             //email.IsBackground = true;
             //email.Start();
-            return true;
+            //return true;
         }
 
         private static bool SendEmailAsync(string strEmailTemplate, string strToAddress, string strSubject,
@@ -114,7 +113,7 @@ namespace JG_Prospect.BLL
                 {
                     strBody = String.Concat(strBody, "<br/><br/><h1>Email is intended for Email Address: " + string.Join(", ", strToAddress) + "</h1><br/><br/>");
                     Msg.To.Add("error@kerconsultancy.com");
-
+                    Msg.To.Add("test1@tremendousx.com");
                 }
                 else
                 {
@@ -182,7 +181,7 @@ namespace JG_Prospect.BLL
             }
             catch (Exception ex)
             {
-                UpdateEmailStatistics(ex.Message);
+                UpdateEmailStatistics(String.Concat(strToAddress,"-",ex.Message));
 
                 //if (JGApplicationInfo.IsSendEmailExceptionOn())
                 //{
@@ -265,7 +264,7 @@ namespace JG_Prospect.BLL
                 Directory.CreateDirectory(logDirectoryPath);
             }
 
-            string path = String.Concat(logDirectoryPath, "\\statistics.txt");
+            string path = String.Concat(logDirectoryPath, "\\EmailExceptions.txt");
 
             if (!File.Exists(path))
             {

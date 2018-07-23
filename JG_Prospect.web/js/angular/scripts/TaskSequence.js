@@ -1,7 +1,7 @@
-﻿app.controller('TaskSequenceSearchController', function ($scope, $compile, $http, $timeout, $filter) {
+﻿app.controller('TaskSequenceSearchController', function ($scope, $compile, $http, $timeout, $filter) {    
     applyFunctions($scope, $compile, $http, $timeout, $filter);
 });
-
+app.filter('trustAsHtml', function ($sce) { return $sce.trustAsHtml; });
 function getTasksWithSearchandPaging(methodName, $http) {
     return $http.get(url + methodName);
 }
@@ -23,7 +23,7 @@ function callWebServiceMethod($http, methodName, filters) {
 
 
 function applyFunctions($scope, $compile, $http, $timeout, $filter) {
-
+    $scope.IsAdmin = false;
     $scope.Tasks = [];
     $scope.ClosedTask = [];
     $scope.ParentTaskDesignations = [];
@@ -70,17 +70,18 @@ function applyFunctions($scope, $compile, $http, $timeout, $filter) {
     $scope.TotalRecordsCT = 0;
     $scope.HighLightTaskId = 0;
     $scope.BlinkTaskId = 0;
-
-
+    $scope.CalendarUsers = [];
+    $scope.Romans = [];
+    $scope.IntPopRomans = [];
     $scope.TechTasks = [];
     $scope.Techpage = 0;
     $scope.TechpagesCount = 0;
     $scope.TechCurrentpage = 0;
     $scope.TechTotalRecords = 0;
+    var uid;
 
     $scope.LoadCalendarData = function () {
-
-        
+        //debugger;
         $('#calendar').fullCalendar({
             header: {
                 left: 'prev,next today',
@@ -89,30 +90,42 @@ function applyFunctions($scope, $compile, $http, $timeout, $filter) {
             },
             //defaultDate: '2017-12-1',
             defaultView: 'agendaWeek',
+            minTime: '06:00:00',
+            maxTime:'30:00:00',
             navLinks: true, // can click day/week names to navigate views
             editable: true,
             eventLimit: true, // allow "more" link when too many events
             events: function (start, end, timezone, callback) {
                 $('#loading').fadeIn(300);
-                callWebServiceMethod($http, "GetCalendarTasksByDate", { StartDate: start, EndDate: end }).then(function (data) {
+                callWebServiceMethod($http, "GetCalendarTasksByDate", { StartDate: $scope.StartDate == '' ? start : $scope.StartDate, EndDate: $scope.EndDate == '' ? end : $scope.EndDate, UserId: sequenceScope.UserId, DesignationIDs: sequenceScope.UserSelectedDesigIds, TaskUserStatus: sequenceScope.UserStatus }).then(function (data) {
                     CalendarData = JSON.parse(data.data.d);
                     CalendarData = CalendarData.AllEvents;
+
+                    //Clear Start & End Dates
+                    //$scope.StartDate = $scope.EndDate = '';
+                    //debugger;
                     var events = [];
                     if (!!CalendarData) {
                         $.map(CalendarData, function (r) {
                             events.push({
                                 id: r.TaskId,
-                                title: r.Title.substring(0, 20) + '<span id="shown">...</span><span id="hidden">' + r.Title.substring(20, r.Title.length) + '</span><span id="shown" class="InstallId"> <a target="_blank" href="TaskGenerator.aspx?TaskId=' + r.ParentTaskId + '&hstid=' + r.TaskId + '">' + r.InstallId + '</a></span>'
-                                + '&nbsp; <span class="UserInstallId" id="shown"><a target="_blank" href="ViewSalesUser.aspx?id=' + r.UserId + '">' + r.AssignedUsers + '</a></span>',
+                                title: r.Title.substring(0, 20) + '<span id="shown">...</span><span id="hidden">' + r.Title.substring(20, r.Title.length) + '</span><span id="shown" class="InstallId"> <a target="_blank" href="TaskGenerator.aspx?TaskId=' + (r.IsRoman == true ? r.MainTaskId : r.ParentTaskId) + '&hstid=' + (r.IsRoman == true ? r.ParentTaskId : r.TaskId) + (r.IsRoman == true ? '&mcid=' + r.TaskId : '') + '">' + r.InstallId + '</a></span>'
+                                    + '&nbsp; <span class="UserInstallId" id="shown"><a target="_blank" href="ViewSalesUser.aspx?id=' + r.UserId + '">' + r.AssignedUsers + '</a></span>',
                                 start: r.StartDate,
                                 end: r.EndDate,
                                 color: r.Status,
                                 textColor: r.TextColor,
-                                className: 'eventRow'
+                                className: 'eventRow' + r.UserId
                             });
                         });
                     }
                     callback(events);
+                    //Change View        
+                    if ($scope.StartDate != '' && $scope.StartDate != undefined && $scope.StartDate != 'All') {
+                        //$('#calendar').fullCalendar('changeView', 'month', $scope.StartDate == '' ? start : $scope.StartDate);
+                        //$scope.StartDate = $scope.EndDate = '';
+                    }
+                    //Clear Dates after use to prevent apply filters forcefully                    
                     $('#loading').fadeOut(300);
                 });
 
@@ -142,27 +155,182 @@ function applyFunctions($scope, $compile, $http, $timeout, $filter) {
                 $('.tooltiptopicevent').remove();
 
             },
-            dayClick: function () {
-                tooltip.hide()
-            },
+            
             eventResizeStart: function () {
                 tooltip.hide()
             },
             eventDragStart: function () {
                 tooltip.hide()
             },
-            viewDisplay: function () {
-                tooltip.hide()
+            viewRender: function (view, element) {
+                $('.dateFrom').val($('#calendar').fullCalendar('getView').start.format());
+                $('.dateTo').val($('#calendar').fullCalendar('getView').end.format());
+
+                if ($('.fc-view-container div.fc-agendaWeek-view').length > 0) {
+                    $('.fc-day-header').each(function (i, elem) {
+                        var html = $(this).children('a').html();
+                        var day = html.split(' ')[0];
+                        var date = html.split(' ')[1].split('/')[1];
+                        var newData = '<span><span style="font-size: 12px;line-height: 22px;vertical-align: top;float: left;">' + day + '</span><br><span style="float: left;font-weight: normal;font-size: 50px;">' + date + '</span></span>';
+                        $(this).html(newData);
+                    });
+                }
+                $('.fc-agendaWeek-view').find('table:first').find('table:nth(1)').find('td.fc-day').each(function (i, obj) {
+                    $(this).attr('data-index', i);
+                });
+                $('.fc-scroller').find('.fc-content-skeleton').find('td:not(.fc-axis)').each(function (i, obj) {
+                    $(this).attr('data-index', i);
+                });
+                if (view.name != 'month')
+                    loadDayUsers();
             },
             eventRender: function (event, element) {
+                // render the timezone offset below the event title
+                if (event.start.hasZone()) {
+                    element.find('.fc-title').after(
+                      $('<div class="tzo"/>').text(event.start.format('Z'))
+                    );
+                }
                 element.find('.fc-title').html(event.title);
-            }
+            },
+            loading: function (bool) {
+                if (!bool) {
+                    //debugger;
+                    loadDayUsers();                    
+                }
+                //Possibly call you feed loader to add the next feed in line
+            }            
         });
-
+        // load the list of available timezones, build the <select> options
+        $.getJSON('https://fullcalendar.io/demo-timezones.json', function (timezones) {
+            $.each(timezones, function (i, timezone) {
+                if (timezone != 'UTC') { // UTC is already in the list
+                    $('#timezone-selector').append(
+                      $("<option/>").text(timezone).attr('value', timezone)
+                    );
+                }
+            });
+        });
+        // when the timezone selector changes, dynamically change the calendar option
+        $('#timezone-selector').on('change', function () {
+            $('#calendar').fullCalendar('option', 'timezone', this.value || false);
+        });
     }
 
+    function loadDayUsers() {
+        if (CalendarUserClickSource == 'PIC' || $('.fc-view-container div.fc-month-view').length>0)
+            return false;
+        $('.fc-week div.fc-bg table').find('td.fc-day').each(function (i, el) {
+            var sender = $(this);
+            $(sender).html('Loading...');
+            //$(sender).html('');
+            var colDate = $(sender).attr('data-date');
+            callWebServiceMethod($http, "GetCalendarUsersByDate", { Date: colDate, UserId: sequenceScope.UserId, DesignationIDs: sequenceScope.UserSelectedDesigIds, TaskUserStatus: sequenceScope.UserStatus }).then(function (data) {
+                $scope.CalendarUsers = JSON.parse(data.data.d);
+                CalendarUsers = $scope.CalendarUsers.Users;
+                //debugger;
+                if (CalendarUsers.length > 0) {
+                    //var html = '<div class="calendar-users-container" id="user-container-' + colDate + '">';
+                    var html = '<select multiple="multiple" class="calendar-users-container" id="user-container-' + colDate + '">';
+                    $.each(CalendarUsers, function (i, item) {
+                        //html += '<img title="' + item.FullName + '" id="Header1_imgProfile" data-uid="' + item.UserId + '" style="border-radius: 50%;width: 34px;height: 34px;padding:5px" class="img-Profile calendar-user" src="../Employee/ProfilePictures/' + item.Picture + '">';
+                        html += '<option selected="selected" title="' + item.FullName + '" value="' + item.UserId + '" data-img-src="../Employee/ProfilePictures/' + item.Picture + '">' + item.FullName + '</option>';
+                    });
+                    html += '</select>';
+                   // html += '<a href="#/" class="clear-user-filter">Clear All</a></div>';
+                    $(sender).html(html);                    
+                    $("#user-container-" + colDate).chosen();
+                    //Attach Event Handlers
+                    //Clear Button
+                    $('#user-container-' + colDate + ' .clear-user-filter').click(function () {
+                        uid = '';
+                        $('#user-container-' + colDate + ' .calendar-user').removeClass('calendar-users-image-border');
+                        //setCalendarFilterData();
+                        //refreshCalendarTasks();
+                        //Show only all user's events
+                        var index = $(this).parent().parent('td').attr('data-index');
+                        if (index != undefined && uid != undefined) {
+                            $('.fc-scroller').find('.fc-content-skeleton').find('td:not(.fc-axis)').each(function (i, obj) {
+                                var td = $(this);
+                                if ($(td).attr('data-index') == index) {
+                                    $(td).find('a.fc-event').fadeIn(200);                                    
+                                }
+                            });
+                        }
+                    });
 
-    $scope.onStaffEnd = function () {
+                    $(document).on('change', '#user-container-' + colDate, function () {
+                        var uids = [];
+                        $(this).find('option:selected').each(function (i) {
+                            uids.push($(this).val());
+                        });
+                        CalendarUserClickSource = 'PIC';
+                        //Show only clicked user's events
+                        var index = $(this).parents('td').attr('data-index');
+                        if (index != undefined /*&& uid != undefined*/) {
+                            $('.fc-scroller').find('.fc-content-skeleton').find('td:not(.fc-axis)').each(function (i, obj) {
+                                var td = $(this);
+                                if ($(td).attr('data-index') == index) {
+                                    //var uids = uid.split(",");
+                                    $(td).find('a.fc-event').hide();
+                                    $.each(uids, function (j, u) {
+                                        $(td).find('a.eventRow' + u).show();
+                                    });
+                                    if (index != '')
+                                        lastIndex = index;
+                                }
+                            });
+                        }
+                    }); 
+
+                    //User Button
+                    $('#user-container-' + colDate + ' .calendar-user').click(function () {
+                        CalendarUserClickSource = 'PIC';
+                        //Show only clicked user's events
+                        var index = $(this).parent().parent('td').attr('data-index');
+                        if (index != lastIndex && lastIndex != '') {
+                            //Clear selected users from other day
+                            uid = '';
+                        }
+
+                        if (uid != undefined) {
+                            uid = uid + ',' + $(this).attr('data-uid');
+                        }
+                        else {
+                            uid = $(this).attr('data-uid');
+                        }
+                                                
+                        if (index != undefined && uid != undefined) {
+                            $('.fc-scroller').find('.fc-content-skeleton').find('td:not(.fc-axis)').each(function (i, obj) { 
+                                var td = $(this);
+                                if ($(td).attr('data-index') == index) {                                    
+                                    var uids = uid.split(",");
+                                    $(td).find('a.fc-event').fadeOut(200);
+                                    $.each(uids, function (j, u) {
+                                        $(td).find('a.eventRow' + u).fadeIn(200);
+                                    });
+                                    if (index != '')
+                                        lastIndex = index;
+                                }
+                            });
+                        }
+
+                        //alert(uid);
+                        //--setCalendarFilterData(uid);
+                        //ShowCalendarTasks();
+                        //--$('#calendar').fullCalendar('refetchEvents');
+                        //$('#user-container-' + colDate + ' .calendar-user').removeClass('calendar-users-image-border');
+                        $(this).addClass('calendar-users-image-border');
+                    });
+                }
+                else {
+                    $(sender).html('');
+                }
+            });
+        });
+    }
+
+    $scope.onTopEnd = function () {
         $timeout(function () {
             setFirstRowAutoData();
             SetSeqApprovalUI();
@@ -177,25 +345,31 @@ function applyFunctions($scope, $compile, $http, $timeout, $filter) {
                 //Add class to li                
                 $(obj).addClass('popover__wrapper');
                 //$(obj).find('li:not(:first)').addClass('popover__wrapper');
-            });         
+            });
 
-             //Build Hyperlinks ddcbSeqAssignedStaff
+            //Build Hyperlinks ddcbSeqAssignedStaff
             $('#taskSequence .chosen-container .search-choice').each(function (i, obj) {
                 var itemIndex = $(this).children('.search-choice-close').attr('data-option-array-index');
                 if (itemIndex) {
                     //console.log($(this).parent('.chosen-choices').parent('.chosen-container'));
-                    var selectoptionid = '#' + $(this).parent('.chosen-choices').parent('.chosen-container').attr('id').replace("_chosen", "") + ' option';
-                    var chspan = $(this).children('span');
-                    var text = chspan.text();
-                    var name = text.split(' - ')[0]+ ' - ';
-                    var code = text.split(' - ')[1];
-                    var className = $(selectoptionid)[itemIndex].classList[0];
-                    name = '<span class="' + className + '">' + name + '</span>';
-                    if (chspan && code != undefined) {
-                        chspan.html(name + '<a style="color:blue;" href="/Sr_App/ViewSalesUser.aspx?id=' + $(selectoptionid)[itemIndex].value + '">' + code + '</a>');
-                        chspan.bind("click", "a", function () {
-                            window.open($(this).children("a").attr("href"), "_blank", "", false);
-                        });
+                    var id = $(this).parent('.chosen-choices').parent('.chosen-container').attr('id');
+                    if (id != undefined) {
+                        var selectoptionid = '#' + id.replace("_chosen", "") + ' option';
+                        var chspan = $(this).children('span');
+                        var text = chspan.text();
+                        var name = text.split(' - ')[0] + ' - ';
+                        var code = text.split(' - ')[1];
+                        var className = $(selectoptionid)[itemIndex] != undefined ? $(selectoptionid)[itemIndex].classList[0] : '';
+                        name = '<span class="' + className + '">' + name + '</span>';
+                        if (chspan && code != undefined) {
+                            if ($(selectoptionid)[itemIndex] != null || $(selectoptionid)[itemIndex] != undefined)
+                                chspan.html(name + '<a style="color:blue;" href="/Sr_App/ViewSalesUser.aspx?id=' + $(selectoptionid)[itemIndex].value + '">' + code + '</a>');
+                            else
+                                chspan.html(name + '<a style="color:blue;">' + code + '</a>');
+                            chspan.bind("click", "a", function () {
+                                window.open($(this).children("a").attr("href"), "_blank", "", false);
+                            });
+                        }
                     }
                 }
             });
@@ -203,7 +377,7 @@ function applyFunctions($scope, $compile, $http, $timeout, $filter) {
             //Set MouseHover Popup
             $('.chosen-choices').mouseenter(function () {
                 var parent = $(this).parent().parent().attr('class');
-                if (parent.indexOf('chosen-div') >= 0) {
+                if (parent != undefined && parent.indexOf('chosen-div') >= 0) {
                     if ($(this).find('li').length > 1) {
 
                         $('#popoverCloseButton').click(function () {
@@ -232,6 +406,89 @@ function applyFunctions($scope, $compile, $http, $timeout, $filter) {
                 }
             });
 
+            //Reload Notes
+            $timeout(function () {                
+                ReLoadNotes();
+            }, 1);
+        }, 1);
+    };
+
+    $scope.onStaffEnd = function () {
+        $timeout(function () {
+            setFirstRowAutoData();
+            SetSeqApprovalUI();
+            SetChosenAssignedUser();
+
+            var flag = false;
+            //Show only first assigned user, rest on mouseover
+            $('#tblStaffSeq .chosen-container').each(function (i, obj) {
+                //Hide User Selection
+                $(obj).find('li:not(:first):not(:last)').css({ "display": "none" });
+
+                //Add class to li                
+                $(obj).addClass('popover__wrapper');
+                //$(obj).find('li:not(:first)').addClass('popover__wrapper');
+            });         
+
+             //Build Hyperlinks ddcbSeqAssignedStaff
+            $('#taskSequence .chosen-container .search-choice').each(function (i, obj) {
+                var itemIndex = $(this).children('.search-choice-close').attr('data-option-array-index');
+                if (itemIndex) {
+                    //console.log($(this).parent('.chosen-choices').parent('.chosen-container'));
+                    var id = $(this).parent('.chosen-choices').parent('.chosen-container').attr('id');
+                    if (id != undefined) {
+                        var selectoptionid = '#' + id.replace("_chosen", "") + ' option';
+                        var chspan = $(this).children('span');
+                        var text = chspan.text();
+                        var name = text.split(' - ')[0] + ' - ';
+                        var code = text.split(' - ')[1];
+                        var className = $(selectoptionid)[itemIndex] != undefined ? $(selectoptionid)[itemIndex].classList[0] : '';
+                        name = '<span class="' + className + '">' + name + '</span>';
+                        if (chspan && code != undefined) {
+                            if ($(selectoptionid)[itemIndex] != null || $(selectoptionid)[itemIndex] != undefined)
+                                chspan.html(name + '<a style="color:blue;" href="/Sr_App/ViewSalesUser.aspx?id=' + $(selectoptionid)[itemIndex].value + '">' + code + '</a>');
+                            else
+                                chspan.html(name + '<a style="color:blue;">' + code + '</a>');
+                            chspan.bind("click", "a", function () {
+                                window.open($(this).children("a").attr("href"), "_blank", "", false);
+                            });
+                        }
+                    }
+                    
+                }
+            });
+
+            //Set MouseHover Popup
+            $('.chosen-choices').mouseenter(function () {
+                var parent = $(this).parent().parent().attr('class');
+                if (parent != undefined && parent.indexOf('chosen-div') >= 0) {
+                    if ($(this).find('li').length > 1) {
+
+                        $('#popoverCloseButton').click(function () {
+                            $('.popover__content').fadeOut(200);
+                        });
+                        $('.popover__content').mouseleave(function () {
+                            $('.popover__content').hide();
+                        });
+
+                        //Show Popover
+                        var parentOffset = $(this).parent().offset();
+                        var relX = parentOffset.left;
+                        var relY = parentOffset.top + 40;
+
+                        $('.popover__content').css({ "left": relX });
+                        $('.popover__content').css({ "top": relY });
+                        $('.popover__content').fadeIn(200);
+
+
+                        var data = $(this).html();
+                        data = data.replace('type="text"', 'type="hidden"');
+                        //console.log(data);
+                        $('.popover__content div:not(:first)').html(data.replace(/none/gi, 'block'));
+                    }
+                    //$(this).find('li:not(:first)').css({ "display": "block" });
+                }
+            });
         }, 1);
     };
 
@@ -245,6 +502,70 @@ function applyFunctions($scope, $compile, $http, $timeout, $filter) {
         }, 1);
     };
 
+    $scope.onTaskExpand = function (TaskId) {        
+        var totalItems = 0;
+        var lastRow;
+        $timeout(function () {
+            $('#romanList_' + TaskId + ' div.parent').each(function (i, item) {
+                if (i == 4) {
+                    lastRow = item;
+                }
+                if (i > 4) {
+                    $(item).hide();
+                }
+                totalItems = i + 1;
+                //Add/Remove Plus icon
+                var ChildrenExists = false;
+                $(item).next('.child').each(function (i, item) {
+                    ChildrenExists = true;
+                });
+                if (ChildrenExists) {
+                    $(item).find('.expand-image').attr('src', "../../img/btn_maximize.png");
+                }
+                else {
+                    $(item).find('.expand-image').hide();
+                } 
+            });
+            if (totalItems > 5) {                
+                //Insert ViewAll button
+                $('#romanList_' + TaskId).append('<div class="ecBtn" onClick="viewAllParent(this,' + TaskId + ')" style="position: absolute;left: 358px;margin-top: -33px;text-decoration: underline;background-color: brown;color: #fff;padding: 5px 8px 5px 8px;border-radius: 11px;cursor: pointer;">View All Parent</div>');
+                //$(lastRow).find('.roman-col-title-content').append('<br/><br/><br/><div onClick="viewAllParent(this,' + TaskId + ')" style="margin-top:25px;float: right;text-decoration: underline;background-color: brown;color: #fff;padding: 5px 8px 5px 8px;border-radius: 11px;cursor: pointer;">View All</div>');
+            }            
+            $timeout(function () {
+                //$('.ddlAssignedUsersRomans').chosen();
+                SetChosenAssignedUserRoman();               
+            }, 2);
+            
+        }, 1);
+    }
+
+    $scope.expandTask = function (TaskId) {
+        $('#LoadingRomansDiv' + TaskId).show();
+        callWebServiceMethod($http, "GetMultiLevelList", { ParentTaskId: TaskId, chatSourceId: 2 }).then(function (data) {
+            $('#LoadingRomansDiv' + TaskId).hide();
+            var resultArray = JSON.parse(data.data.d);
+            var results = resultArray.Results;
+            $scope.Romans = $scope.Romans.concat($scope.correctDataforAngular(results));
+            if ($scope.Romans.length < 1) {                
+                $('#LoadingRomans' + TaskId).html('No data found.');
+                $('#LoadingRomansDiv' + TaskId).show(500);
+            }            
+        });
+    }
+
+    $scope.expandIntPopupTask = function (TaskId) {
+        $('#LoadingRomansDiv').show();
+        callWebServiceMethod($http, "GetMultiLevelList", { ParentTaskId: TaskId, chatSourceId: 2 }).then(function (data) {
+            $('#LoadingRomansDiv').hide();
+            var resultArray = JSON.parse(data.data.d);
+            var results = resultArray.Results;
+            $scope.IntPopRomans = $scope.IntPopRomans.concat($scope.correctDataforAngular(results));
+            if ($scope.IntPopRomans.length < 1) {
+                $('#LoadingRomans').html('No data found.');
+                $('#LoadingRomansDiv').show(500);
+            }
+        });
+    }
 
     $scope.getTasks = function (page) {
         $scope.ForInProgress = true;
@@ -371,8 +692,11 @@ function applyFunctions($scope, $compile, $http, $timeout, $filter) {
             $scope.pageCT = results.RecordCount.PageIndex;
             $scope.TotalRecordsCT = results.RecordCount.TotalRecords;
             $scope.pagesCountCT = results.RecordCount.TotalPages;
-            $scope.TotalHoursITLead = results.Hours.TotalITLeadHours;
-            $scope.TotalHoursUsers = results.Hours.TotalUserHours;
+
+            if (results.Hours != undefined && results.Hours != null) {
+                $scope.TotalHoursITLead = results.Hours.TotalITLeadHours;
+                $scope.TotalHoursUsers = results.Hours.TotalUserHours;
+            }
             $scope.ClosedTask = $scope.correctDataforAngular(results.Tasks);
 
             if ($scope.ClosedTask != null)
@@ -727,6 +1051,24 @@ function applyFunctions($scope, $compile, $http, $timeout, $filter) {
             case 29:
                 prefix = "ITFRXD";
                 break;
+            case 1028:
+                prefix = "ITMN";
+                break;
+            case 1029:
+                prefix = "ITMPH";
+                break;
+            case 1030:
+                prefix = "ITMSE";
+                break;
+            case 1031:
+                prefix = "ITJBA";
+                break;
+            case 1032:
+                prefix = "ITSBA";
+                break;
+            case 1033:
+                prefix = "ITMXD     ";
+                break;
             default:
                 prefix = "N.A.";
                 break;
@@ -735,6 +1077,9 @@ function applyFunctions($scope, $compile, $http, $timeout, $filter) {
         return prefix;
     };
 
+    $scope.trustedHtml = function (plainText) {
+        return $sce.trustAsHtml(plainText);
+    }
 
     $scope.StringIsNullOrEmpty = function (value) {
 
@@ -743,7 +1088,7 @@ function applyFunctions($scope, $compile, $http, $timeout, $filter) {
         return returnVal;
     };
 
-    initializeOnAjaxUpdate($scope, $compile, $http, $timeout, $filter);
+ //   initializeOnAjaxUpdate($scope, $compile, $http, $timeout, $filter);
 
     sequenceScope = $scope;
 
@@ -790,3 +1135,5 @@ app.controller('AddNewTaskSequenceController', function PostsController($scope, 
 
 });
 var CalendarData;
+var CalendarUserClickSource;
+var lastIndex = '';

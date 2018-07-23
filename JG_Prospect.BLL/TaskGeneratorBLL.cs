@@ -121,6 +121,21 @@ namespace JG_Prospect.BLL
             return TaskGeneratorDAL.Instance.GetMultilevelChildren(ParentTaskId);
         }
 
+        public DataSet GetTaskMultilevelListItem(int taskMultilevelListId)
+        {
+            return TaskGeneratorDAL.Instance.GetTaskMultilevelListItem(taskMultilevelListId);
+        }
+
+        public DataSet GetRootTasks(int ExcludedTaskId)
+        {
+            return TaskGeneratorDAL.Instance.GetRootTasks(ExcludedTaskId);
+        }
+
+        public DataSet GetChildTasks(int ParentTaskId)
+        {
+            return TaskGeneratorDAL.Instance.GetChildTasks(ParentTaskId);
+        }
+
         //GetMultilevelChildren
 
         public bool SaveTaskDesignations(UInt64 TaskId, String strDesignations, String TaskIDCode)
@@ -132,14 +147,29 @@ namespace JG_Prospect.BLL
             return TaskGeneratorDAL.Instance.SaveTaskAssignedUsers(TaskId, UserIds);
         }
 
+        public bool SaveTaskAssignedUsersRoman(UInt64 TaskId, String UserIds)
+        {
+            return TaskGeneratorDAL.Instance.SaveTaskAssignedUsersRoman(TaskId, UserIds);
+        }
+
+        public bool SaveTaskQuery(int TaskId, string QueryDesc, int QueryTypeId, int QueryStatusId, int CreatedById)
+        {
+            return TaskGeneratorDAL.Instance.SaveTaskQuery(TaskId, QueryDesc, QueryTypeId, QueryStatusId, CreatedById);
+        }
+
         public bool SetTaskStatus(int TaskId, string TaskStatus)
         {
             return TaskGeneratorDAL.Instance.SetTaskStatus(TaskId, TaskStatus);
         }
 
-        public bool SaveTaskMultiLevelChild(int ParentTaskId, string InstallId, string Description, int IndentLevel, string Class)
+        public bool SetRomanTaskStatus(int TaskId, int TaskStatus)
         {
-            return TaskGeneratorDAL.Instance.SaveTaskMultiLevelChild(ParentTaskId, InstallId, Description, IndentLevel, Class);
+            return TaskGeneratorDAL.Instance.SetRomanTaskStatus(TaskId, TaskStatus);
+        }
+
+        public bool SaveTaskMultiLevelChild(int ParentTaskId, string InstallId,string Title, string Description, int IndentLevel, string Class, int UserId)
+        {
+            return TaskGeneratorDAL.Instance.SaveTaskMultiLevelChild(ParentTaskId, InstallId, Title,Description, IndentLevel, Class, UserId);
         }
 
         public bool SaveTaskAssignedToMultipleUsers(UInt64 TaskId, String UserId)
@@ -175,10 +205,20 @@ namespace JG_Prospect.BLL
             return TaskGeneratorDAL.Instance.TaskSwapSubSequence(FirstSequenceId, SecondSequenceId, FirstTaskId, SecondTaskId);
         }
 
+        public bool TaskSwapRoman(Int64 FirstRomanId, Int64 SecondRomanId)
+        {
+            return TaskGeneratorDAL.Instance.TaskSwapRoman(FirstRomanId, SecondRomanId);
+        }
         public bool DeleteTaskSequence(Int64 TaskId)
         {
             return TaskGeneratorDAL.Instance.DeleteTaskSequence(TaskId);
         }
+
+        public bool MoveTask(int TaskId, int FromTaskId, int ToTaskId)
+        {
+            return TaskGeneratorDAL.Instance.MoveTask(TaskId, FromTaskId, ToTaskId);
+        }
+
         public bool DeleteTaskSubSequence(Int64 TaskId)
         {
             return TaskGeneratorDAL.Instance.DeleteTaskSubSequence(TaskId);
@@ -213,9 +253,19 @@ namespace JG_Prospect.BLL
             return TaskGeneratorDAL.Instance.GetTaskMultilevelChildInfo(TaskId);
         }
 
-        public DataSet GetCalendarTasksByDate(string StartDate, string EndDate, string userid)
+        public DataSet GetCalendarTasksByDate(string StartDate, string EndDate, string userid, String DesignationIDs, string TaskUserStatus)
         {
-            return TaskGeneratorDAL.Instance.GetCalendarTasksByDate(StartDate, EndDate, userid);
+            return TaskGeneratorDAL.Instance.GetCalendarTasksByDate(StartDate, EndDate, userid, DesignationIDs, TaskUserStatus);
+        }
+
+        public DataSet GetCalendarUsersByDate(string Date, string TaskUserStatus, string UserId)
+        {
+            return TaskGeneratorDAL.Instance.GetCalendarUsersByDate(Date, TaskUserStatus, UserId);
+        }
+
+        public DataSet GetFreezedRomanData(long RomanId)
+        {
+            return TaskGeneratorDAL.Instance.GetFreezedRomanData(RomanId);
         }
 
         public DataSet GetTaskUserFiles(Int32 TaskId, JGConstant.TaskFileDestination? objTaskFileDestination, Int32? intPageIndex, Int32? intPageSize)
@@ -355,6 +405,11 @@ namespace JG_Prospect.BLL
             return TaskGeneratorDAL.Instance.UpdateTaskDescriptionChildById(tid, Description);
         }
 
+        public int UpdateRomanTitle(string RomanId, string Title)
+        {
+            return TaskGeneratorDAL.Instance.UpdateRomanTitle(RomanId, Title);
+        }
+
         public int UpdateTaskDescriptionById(string tid, string Description)
         {
             return TaskGeneratorDAL.Instance.UpdateTaskDescriptionById(tid, Description);
@@ -454,6 +509,12 @@ namespace JG_Prospect.BLL
             return TaskGeneratorDAL.Instance.HardDeleteTask(maintaskid);
         }
 
+        public bool UpdateTaskReassignable(Int64 intTaskId, bool blIsReassignable)
+        {
+            return TaskGeneratorDAL.Instance.UpdateTaskReassignable(intTaskId,blIsReassignable);
+        }
+
+
         #region TaskAcceptance
 
         public DataSet GetTaskAcceptances(Int64 TaskId)
@@ -480,6 +541,10 @@ namespace JG_Prospect.BLL
             return TaskGeneratorDAL.Instance.UpdateTaskApproval(objTaskApproval);
         }
 
+        public bool UpdateFeedbackTask(int EstimatedHours, string Password, string StartDate, string EndDate, int TaskId, bool IsITLead, int UserId)
+        {
+            return TaskGeneratorDAL.Instance.UpdateFeedbackTask(EstimatedHours, Password, StartDate, EndDate, TaskId, IsITLead, UserId);
+        }
 
         //--------- Start DP -----------
         public DataSet GetInProgressTasks(string userid, string desigid, string vSearch, int pageindex, int pagesize)

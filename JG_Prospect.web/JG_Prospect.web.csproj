@@ -32,6 +32,7 @@
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
     <UseGlobalApplicationHostFile />
+    <Use64BitIISExpress />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -144,14 +145,6 @@
     </Reference>
     <Reference Include="itextsharp.xmlworker">
       <HintPath>External Dependencies\itextsharp.xmlworker.dll</HintPath>
-    </Reference>
-    <Reference Include="MailApi, Version=6.0.2.220, Culture=neutral, PublicKeyToken=cd85b70fb26f9fc1, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>External Dependencies\MailApi.dll</HintPath>
-    </Reference>
-    <Reference Include="MailServerApi, Version=5.0.0.0, Culture=neutral, PublicKeyToken=7795db04536a1a7a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>External Dependencies\MailServerApi.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.AspNet.SignalR.Core, Version=2.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.SignalR.Core.2.2.2\lib\net45\Microsoft.AspNet.SignalR.Core.dll</HintPath>
@@ -319,10 +312,6 @@
     <Content Include="bin\Ionic.Zip.dll" />
     <Content Include="bin\itextsharp.dll" />
     <Content Include="bin\itextsharp.xmlworker.dll" />
-    <Content Include="bin\MailApi.dll" />
-    <Content Include="bin\MailServerApi.dll" />
-    <Content Include="bin\Microsoft.Data.Edm.dll" />
-    <Content Include="bin\Microsoft.Data.OData.dll" />
     <Content Include="bin\Microsoft.Owin.dll" />
     <Content Include="bin\Microsoft.Owin.Security.dll" />
     <Content Include="bin\Microsoft.Practices.EnterpriseLibrary.Caching.Database.dll" />
@@ -337,31 +326,14 @@
     <Content Include="bin\Microsoft.Practices.ServiceLocation.dll" />
     <Content Include="bin\Microsoft.Practices.Unity.dll" />
     <Content Include="bin\Microsoft.Practices.Unity.Interception.dll" />
-    <Content Include="bin\Microsoft.Web.Infrastructure.dll" />
-    <Content Include="bin\Microsoft.Web.Mvc.FixedDisplayModes.dll" />
     <Content Include="bin\Mono.Math.dll" />
     <Content Include="bin\Newtonsoft.Json.dll" />
     <Content Include="bin\NReco.PdfGenerator.dll" />
     <Content Include="bin\Org.Mentalis.Security.Cryptography.dll" />
     <Content Include="bin\Owin.dll" />
     <Content Include="bin\System.Net.Http.dll" />
-    <Content Include="bin\System.Net.Http.Formatting.dll" />
     <Content Include="bin\System.Net.Http.WebRequest.dll" />
-    <Content Include="bin\System.Spatial.dll" />
-    <Content Include="bin\System.Web.Helpers.dll" />
-    <Content Include="bin\System.Web.Http.dll" />
-    <Content Include="bin\System.Web.Http.OData.dll" />
-    <Content Include="bin\System.Web.Http.Tracing.dll" />
-    <Content Include="bin\System.Web.Http.WebHost.dll" />
-    <Content Include="bin\System.Web.Mvc.dll" />
-    <Content Include="bin\System.Web.Optimization.dll" />
-    <Content Include="bin\System.Web.Providers.dll" />
-    <Content Include="bin\System.Web.Razor.dll" />
-    <Content Include="bin\System.Web.WebPages.Deployment.dll" />
-    <Content Include="bin\System.Web.WebPages.dll" />
-    <Content Include="bin\System.Web.WebPages.Razor.dll" />
     <Content Include="bin\Telerik.Web.UI.DLL" />
-    <Content Include="bin\WebGrease.dll" />
     <Content Include="calendar\calendar.aspx" />
     <Content Include="calendar\calvis.js" />
     <Content Include="calendar\close.gif" />
@@ -369,11 +341,22 @@
     <Content Include="calendar\Dialog.js" />
     <Content Include="calendar\dot.gif" />
     <Content Include="calendar\Srcalendar.aspx" />
+    <Content Include="callingXML.aspx" />
     <Content Include="changepassword.aspx" />
+    <Content Include="Chat\Attachments\blue-tick.png" />
     <Content Include="Chat\chat-notification.mp3" />
     <Content Include="Chat\chat.css" />
+    <Content Include="Chat\ChatAttachmentUpload.aspx" />
+    <Content Include="Chat\chathistory.css" />
     <Content Include="Chat\chatwindow.html" />
     <Content Include="Chat\initialize.html" />
+    <Content Include="Chat\previewIcons\excel.png" />
+    <Content Include="Chat\previewIcons\file.png" />
+    <Content Include="Chat\previewIcons\html.png" />
+    <Content Include="Chat\previewIcons\pdf.png" />
+    <Content Include="Chat\previewIcons\text.png" />
+    <Content Include="Chat\previewIcons\word.png" />
+    <Content Include="Chat\previewIcons\zip.png" />
     <Content Include="ckeditor\adapters\jquery.js" />
     <Content Include="ckeditor\build-config.js" />
     <Content Include="ckeditor\ckeditor.js" />
@@ -560,6 +543,9 @@
     <Content Include="ckeditor\plugins\clipboard\dialogs\paste.js" />
     <Content Include="ckeditor\plugins\colordialog\dialogs\colordialog.css" />
     <Content Include="ckeditor\plugins\colordialog\dialogs\colordialog.js" />
+    <Content Include="ckeditor\plugins\confighelper\docs\install.html" />
+    <Content Include="ckeditor\plugins\confighelper\docs\styles.css" />
+    <Content Include="ckeditor\plugins\confighelper\plugin.js" />
     <Content Include="ckeditor\plugins\dialog\dialogDefinition.js" />
     <Content Include="ckeditor\plugins\div\dialogs\div.js" />
     <Content Include="ckeditor\plugins\filetools\dev\uploaddebugger.js" />
@@ -1409,6 +1395,7 @@
     <Content Include="Communication\webphone\sound\rtc_ringtone.wav" />
     <Content Include="Communication\webphone\sound\rtc_ringtone_orig.wav" />
     <Content Include="Communication\webphone\webphone_api.js" />
+    <Content Include="Content\dialer-call.css" />
     <Content Include="Content\emoji-picker\lib\css\emoji.css" />
     <Content Include="Content\emoji-picker\lib\css\emoji.css.map" />
     <Content Include="Content\emoji-picker\lib\img\blank.gif" />
@@ -1427,15 +1414,32 @@
     <Content Include="Content\emoji-picker\lib\js\emoji-picker.js.map" />
     <Content Include="Content\emoji-picker\lib\js\jquery.emojiarea.js" />
     <Content Include="Content\emoji-picker\lib\js\util.js" />
+    <Content Include="Content\image-select\ImageSelect.css" />
+    <Content Include="Content\image-select\ImageSelect.jquery.js" />
     <Content Include="Content\paging.css" />
     <Content Include="Content\touchPointlogs.css" />
     <Content Include="Content\ui-grid.css" />
     <Content Include="Content\ui-grid.min.css" />
     <Content Include="Content\ui-grid.svg" />
+    <Content Include="Content\web-fonts-with-css\css\fa-brands.css" />
+    <Content Include="Content\web-fonts-with-css\css\fa-brands.min.css" />
+    <Content Include="Content\web-fonts-with-css\css\fa-regular.css" />
+    <Content Include="Content\web-fonts-with-css\css\fa-regular.min.css" />
+    <Content Include="Content\web-fonts-with-css\css\fa-solid.css" />
+    <Content Include="Content\web-fonts-with-css\css\fa-solid.min.css" />
+    <Content Include="Content\web-fonts-with-css\css\fontawesome-all.css" />
+    <Content Include="Content\web-fonts-with-css\css\fontawesome-all.min.css" />
+    <Content Include="Content\web-fonts-with-css\css\fontawesome.css" />
+    <Content Include="Content\web-fonts-with-css\css\fontawesome.min.css" />
+    <Content Include="Content\web-fonts-with-css\webfonts\fa-brands-400.svg" />
+    <Content Include="Content\web-fonts-with-css\webfonts\fa-regular-400.svg" />
+    <Content Include="Content\web-fonts-with-css\webfonts\fa-solid-900.svg" />
     <Content Include="Controls\CustomPager.ascx" />
     <Content Include="Controls\Header.ascx" />
     <Content Include="Controls\left.ascx" />
     <Content Include="Controls\LeftMenu_home.ascx" />
+    <Content Include="Controls\user-grid.css" />
+    <Content Include="Controls\_UserGridPhonePopup.ascx" />
     <Content Include="CreateUser.aspx" />
     <Content Include="css\bootstrap-datepicker.css" />
     <Content Include="css\chosen.css" />
@@ -1470,7 +1474,9 @@
     <Content Include="css\msdropdown\title-bg.gif" />
     <Content Include="css\pgwslideshow.min.css" />
     <Content Include="css\popup.css" />
+    <Content Include="css\style.css" />
     <Content Include="css\TimeCircles.css" />
+    <Content Include="css\user-grid.css" />
     <Content Include="Customer_Panel.aspx" />
     <Content Include="Database Scripts\Bhavik\Dec\Dec_P2.sql" />
     <Content Include="Database Scripts\Bhavik\Dec\Dec_P2_Insert_Country.sql" />
@@ -1491,7 +1497,6 @@
     <Content Include="Database Scripts\executed\Jaylem\Script Nov_ITJN019_V1.sql" />
     <Content Include="Database Scripts\executed\Kapil\Executed.sql" />
     <Content Include="Database Scripts\executed\shekhar\DB_Table_SP_Creation_With_Data_Nov_2016_ITSN0145_v1.0.sql" />
-    <Content Include="Database Scripts\executed\yogesh\script April v0.1.sql" />
     <Content Include="Database Scripts\executed\yogesh\Script August v0.1.sql" />
     <Content Include="Database Scripts\executed\yogesh\Script July v0.1.sql" />
     <Content Include="Database Scripts\executed\yogesh\scripts oct v0.1.sql" />
@@ -1564,6 +1569,50 @@
     <Content Include="css\font-awesome-4.7.0\scss\_stacked.scss" />
     <Content Include="css\font-awesome-4.7.0\scss\_variables.scss" />
     <Content Include="Chat\chat-notification.ogg" />
+    <Content Include="Content\web-fonts-with-css\less\fa-brands.less" />
+    <Content Include="Content\web-fonts-with-css\less\fa-regular.less" />
+    <Content Include="Content\web-fonts-with-css\less\fa-solid.less" />
+    <Content Include="Content\web-fonts-with-css\less\fontawesome.less" />
+    <Content Include="Content\web-fonts-with-css\less\_animated.less" />
+    <Content Include="Content\web-fonts-with-css\less\_bordered-pulled.less" />
+    <Content Include="Content\web-fonts-with-css\less\_core.less" />
+    <Content Include="Content\web-fonts-with-css\less\_fixed-width.less" />
+    <Content Include="Content\web-fonts-with-css\less\_icons.less" />
+    <Content Include="Content\web-fonts-with-css\less\_larger.less" />
+    <Content Include="Content\web-fonts-with-css\less\_list.less" />
+    <Content Include="Content\web-fonts-with-css\less\_mixins.less" />
+    <Content Include="Content\web-fonts-with-css\less\_rotated-flipped.less" />
+    <Content Include="Content\web-fonts-with-css\less\_screen-reader.less" />
+    <Content Include="Content\web-fonts-with-css\less\_stacked.less" />
+    <Content Include="Content\web-fonts-with-css\less\_variables.less" />
+    <Content Include="Content\web-fonts-with-css\scss\fa-brands.scss" />
+    <Content Include="Content\web-fonts-with-css\scss\fa-regular.scss" />
+    <Content Include="Content\web-fonts-with-css\scss\fa-solid.scss" />
+    <Content Include="Content\web-fonts-with-css\scss\fontawesome.scss" />
+    <Content Include="Content\web-fonts-with-css\scss\_animated.scss" />
+    <Content Include="Content\web-fonts-with-css\scss\_bordered-pulled.scss" />
+    <Content Include="Content\web-fonts-with-css\scss\_core.scss" />
+    <Content Include="Content\web-fonts-with-css\scss\_fixed-width.scss" />
+    <Content Include="Content\web-fonts-with-css\scss\_icons.scss" />
+    <Content Include="Content\web-fonts-with-css\scss\_larger.scss" />
+    <Content Include="Content\web-fonts-with-css\scss\_list.scss" />
+    <Content Include="Content\web-fonts-with-css\scss\_mixins.scss" />
+    <Content Include="Content\web-fonts-with-css\scss\_rotated-flipped.scss" />
+    <Content Include="Content\web-fonts-with-css\scss\_screen-reader.scss" />
+    <Content Include="Content\web-fonts-with-css\scss\_stacked.scss" />
+    <Content Include="Content\web-fonts-with-css\scss\_variables.scss" />
+    <Content Include="Content\web-fonts-with-css\webfonts\fa-brands-400.eot" />
+    <Content Include="Content\web-fonts-with-css\webfonts\fa-brands-400.ttf" />
+    <Content Include="Content\web-fonts-with-css\webfonts\fa-brands-400.woff" />
+    <Content Include="Content\web-fonts-with-css\webfonts\fa-brands-400.woff2" />
+    <Content Include="Content\web-fonts-with-css\webfonts\fa-regular-400.eot" />
+    <Content Include="Content\web-fonts-with-css\webfonts\fa-regular-400.ttf" />
+    <Content Include="Content\web-fonts-with-css\webfonts\fa-regular-400.woff" />
+    <Content Include="Content\web-fonts-with-css\webfonts\fa-regular-400.woff2" />
+    <Content Include="Content\web-fonts-with-css\webfonts\fa-solid-900.eot" />
+    <Content Include="Content\web-fonts-with-css\webfonts\fa-solid-900.ttf" />
+    <Content Include="Content\web-fonts-with-css\webfonts\fa-solid-900.woff" />
+    <Content Include="Content\web-fonts-with-css\webfonts\fa-solid-900.woff2" />
     <None Include="Database Scripts\executed\yogesh\scripts dec v0.1.sql" />
     <Content Include="Database Scripts\executed\Jaylem\Scripts_Dec_2016_ITSN043_I_f_v0.1.sql" />
     <Content Include="Database Scripts\executed\Jaylem\Scripts_Dec_2016_ITSN047_I_b_v0.1.sql" />
@@ -1582,10 +1631,18 @@
     <Content Include="Database Scripts\JitendraPancholi\executed 8.sql" />
     <Content Include="Database Scripts\JitendraPancholi\executed 9.sql" />
     <Content Include="Database Scripts\JitendraPancholi\executed 10.sql" />
-    <Content Include="Database Scripts\JitendraPancholi\Pending.sql" />
+    <Content Include="Database Scripts\JitendraPancholi\GetUsersByKeyword.sql" />
+    <Content Include="Database Scripts\JitendraPancholi\executed10.sql" />
+    <Content Include="Database Scripts\JitendraPancholi\executed11.sql" />
+    <Content Include="Database Scripts\JitendraPancholi\executed12.sql" />
+    <Content Include="Database Scripts\JitendraPancholi\executed13.sql" />
+    <Content Include="Database Scripts\JitendraPancholi\executed14.sql" />
+    <Content Include="Database Scripts\JitendraPancholi\pending.sql" />
     <Content Include="Database Scripts\Kapil\Executed_3.sql" />
     <Content Include="Database Scripts\Kapil\Executed_4.sql" />
+    <Content Include="Database Scripts\Kapil\Executed_6.sql" />
     <Content Include="Database Scripts\Kapil\Latest.sql" />
+    <Content Include="Database Scripts\Kapil\Executed_7.sql" />
     <Content Include="Database Scripts\Kapil\Executed_5.sql" />
     <Content Include="Database Scripts\Kapil\Executed_2.sql" />
     <Content Include="Database Scripts\KetankumarGodhani\Database Script.sql" />
@@ -1606,15 +1663,18 @@
     <Content Include="Database Scripts\executed\yogesh\Script August v0.1.sql" />
     <Content Include="Database Scripts\executed\yogesh\Script October v0.1.sql" />
     <Content Include="Database Scripts\yogesh\FreeProjectQuote.sql" />
-    <Content Include="Database Scripts\yogesh\Script February v0.1.sql" />
-    <Content Include="Database Scripts\yogesh\Script December v0.1.sql" />
-    <Content Include="Database Scripts\yogesh\Script November v0.1.sql" />
+    <Content Include="Database Scripts\yogesh\Script June v0.1.sql" />
+    <Content Include="Database Scripts\executed\yogesh\Script April v0.1.sql" />
+    <Content Include="Database Scripts\executed\yogesh\Script February v0.1.sql" />
+    <Content Include="Database Scripts\executed\yogesh\Script December v0.1.sql" />
+    <Content Include="Database Scripts\executed\yogesh\Script November v0.1.sql" />
     <Content Include="datetime\jq\jquery.ui.position.min.js" />
     <Content Include="datetime\jq\jquery.ui.timepicker.css" />
     <Content Include="datetime\jq\jquery.ui.timepicker.js" />
     <Content Include="EmailStatistics\statistics.txt" />
     <Content Include="Employee\ProfilePictures\chat-group.png" />
     <Content Include="Employee\ProfilePictures\default.jpg" />
+    <Content Include="Employee\ProfilePictures\no-phone.png" />
     <Content Include="Employment_Redirect.aspx" />
     <Content Include="External Dependencies\AjaxControlToolkit.dll" />
     <Content Include="External Dependencies\aspsnippets.facebookapi.dll" />
@@ -1945,44 +2005,55 @@
     <Content Include="img\33333.png" />
     <Content Include="img\4444.png" />
     <Content Include="img\ajax-loader.gif" />
+    <Content Include="img\attachment-small.png" />
+    <Content Include="img\attachment.png" />
     <Content Include="img\audio-icon.png" />
     <Content Include="img\Bar.png" />
     <Content Include="img\Bar1.png" />
     <Content Include="img\Bar2.png" />
     <Content Include="img\Bar3.png" />
-    <Content Include="img\blue-tick.png" />
     <Content Include="img\btn1.png" />
     <Content Include="img\chosen-sprite%402x.png" />
     <Content Include="img\chosen-sprite.png" />
     <Content Include="img\close.png" />
+    <Content Include="img\collapsed.png" />
     <Content Include="img\compose.PNG" />
     <Content Include="img\ContractFooter.png" />
     <Content Include="img\ContractHeader.jpg" />
     <Content Include="img\controls.png" />
+    <Content Include="img\delete-black.png" />
     <Content Include="img\dialer.PNG" />
     <Content Include="img\delete.jpg" />
+    <Content Include="img\double-blue-tick.png" />
+    <Content Include="img\double-grey-tick.png" />
     <Content Include="img\Email art header.png" />
     <Content Include="img\Email footer.png" />
     <Content Include="img\excel-icon.png" />
+    <Content Include="img\expanded.jpg" />
     <Content Include="img\facebook.jpg" />
     <Content Include="img\fb_login.png" />
     <Content Include="img\File.png" />
     <Content Include="img\flags24.png" />
     <Content Include="img\folder.png" />
+    <Content Include="img\foler-icon.jpg" />
+    <Content Include="img\freeze-checkboxes.JPG" />
     <Content Include="img\gplus.png" />
-    <Content Include="img\grey-tick.png" />
     <Content Include="img\icon_calendar.gif" />
     <Content Include="img\icon_email.PNG" />
     <Content Include="img\icon_jg.PNG" />
     <Content Include="img\icon_share.JPG" />
     <Content Include="img\image-icon.png" />
+    <Content Include="img\image-icon1.png" />
     <Content Include="img\inbox.PNG" />
+    <Content Include="img\incoming-green.png" />
+    <Content Include="img\incoming-red.png" />
     <Content Include="img\indent_left.jpg" />
     <Content Include="img\indent_right.jpg" />
     <Content Include="img\jg-construction.jpg" />
     <Content Include="img\JG-Logo-white.gif" />
     <Content Include="img\JG-Logo.gif" />
     <Content Include="img\JgLogo.jpg" />
+    <Content Include="img\loader.gif" />
     <Content Include="img\Loading-ring-alt.gif" />
     <Content Include="img\LoginwithFB.jpg" />
     <Content Include="img\LogoJG_PDF.png" />
@@ -1991,6 +2062,9 @@
     <Content Include="img\min-max.jpg" />
     <Content Include="img\min-max.png" />
     <Content Include="img\movies-icon.png" />
+    <Content Include="img\no-phone.png" />
+    <Content Include="img\outgoing-green.png" />
+    <Content Include="img\outgoing-red.png" />
     <Content Include="img\pdf-icon.png" />
     <Content Include="img\pdf.jpg" />
     <Content Include="img\PlusMinus.png" />
@@ -2003,6 +2077,7 @@
     <Content Include="img\ui-anim_basic_16x16.png" />
     <Content Include="img\user-list.PNG" />
     <Content Include="img\video-icon.png" />
+    <Content Include="img\video-icon1.png" />
     <Content Include="img\whitetick.png" />
     <Content Include="img\word-icon.png" />
     <Content Include="img\word.jpg" />
@@ -2075,17 +2150,30 @@
     <Content Include="JGCalender\SalesCalender.aspx" />
     <Content Include="JGCalender\scripts\calendarscript.js" />
     <Content Include="JrAnnualCalendar.aspx" />
+    <Content Include="js\angular\scripts\angular-chosen.min.js" />
+    <Content Include="js\angular\scripts\angular-chosen.min_old.js" />
     <Content Include="js\angular\scripts\ClosedTasls.js" />
+    <Content Include="js\angular\scripts\CommonFunctions.js" />
+    <Content Include="js\angular\scripts\FreezeProcess.js" />
     <Content Include="js\angular\scripts\FrozenTask.js" />
     <Content Include="js\angular\scripts\jgappfactories.js" />
     <Content Include="js\angular\scripts\edituser-angular.js" />
+    <Content Include="js\angular\scripts\ManageResources.js" />
+    <Content Include="js\angular\scripts\Phone.js" />
+    <Content Include="js\angular\scripts\ngpostapptitude.js" />
     <Content Include="js\angular\scripts\TaskGenerator.js" />
     <Content Include="js\angular\scripts\TaskGeneratorHelper.js" />
     <Content Include="js\angular\scripts\TaskPopupHelper.js" />
+    <Content Include="js\angular\scripts\PayRates.js" />
     <Content Include="js\angular\scripts\TaskSequence-UiGrid.js" />
+    <Content Include="js\angular\scripts\TaskShare.js" />
     <Content Include="js\angular\templates\sequence-header-template.html" />
     <Content Include="js\angular\templates\pager-template.html" />
+    <Content Include="js\button-action.js" />
     <Content Include="js\common-js.js" />
+    <Content Include="js\copy-image.js" />
+    <Content Include="js\createsales.js" />
+    <Content Include="js\data.js" />
     <Content Include="js\edituser.js" />
     <Content Include="js\flipclock.min.js" />
     <Content Include="js\angular\scripts\jgapp.js" />
@@ -2208,6 +2296,8 @@
     <Content Include="js\jquery-2.2.4.min.js" />
     <Content Include="js\Jquery-mention\jquery.mentionsInput.css" />
     <Content Include="js\Jquery-mention\jquery.mentionsInput.js" />
+    <Content Include="js\jquery.caret.js" />
+    <Content Include="js\jquery.dialogextend.min.js" />
     <Content Include="js\jquery.magnific-popup.min.js" />
     <Content Include="js\JCarousel.js" />
     <Content Include="js\jg-common.js" />
@@ -2238,14 +2328,17 @@
     <Content Include="js\mention\mention.js" />
     <Content Include="js\mention\recommended-styles.css" />
     <Content Include="js\paging.js" />
+    <Content Include="js\postapptitude.js" />
     <Content Include="js\TaskSequencing.js" />
     <Content Include="js\TimeCircles.js" />
     <Content Include="js\TimerFunctions.js" />
     <Content Include="js\tribute\tribute.css" />
     <Content Include="js\tribute\tribute.min.js" />
+    <Content Include="js\Xml2Json.js" />
     <Content Include="Location_img\Jellyfish.jpg" />
     <Content Include="Location_img\Lighthouse.jpg" />
     <Content Include="Location_img\Tulips.jpg" />
+    <Content Include="Log\Log.txt" />
     <Content Include="MCQTest\ExamSummary.aspx" />
     <Content Include="MCQTest\McqTestPage.aspx" />
     <Content Include="MCQTest\ObjectiveExamSummary.aspx" />
@@ -2253,12 +2346,17 @@
     <Content Include="MCQTest\ViewResults.aspx" />
     <Content Include="postdata.html" />
     <Content Include="Properties\PublishProfiles\DeveloperProfile.pubxml.user" />
+    <Content Include="Properties\PublishProfiles\TestProfile.pubxml.user" />
     <Content Include="screening-intermediate.aspx" />
     <Content Include="screening-popup.aspx" />
     <Content Include="Scripts\angular-mocks.js" />
+    <Content Include="Scripts\angular-sanitize.js" />
     <Content Include="Scripts\angular.js" />
     <Content Include="Scripts\angular.min.js" />
     <Content Include="js\Jquery-mention\data.json" />
+    <Content Include="js\jquery.mask.js" />
+    <None Include="Properties\PublishProfiles\DeveloperProfile.pubxml" />
+    <None Include="Properties\PublishProfiles\TestProfile.pubxml" />
     <None Include="Scripts\jquery-1.6.4-vsdoc.js" />
     <Content Include="Scripts\jquery-1.6.4.js" />
     <Content Include="Scripts\jquery-1.6.4.min.js" />
@@ -2267,6 +2365,7 @@
     <Content Include="Scripts\jquery.magnific-popup.min.js" />
     <Content Include="Scripts\jquery.maskedinput.min.js" />
     <Content Include="Scripts\jquery.MultiFile.js" />
+    <Content Include="Scripts\jquery.signalR-2.2.0.min.js" />
     <Content Include="Scripts\jquery.signalR-2.2.2.js" />
     <Content Include="Scripts\jquery.signalR-2.2.2.min.js" />
     <Content Include="Scripts\ui-grid.js" />
@@ -2277,8 +2376,10 @@
     <Content Include="Sr_App\AddEvents.aspx" />
     <Content Include="Sr_App\ajaxcalls.aspx" />
     <Content Include="Sr_App\AttachQuotes.aspx" />
+    <Content Include="Sr_App\AutoDialer.aspx" />
     <Content Include="Sr_App\CallSheet.aspx" />
     <Content Include="Sr_App\chat.aspx" />
+    <Content Include="Sr_App\ChatHistory.aspx" />
     <Content Include="Sr_App\ConstructionCalendar.aspx" />
     <Content Include="Sr_App\ContractFooter.aspx" />
     <Content Include="Sr_App\Controls\AddProductLinesControl.ascx" />
@@ -2344,6 +2445,7 @@
     <Content Include="Sr_App\JMGroveCONTRACT-%28email-version%29.html" />
     <Content Include="Sr_App\Maintenace.aspx" />
     <Content Include="Sr_App\manage-aptitude-tests.aspx" />
+    <Content Include="Sr_App\ManageResources.aspx" />
     <Content Include="Sr_App\MasterAppointment.aspx" />
     <Content Include="Sr_App\OverheadExp.aspx" />
     <Content Include="Sr_App\Price_control.aspx" />
@@ -2532,12 +2634,15 @@
     <Content Include="TestGoogleMap.aspx" />
     <Content Include="updateuserdetails.aspx" />
     <Content Include="upload.aspx" />
+    <Content Include="UploadedFiles\7162015111634AMKoala.jpg" />
+    <Content Include="UploadedFiles\7162015111655AMJellyfish.jpg" />
     <Content Include="UploadeProfile\default.jpg" />
     <Content Include="UserControl\UCAddress.ascx" />
     <Content Include="UserControl\ucAuditTrailByUser.ascx" />
     <Content Include="UserControl\ucRenewSession.ascx" />
     <Content Include="UserControl\ucStatusChangePopup.ascx" />
     <Content Include="ViewApplicantUser.aspx" />
+    <Content Include="postapptitude.aspx" />
     <Content Include="WeatherControl.ascx" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
@@ -2568,6 +2673,20 @@
     <Compile Include="AddResourcesJr.aspx.designer.cs">
       <DependentUpon>AddResourcesJr.aspx</DependentUpon>
     </Compile>
+    <Compile Include="callingXML.aspx.cs">
+      <DependentUpon>callingXML.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="callingXML.aspx.designer.cs">
+      <DependentUpon>callingXML.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Chat\ChatAttachmentUpload.aspx.cs">
+      <DependentUpon>ChatAttachmentUpload.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Chat\ChatAttachmentUpload.aspx.designer.cs">
+      <DependentUpon>ChatAttachmentUpload.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Chat\ChatProcessor.cs" />
     <Compile Include="Chat\Hubs\BaseHub.cs" />
     <Compile Include="ckeditor\plugins\uploadimage\ckeditorupload.aspx.cs">
@@ -2583,6 +2702,13 @@
     </Compile>
     <Compile Include="ckeditor\plugins\uploadimage\fileuploader.aspx.designer.cs">
       <DependentUpon>fileuploader.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\_UserGridPhonePopup.ascx.cs">
+      <DependentUpon>_UserGridPhonePopup.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\_UserGridPhonePopup.ascx.designer.cs">
+      <DependentUpon>_UserGridPhonePopup.ascx</DependentUpon>
     </Compile>
     <Compile Include="Customer_Panel.aspx.cs">
       <DependentUpon>Customer_Panel.aspx</DependentUpon>
@@ -2663,12 +2789,26 @@
     <Compile Include="Sr_App\add-edit-aptitude-test.aspx.designer.cs">
       <DependentUpon>add-edit-aptitude-test.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Sr_App\AutoDialer.aspx.cs">
+      <DependentUpon>AutoDialer.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Sr_App\AutoDialer.aspx.designer.cs">
+      <DependentUpon>AutoDialer.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Sr_App\chat.aspx.cs">
       <DependentUpon>chat.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Sr_App\chat.aspx.designer.cs">
       <DependentUpon>chat.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Sr_App\ChatHistory.aspx.cs">
+      <DependentUpon>ChatHistory.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Sr_App\ChatHistory.aspx.designer.cs">
+      <DependentUpon>ChatHistory.aspx</DependentUpon>
     </Compile>
     <Compile Include="Sr_App\Controls\ucSubTasks.ascx.cs">
       <DependentUpon>ucSubTasks.ascx</DependentUpon>
@@ -2768,6 +2908,13 @@
     <Compile Include="Sr_App\manage-aptitude-tests.aspx.designer.cs">
       <DependentUpon>manage-aptitude-tests.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Sr_App\ManageResources.aspx.cs">
+      <DependentUpon>ManageResources.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Sr_App\ManageResources.aspx.designer.cs">
+      <DependentUpon>ManageResources.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Sr_App\profilepictureupload.aspx.cs">
       <DependentUpon>profilepictureupload.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -2866,6 +3013,13 @@
     </Compile>
     <Compile Include="ViewApplicantUser.aspx.designer.cs">
       <DependentUpon>ViewApplicantUser.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="postapptitude.aspx.cs">
+      <DependentUpon>postapptitude.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="postapptitude.aspx.designer.cs">
+      <DependentUpon>postapptitude.aspx</DependentUpon>
     </Compile>
     <Compile Include="Webmail\checkemail.aspx.cs">
       <DependentUpon>checkemail.aspx</DependentUpon>
@@ -3706,12 +3860,11 @@
     <Folder Include="fileman\Uploads\FLV\" />
     <Folder Include="fileman\Uploads\Images\" />
     <Folder Include="InvoicePdf\" />
-    <Folder Include="Log\" />
     <Folder Include="Resources\" />
     <Folder Include="signalr\" />
     <Folder Include="Sr_App\MailDocument\MailAttachments\" />
     <Folder Include="Sr_App\UploadedFile\" />
-    <Folder Include="UploadedFiles\" />
+    <Folder Include="Upload\Resources\" />
     <Folder Include="UserImages\" />
   </ItemGroup>
   <ItemGroup>
@@ -3792,21 +3945,6 @@
     <Content Include="Sr_App\MailDocSample\LIBC.pdf" />
     <Content Include="Sr_App\MailDocSample\LIBC.docx" />
     <Content Include="UserFile\SalesSample.xlsx" />
-    <None Include="Properties\PublishProfiles\DeveloperProfile.pubxml" />
-    <None Include="Properties\PublishProfiles\LivePublish.pubxml" />
-    <None Include="Properties\PublishProfiles\LocalLive.pubxml" />
-    <None Include="Properties\PublishProfiles\TestProfile.pubxml" />
-  </ItemGroup>
-  <ItemGroup>
-    <COMReference Include="Microsoft.Office.Interop.Word">
-      <Guid>{00020905-0000-0000-C000-000000000046}</Guid>
-      <VersionMajor>8</VersionMajor>
-      <VersionMinor>4</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>primary</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </COMReference>
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
@@ -3840,7 +3978,9 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>0</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:2724/</IISUrl>
+          <IISUrl>http://localhost:2929</IISUrl>
+          <OverrideIISAppRootUrl>True</OverrideIISAppRootUrl>
+          <IISAppRootUrl>http://localhost:2929</IISAppRootUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

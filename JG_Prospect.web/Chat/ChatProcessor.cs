@@ -54,23 +54,26 @@ namespace JG_Prospect.Chat
 
         private void ChatUserStatusToIdleTimer(object state)
         {
-            var IdleUsers = SingletonUserChatGroups.Instance.ActiveUsers
-                                                   .Where(m => m.LastActivityAt < DateTime.UtcNow.AddMinutes(-IdleUserTimeout))
-                                                   .ToList();
-            SingletonUserChatGroups.Instance.ActiveUsers
-                                                   .Where(m => m.LastActivityAt < DateTime.UtcNow.AddMinutes(-IdleUserTimeout))
-                                                   .ToList()
-                                                   .ForEach(m => m.Status = (int)ChatUserStatus.Idle);
-
-            ChatMessageActiveUser obj = new ChatMessageActiveUser();
-            obj.ActiveUsers = SingletonUserChatGroups.Instance.ActiveUsers.OrderBy(m => m.Status).ToList();
-
-            _chatHub.Clients.All.SetChatUserStatusToIdleCallback(new ActionOutput<ChatMessageActiveUser>
+            if (SingletonUserChatGroups.Instance.ActiveUsers != null)
             {
-                Message= "ChatUserStatusToIdleTimer: "+DateTime.UtcNow.ToString(),
-                Status = ActionStatus.Successfull,
-                Object = obj
-            });
+                var IdleUsers = SingletonUserChatGroups.Instance.ActiveUsers
+                                                       .Where(m => m.LastActivityAt < DateTime.UtcNow.AddMinutes(-IdleUserTimeout))
+                                                       .ToList();
+                SingletonUserChatGroups.Instance.ActiveUsers
+                                                       .Where(m => m.LastActivityAt < DateTime.UtcNow.AddMinutes(-IdleUserTimeout))
+                                                       .ToList()
+                                                       .ForEach(m => m.Status = (int)ChatUserStatus.Idle);
+
+                ChatMessageActiveUser obj = new ChatMessageActiveUser();
+                obj.ActiveUsers = SingletonUserChatGroups.Instance.ActiveUsers.OrderBy(m => m.Status).ToList();
+
+                _chatHub.Clients.All.SetChatUserStatusToIdleCallback(new ActionOutput<ChatMessageActiveUser>
+                {
+                    Message = "ChatUserStatusToIdleTimer: " + DateTime.UtcNow.ToString(),
+                    Status = ActionStatus.Successfull,
+                    Object = obj
+                });
+            }
         }
 
         public void Stop(bool immediate)

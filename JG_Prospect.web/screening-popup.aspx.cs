@@ -292,6 +292,8 @@ namespace JG_Prospect
             objInstallUser.phone = hdnPhone.Value;
             objInstallUser.zip = txtZip.Text.Trim();
             objInstallUser.PositionAppliedFor = ddlPositionAppliedFor.SelectedItem.Value;
+            objInstallUser.designation = ddlPositionAppliedFor.SelectedItem.Text;
+            objInstallUser.DesignationID = Convert.ToInt32(ddlPositionAppliedFor.SelectedItem.Value);
             objInstallUser.Source = ddlSource.SelectedItem.Text;
             objInstallUser.SourceId = Convert.ToInt32(ddlSource.SelectedItem.Value);
             objInstallUser.CountryCode = ddlCountry.SelectedItem.Value;

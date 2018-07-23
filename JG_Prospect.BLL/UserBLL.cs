@@ -7,6 +7,7 @@ using JG_Prospect.DAL;
 using JG_Prospect.Common;
 using JG_Prospect.Common.modal;
 using System.Data;
+using static JG_Prospect.Common.JGCommon;
 
 namespace JG_Prospect.BLL
 {
@@ -277,9 +278,28 @@ namespace JG_Prospect.BLL
         {
             return UserDAL.Instance.fetchAllScripts(intScriptId);
         }
+        public List<PhoneScript> GetPhoneScripts(int? id = null)
+        {
+            return UserDAL.Instance.GetPhoneScripts(id);
+        }
         public DataSet manageScripts(PhoneDashboard objPhoneDashboard)
         {
             return UserDAL.Instance.manageScripts(objPhoneDashboard);
+        }
+
+        public List<UserDesignation> GetUserDesignation(int? Id = null)
+        {
+            return UserDAL.Instance.GetUserDesignation(Id);
+        }
+
+        public void UpdatePhoneScript(int id, string title, string desc)
+        {
+            UserDAL.Instance.UpdatePhoneScript(id, title, desc);
+        }
+
+        public void UpdatePhoneScriptFAQ(int id, string title, string desc)
+        {
+            UserDAL.Instance.UpdatePhoneScriptFAQ(id, title, desc);
         }
     }
 }

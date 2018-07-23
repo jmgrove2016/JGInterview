@@ -49,6 +49,15 @@ namespace JG_Prospect.Sr_App {
         protected global::AjaxControlToolkit.ToolkitScriptManager ToolkitScriptManager1;
         
         /// <summary>
+        /// mainheader control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl mainheader;
+        
+        /// <summary>
         /// Header1 control.
         /// </summary>
         /// <remarks>
@@ -56,6 +65,15 @@ namespace JG_Prospect.Sr_App {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::JG_Prospect.Sr_App.SRAppHeader Header1;
+        
+        /// <summary>
+        /// SearchGoogle control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl SearchGoogle;
         
         /// <summary>
         /// qfront control.

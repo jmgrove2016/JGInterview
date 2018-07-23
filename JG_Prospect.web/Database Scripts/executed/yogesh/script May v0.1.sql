@@ -3364,4 +3364,443 @@ END
 ----------------------------------------------------------------------------------------------------------------------------------------
 
 
+ USE [JGBS_Dev_New]
+GO
+
+/****** Object:  Table [dbo].[tblDesignationPayRates]    Script Date: 5/4/2018 10:54:23 AM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[tblDesignationPayRates](
+	[PayRateId] [int] IDENTITY(1,1) NOT NULL,
+	[DesignationId] [int] NOT NULL,
+	[EmploymentType] [int] NOT NULL,
+	[BaseRate] [smallmoney] NOT NULL,
+	[DisplayRate] [smallmoney] NULL,
+	[DisplayRateCurrencyCode] [nvarchar](10) NULL,
+	[CreatedDate] [datetime] NULL,
+	[ModifiedDate] [datetime] NULL,
+	[CreatedBy] [int] NULL,
+	[ModifiedBy] [int] NULL,
+ CONSTRAINT [PK_DesignationPayRates] PRIMARY KEY CLUSTERED 
+(
+	[PayRateId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+
+ALTER TABLE [dbo].[tblDesignationPayRates] ADD  CONSTRAINT [DF_DesignationPayRates_CreatedDate]  DEFAULT (getdate()) FOR [CreatedDate]
+GO
+
+ALTER TABLE [dbo].[tblDesignationPayRates] ADD  CONSTRAINT [DF_DesignationPayRates_ModifiedDate]  DEFAULT (getdate()) FOR [ModifiedDate]
+GO
+
+ALTER TABLE [dbo].[tblDesignationPayRates]  WITH CHECK ADD  CONSTRAINT [FK_DesignationPayRates_tbl_Designation] FOREIGN KEY([DesignationId])
+REFERENCES [dbo].[tbl_Designation] ([ID])
+GO
+
+ALTER TABLE [dbo].[tblDesignationPayRates] CHECK CONSTRAINT [FK_DesignationPayRates_tbl_Designation]
+GO
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+IF EXISTS (SELECT * FROM sysobjects WHERE id = object_id(N'[usp_InsertPayRate]') AND OBJECTPROPERTY(id, N'IsProcedure') = 1)
+    BEGIN
+ 
+    DROP PROCEDURE [usp_InsertPayRate]
+
+    END  
+GO    
+
+/****** Object:  StoredProcedure [dbo].[usp_InsertPayRate]    Script Date: 5/4/2018 11:01:11 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =======================================================================
+-- Author:		Yogesh Keraliya
+-- Create date: 05042018
+-- Description:	Insert Payrate for given designation and employment type
+-- =======================================================================
+CREATE PROCEDURE [dbo].[usp_InsertPayRate] 
+(
+	@DesigntionId int , 
+	@EmploymentType int ,
+	@BaseRate smallmoney,
+	@DisplayRate smallmoney,
+	@DisplayRateCurrencyCode nvarchar(10) = NULL,
+	@CreatedDate datetime = NULL,
+	@CreatedBy  int = NULL
+)
+AS
+BEGIN
+
+IF EXISTS (SELECT PayRateId FROM tblDesignationPayRates WHERE  DesignationId = @DesigntionId AND  EmploymentType = @EmploymentType )
+	BEGIN
+		
+		UPDATE tblDesignationPayRates
+							 SET BaseRate = @BaseRate, DisplayRate = @DisplayRate, DisplayRateCurrencyCode = @DisplayRateCurrencyCode, ModifiedDate = GETDATE(), ModifiedBy = @CreatedBy
+		WHERE  DesignationId = @DesigntionId AND  EmploymentType = @EmploymentType				
+	
+	END
+
+ELSE
+	BEGIN
+
+		INSERT INTO tblDesignationPayRates
+							 (DesignationId, EmploymentType, BaseRate, DisplayRate, DisplayRateCurrencyCode, CreatedDate, CreatedBy)
+		VALUES        (@DesigntionId,@EmploymentType,@BaseRate,@DisplayRate,@DisplayRateCurrencyCode,GETDATE(),@CreatedBy) 
+		
+	END
+
+
+
+END
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+IF EXISTS (SELECT * FROM sysobjects WHERE id = object_id(N'[usp_GetDesignationPayRate]') AND OBJECTPROPERTY(id, N'IsProcedure') = 1)
+    BEGIN
+ 
+    DROP PROCEDURE [usp_GetDesignationPayRate]
+
+    END  
+GO    
+
+/****** Object:  StoredProcedure [usp_GetDesignationPayRate]    Script Date: 5/4/2018 11:01:11 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =================================================================================================
+-- Author:		Yogesh Keraliya
+-- Create date: 05042018
+-- Description:	Get Payrate for given designation id
+-- =================================================================================================
+CREATE PROCEDURE [dbo].[usp_GetDesignationPayRate] 
+(
+	@DesignationId int,
+	@EmploymentType int
+)
+AS
+BEGIN
+
+SELECT PayRateId,DesignationId, EmploymentType, BaseRate, DisplayRate, DisplayRateCurrencyCode FROM tblDesignationPayRates
+                         
+WHERE  DesignationId = @DesignationId AND  EmploymentType = @EmploymentType
+
+END
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+IF EXISTS (SELECT * FROM sysobjects WHERE id = object_id(N'[usp_GetPayRateById]') AND OBJECTPROPERTY(id, N'IsProcedure') = 1)
+    BEGIN
+ 
+    DROP PROCEDURE [usp_GetPayRateById]
+
+    END  
+GO    
+
+/****** Object:  StoredProcedure [usp_GetPayRateById]    Script Date: 5/4/2018 11:01:11 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- ===================================================================
+-- Author:		Yogesh Keraliya
+-- Create date: 05042018
+-- Description:	Get Payrate for given payrate id
+-- ===================================================================
+CREATE PROCEDURE [dbo].[usp_GetPayRateById] 
+(
+	@PayrateId int	
+)
+AS
+BEGIN
+
+SELECT PayrateId,DesignationId, EmploymentType, BaseRate, DisplayRate, DisplayRateCurrencyCode FROM tblDesignationPayRates
+                         
+WHERE  PayrateId = @PayrateId
+
+END
+
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+IF EXISTS (SELECT * FROM sysobjects WHERE id = object_id(N'[usp_GetDesignationPayRates]') AND OBJECTPROPERTY(id, N'IsProcedure') = 1)
+    BEGIN
+ 
+    DROP PROCEDURE [usp_GetDesignationPayRates]
+
+    END  
+GO    
+
+/****** Object:  StoredProcedure [usp_GetDesignationPayRates]    Script Date: 5/4/2018 11:01:11 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =================================================================================================
+-- Author:		Yogesh Keraliya
+-- Create date: 05042018
+-- Description:	Get Payrate for given designation id
+-- =================================================================================================
+CREATE PROCEDURE [dbo].[usp_GetDesignationPayRates] 
+(
+	@DesignationId int
+)
+AS
+BEGIN
+
+SELECT tdp.PayRateId,tdp.DesignationId,td.DesignationName, tdp.EmploymentType, tdp.BaseRate, tdp.DisplayRate, tdp.DisplayRateCurrencyCode FROM tblDesignationPayRates AS tdp   
+INNER JOIN tbl_Designation AS td ON tdp.DesignationId = td.ID  
+                           
+WHERE  tdp.DesignationId = @DesignationId   
+
+
+END
+
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ IF EXISTS (SELECT * FROM sysobjects WHERE id = object_id(N'[UDP_ChangeStatus]') AND OBJECTPROPERTY(id, N'IsProcedure') = 1)
+    BEGIN
+ 
+    DROP PROCEDURE [UDP_ChangeStatus]
+
+    END  
+GO    
+ 
+-- =============================================      
+-- Author:  Yogesh      
+-- Create date: 22 Sep 2016      
+-- Description: Updates status and status related fields for install user.      
+--    Inserts event and event users for interview status.      
+--    Deletes any exising events and event users for non interview status.      
+--    Gets install users details.      
+-- =============================================      
+CREATE PROCEDURE [dbo].[UDP_ChangeStatus]       
+(      
+ @Id int = 0,      
+ @Status varchar(20) = '',      
+ @RejectionDate DATE = NULL,      
+ @RejectionTime VARCHAR(20) = NULL,      
+ @RejectedUserId int = 0,      
+ @StatusReason varchar(max) = '',      
+ @UserIds varchar(4000) = NULL,      
+ @IsInstallUser bit = 0,      
+ @InterviewDateStatus VARChAR(5) = '5'      
+)      
+AS      
+BEGIN      
+ 
+-- SET NOCOUNT ON added to prevent extra result sets from        
+ -- interfering with SELECT statements.        
+ SET NOCOUNT ON;        
+        
+    -- Updates user status and status related information.        
+ UPDATE [dbo].[tblInstallUsers]        
+ SET         
+   Status = @Status        
+  ,RejectionDate = @RejectionDate        
+  ,RejectionTime = @RejectionTime        
+  ,InterviewTime = @RejectionTime        
+  ,RejectedUserId = @RejectedUserId        
+  ,StatusReason = @StatusReason        
+ WHERE Id = @Id        
+        
+  IF @Status = '2'    
+ BEGIN    
+   -- Updates user status and status related information.        
+   UPDATE [dbo].[tblInstallUsers]        
+   SET         
+       
+   RejectedUserId = NULL    
+    ,RejectionDate = NULL        
+    ,RejectionTime = NULL        
+    
+   WHERE Id = @Id     
+    
+ END    
+    
+ -- Add event and event users for Interview status.        
+ IF @Status = @InterviewDateStatus        
+ BEGIN        
+  INSERT INTO tbl_AnnualEvents(EventName,EventDate,EventAddedBy,ApplicantId,IsInstallUser)        
+   VALUES('InterViewDetails',@RejectionDate,@RejectedUserId,@Id,@IsInstallUser)        
+        
+  IF @UserIds IS NOT NULL        
+  BEGIN        
+   DECLARE @EventID INT        
+   SELECT @EventID = SCOPE_IDENTITY()        
+        
+   INSERT INTO tbl_AnnualEventAssignedUsers([EventId], [UserId])        
+    SELECT @EventID, CAST(ss.Item AS INT)         
+    FROM dbo.SplitString(@UserIds,',') ss         
+    WHERE NOT EXISTS(        
+         SELECT CAST(ttau.UserId as varchar)         
+         FROM dbo.tbl_AnnualEventAssignedUsers ttau         
+         WHERE ttau.UserId = CAST(ss.Item AS bigint) AND ttau.EventId = @EventID)        
+  END        
+ END        
+ -- Delete any event and event users for given install user as         
+ -- events are required for interview status only.        
+ ELSE        
+ BEGIN        
+  DELETE         
+  FROM tbl_AnnualEventAssignedUsers         
+  WHERE EventId IN (SELECT Id         
+       FROM tbl_AnnualEvents         
+       WHERE ApplicantId=@Id)        
+        
+  DELETE         
+  FROM tbl_AnnualEvents         
+  WHERE ApplicantId=@Id        
+ END        
+        
+ -- Gets user details required to further process user whoes status is changed.        
+ SELECT tiu.Email, tiu.HireDate, tiu.EmpType, CASE WHEN (tiu.PayRates IS NULL OR tiu.PayRates = '' OR tiu.PayRates = 0)  
+ THEN (SELECT Convert(VARCHAR(7),DisplayRate) + ' ' + DisplayRateCurrencyCode FROM tblDesignationPayRates WHERE DesignationId = tiu.DesignationId AND EmploymentType = tiu.[EmpType]) ELSE tiu.PayRates  END AS PayRates , tiu.Designation, tiu.FristName, tiu.
+LastName, tiu.[Address],tiu.GitUserName          
+ FROM tblInstallUsers AS tiu         
+ WHERE tiu.Id = @Id        
   
+
+
+END      
+    
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Live 05132018
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO [dbo].[tblHTMLTemplatesMaster]
+           (
+		   [Id]
+           ,[Name]
+           ,[Subject]
+           ,[Header]
+           ,[Body]
+           ,[Footer]
+           ,[DateUpdated]
+           ,[Type]
+           ,[Category]           
+           ,[UsedFor]
+		   )
+     VALUES
+           (107
+           ,'Carrer_Path'
+           ,'Carrer path bifurcated by designation Id'
+           ,'<div><img src="http://web.jmgrovebuildingsupply.com/CustomerDocs/DefaultEmailContents/header.jpg" /></div>  <div><img src="http://web.jmgrovebuildingsupply.com/CustomerDocs/DefaultEmailContents/logo.gif" /></div>'
+           ,'<p class="MsoNormal">Carrer Path Master</p>'
+           ,'<p>J.M. Grove - Construction &amp; Supply <br />  <a href="jmgroveconstruction.com">jmgroveconstruction.com </a><br />  <a href="http://jmgrovebuildingsupply.com/"> http://jmgrovebuildingsupply.com/</a><br />  <a href="http://web.jmgrovebuildingsupply.com/login.aspx">http://web.jmgrovebuildingsupply.com/login.aspx</a><br />  <a href="http://jmgroverealestate.com/">http://jmgroverealestate.com/</a><br />  <br />   72 E Lancaster Ave<br />  Malvern, Pa 19355<br />  Human Resources<br />  Office:(215) 274-5182 Ext. 4<br />  <a href="mailto:Hr@jmgroveconstruction.com">Hr@jmgroveconstruction.com </a></p>  <div><a href="https://www.facebook.com/JMGrove1com/"><img src="http://web.jmgrovebuildingsupply.com/CustomerDocs/DefaultEmailContents/fb.png" /></a><a href="http://s49.photobucket.com/user/jmg1/media/twitter_zpsiiplyhiq.png.html"><img src="http://web.jmgrovebuildingsupply.com/CustomerDocs/DefaultEmailContents/tw.png" /></a><a href="http://s49.photobucket.com/user/jmg1/media/236e0d0b-832c-4543-81a6-f6c460d302f0_zpsl4nh3ane.png.html"><img src="http://web.jmgrovebuildingsupply.com/CustomerDocs/DefaultEmailContents/gpls.png" /></a><a href="http://s49.photobucket.com/user/jmg1/media/pinterest_zpspioq6pve.png.html"><img src="http://web.jmgrovebuildingsupply.com/CustomerDocs/DefaultEmailContents/pint.png" /></a><br />   <a href="http://s49.photobucket.com/user/jmg1/media/twitter_zpsiiplyhiq.png.html"><img src="http://web.jmgrovebuildingsupply.com/CustomerDocs/DefaultEmailContents/hbt.png" /></a><a href="http://s49.photobucket.com/user/jmg1/media/youtube_zpsxyhfmm1b.png.html"><img src="http://web.jmgrovebuildingsupply.com/CustomerDocs/DefaultEmailContents/yt.png" /></a><a href="http://s49.photobucket.com/user/jmg1/media/c3894afd-7a37-43e2-917c-5ffb7a5036a2_zpschul0pqd.png.html"><img src="http://web.jmgrovebuildingsupply.com/CustomerDocs/DefaultEmailContents/houzz.png" /></a> <a href="http://s49.photobucket.com/user/jmg1/media/4478596b-67f4-444e-992a-624af3e56255_zpsoi8p1uyv.jpg.html"><img src="http://web.jmgrovebuildingsupply.com/CustomerDocs/DefaultEmailContents/linkin.jpg" /></a></div>  <div><img src="http://web.jmgrovebuildingsupply.com/CustomerDocs/DefaultEmailContents/footer.png" /></div>'
+           ,'2018-05-14'
+           ,2
+           ,1           
+           ,1)
+GO
+
+
+
+-- =============================================        
+      
+-- Author:  Yogesh        
+     
+-- Create date: 27 Jan 2017        
+      
+-- Description: Gets all Master HTMLTemplates.        
+    
+-- =============================================        
+      
+ALTER PROCEDURE [dbo].[GetHTMLTemplateMasters]        
+(    
+@UsedFor INT    
+)      
+AS        
+      
+BEGIN        
+      
+ SET NOCOUNT ON;        
+        
+ SELECT * FROM tblHTMLTemplatesMaster  WHERE Id IN (1, 7, 12, 28, 36, 41, 48, 50, 57, 58, 60,69,70,71,72,73,74, 75, 76, 77, 78, 79, 80, 81,104,105,107)   AND UsedFor = @UsedFor  ORDER BY Id ASC        
+      
+       
+END    
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Live 05172018
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO [dbo].[tblHTMLTemplatesMaster]
+           (
+		   [Id]
+           ,[Name]
+           ,[Subject]
+           ,[Header]
+           ,[Body]
+           ,[Footer]
+           ,[DateUpdated]
+           ,[Type]
+           ,[Category]           
+           ,[UsedFor]
+		   )
+     VALUES
+           (108
+           ,'Legal_Desclaimer'
+           ,'Legal disclaimer for each designation'
+           ,'<div><img src="http://web.jmgrovebuildingsupply.com/CustomerDocs/DefaultEmailContents/header.jpg" /></div>  <div><img src="http://web.jmgrovebuildingsupply.com/CustomerDocs/DefaultEmailContents/logo.gif" /></div>'
+           ,'<p class="MsoNormal">Legal Disclaimer</p>'
+           ,'<p>J.M. Grove - Construction &amp; Supply <br />  <a href="jmgroveconstruction.com">jmgroveconstruction.com </a><br />  <a href="http://jmgrovebuildingsupply.com/"> http://jmgrovebuildingsupply.com/</a><br />  <a href="http://web.jmgrovebuildingsupply.com/login.aspx">http://web.jmgrovebuildingsupply.com/login.aspx</a><br />  <a href="http://jmgroverealestate.com/">http://jmgroverealestate.com/</a><br />  <br />   72 E Lancaster Ave<br />  Malvern, Pa 19355<br />  Human Resources<br />  Office:(215) 274-5182 Ext. 4<br />  <a href="mailto:Hr@jmgroveconstruction.com">Hr@jmgroveconstruction.com </a></p>  <div><a href="https://www.facebook.com/JMGrove1com/"><img src="http://web.jmgrovebuildingsupply.com/CustomerDocs/DefaultEmailContents/fb.png" /></a><a href="http://s49.photobucket.com/user/jmg1/media/twitter_zpsiiplyhiq.png.html"><img src="http://web.jmgrovebuildingsupply.com/CustomerDocs/DefaultEmailContents/tw.png" /></a><a href="http://s49.photobucket.com/user/jmg1/media/236e0d0b-832c-4543-81a6-f6c460d302f0_zpsl4nh3ane.png.html"><img src="http://web.jmgrovebuildingsupply.com/CustomerDocs/DefaultEmailContents/gpls.png" /></a><a href="http://s49.photobucket.com/user/jmg1/media/pinterest_zpspioq6pve.png.html"><img src="http://web.jmgrovebuildingsupply.com/CustomerDocs/DefaultEmailContents/pint.png" /></a><br />   <a href="http://s49.photobucket.com/user/jmg1/media/twitter_zpsiiplyhiq.png.html"><img src="http://web.jmgrovebuildingsupply.com/CustomerDocs/DefaultEmailContents/hbt.png" /></a><a href="http://s49.photobucket.com/user/jmg1/media/youtube_zpsxyhfmm1b.png.html"><img src="http://web.jmgrovebuildingsupply.com/CustomerDocs/DefaultEmailContents/yt.png" /></a><a href="http://s49.photobucket.com/user/jmg1/media/c3894afd-7a37-43e2-917c-5ffb7a5036a2_zpschul0pqd.png.html"><img src="http://web.jmgrovebuildingsupply.com/CustomerDocs/DefaultEmailContents/houzz.png" /></a> <a href="http://s49.photobucket.com/user/jmg1/media/4478596b-67f4-444e-992a-624af3e56255_zpsoi8p1uyv.jpg.html"><img src="http://web.jmgrovebuildingsupply.com/CustomerDocs/DefaultEmailContents/linkin.jpg" /></a></div>  <div><img src="http://web.jmgrovebuildingsupply.com/CustomerDocs/DefaultEmailContents/footer.png" /></div>'
+           ,'2018-06-05'
+           ,2
+           ,1           
+           ,1)
+GO
+
+
+
+-- =============================================        
+      
+-- Author:  Yogesh        
+     
+-- Create date: 27 Jan 2017        
+      
+-- Description: Gets all Master HTMLTemplates.        
+    
+-- =============================================        
+      
+ALTER PROCEDURE [dbo].[GetHTMLTemplateMasters]        
+(    
+@UsedFor INT    
+)      
+AS        
+      
+BEGIN        
+      
+ SET NOCOUNT ON;        
+        
+ SELECT * FROM tblHTMLTemplatesMaster  WHERE Id IN (1, 7, 12, 28, 36, 41, 48, 50, 57, 58, 60,69,70,71,72,73,74, 75, 76, 77, 78, 79, 80, 81,104,105,107,108)   AND UsedFor = @UsedFor  ORDER BY Id ASC        
+      
+       
+END    
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Live 06052018
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 

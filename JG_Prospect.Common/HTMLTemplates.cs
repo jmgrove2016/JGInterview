@@ -104,6 +104,8 @@ namespace JG_Prospect.Common
         Task_Rejected_Auto_Email = 81,
         HR_EditSales_TouchpointLog_Email = 104,
         Customer_FreeProjectQuote_Email = 105,
-        HR_User_Task_Shared = 106
+        HR_User_Task_Shared = 106,
+        Carrer_Path = 107,
+        Legal_Desclaimer = 108
     }
 }

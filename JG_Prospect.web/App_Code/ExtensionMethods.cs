@@ -5,6 +5,9 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Web;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Linq;
 
 namespace JG_Prospect.App_Code
 {
@@ -132,6 +135,14 @@ namespace JG_Prospect.App_Code
                 return utcDateTime.AddMinutes(Convert.ToInt32(cookie.Value));
             }
             return dateTime;
-        }        
+        }
+
+        public static string GetImageMime(this Image image)
+        {
+            ImageFormat format = image.RawFormat;
+            ImageCodecInfo codec = ImageCodecInfo.GetImageDecoders().First(c => c.FormatID == format.Guid);
+            return codec.MimeType;
+        }
+
     }
 }

@@ -1,217 +1,212 @@
-IF EXISTS(SELECT 1 FROM   INFORMATION_SCHEMA.ROUTINES WHERE  ROUTINE_NAME = 'GetCurrentScheduledHtmlTemplates' AND SPECIFIC_SCHEMA = 'dbo')
+﻿Go
+IF Not EXISTS (SELECT * FROM   sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[tblInstallUsers]') AND name = 'SecondaryStatus')
+	Begin
+		Alter Table tblInstallUsers Add SecondaryStatus int
+	End
+Go
+
+
+Go
+IF EXISTS(SELECT 1 FROM   INFORMATION_SCHEMA.ROUTINES WHERE  ROUTINE_NAME = 'UpdateSecondaryStatus' AND SPECIFIC_SCHEMA = 'dbo')
   BEGIN
-      DROP PROCEDURE GetCurrentScheduledHtmlTemplates
+      DROP PROCEDURE UpdateSecondaryStatus
   END
 Go
-/* 
-
-Exec GetCurrentScheduledHtmlTemplates
-
-*/
-Create Procedure GetCurrentScheduledHtmlTemplates
-As
-Begin
-	Create Table #TempData(Id int identity(1,1), StartDateTime DateTime, Frequency int, TemplateId int)  
-	Insert Into #TempData  
-	SELECT FORMAT(CONVERT(DateTime, convert(varchar(20), CONVERT(date, T.FrequencyStartDate)) + ' ' +  
-	RIGHT('0'+CAST(DATEPART(hour, T.FrequencyStartTime) as varchar(2)),2) + ':' +  
-	RIGHT('0'+CAST(DATEPART(minute, T.FrequencyStartTime)as varchar(2)),2)),'yyyy-MM-dd HH:mm') As StartDateTime,      
-	T.FrequencyInDays, T.Id--, T.Subject  
-	from tblHTMLTemplatesMaster T Where T.FrequencyStartTime Is Not Null  
-	Select *, DateAdd(Day, (Frequency*((DATEDIFF(Day,StartDateTime,GetDate()) / Frequency))), StartDateTime) As RunsOn,
-	Convert(DateTime, Format(GetDate(),'yyyy-MM-dd HH:mm')) As Today
-	FROM #TempData  
-	Where Convert(DateTime, Format(GetDate(),'yyyy-MM-dd HH:mm')) = DateAdd(Day, (Frequency*((DATEDIFF(Day,StartDateTime,GetDate()) / Frequency))), StartDateTime)  
-  
-	Drop Table #TempData  
-End
-
-
-Go
-
-IF EXISTS(SELECT 1 FROM   INFORMATION_SCHEMA.ROUTINES WHERE  ROUTINE_NAME = 'UpdateEmpType' AND SPECIFIC_SCHEMA = 'dbo')
-  BEGIN
-      DROP PROCEDURE UpdateEmpType
-  END
-Go
-Create PROCEDURE UpdateEmpType
-	@ID int,
-	@EmpType varchar(50)
-AS
+ ---- =============================================  
+-- Author:  Jitendra Pancholi  
+-- Create date: 03/30/2018
+-- Description: Load all details of task for edit.  
+-- =============================================  
+-- UpdateSecondaryStatus
+ 
+CREATE PROCEDURE [dbo].[UpdateSecondaryStatus]   
+(  
+	@SecondaryStatus int,
+	@UserId int,
+	@LoggedInUserId int
+)     
+AS  
 BEGIN
-	update tblInstallUsers set EmpType=@EmpType where ID=@ID
-END
-
-Go
-/* =============================================      
- Author:  Jitendra Pancholi      
- Create date: 08-Nov-2017
- Description: This will call all procedure which needs to be run periodically.
- ============================================= */
-IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.ROUTINES WHERE  ROUTINE_NAME = 'GetUserAssignedTaskHistory')
-  BEGIN
-      DROP PROCEDURE GetUserAssignedTaskHistory
-  END
- Go
- /*
-  GetUserAssignedTaskHistory 3797
- */
- Create PROCEDURE GetUserAssignedTaskHistory      
-(
- @UserID  INT      
-)      
-AS      
-BEGIN
-
--- Get newly assigned sequence from inserted sequence / Already assigned sequence      
-SELECT top 1 Id,T.TaskId, dbo.udf_GetParentTaskId(T.TaskId) AS ParentTaskId,       
-(SELECT Title FROM tblTask WHERE TaskId =  dbo.udf_GetParentTaskId(T.TaskId)) AS ParentTitle , 
-dbo.udf_GetCombineInstallId(T.TaskId) AS InstallId , T.Title,ISNULL(T.Sequence,1) As AvailableSequence     
-      
-FROM tblTask AS T  Join InstallUserTaskHistory H on T.TaskId = H.TaskId    
-       
-WHERE H.InstallUserId = @UserId
-
-End
-
-
-go
-IF  NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UserLoginCode]') AND type in (N'U'))
-BEGIN
-CREATE TABLE [dbo].[UserLoginCode](
-   Id UniqueIdentifier Primary Key DEFAULT (NEWID()),
-   UserId int null foreign key references tblInstallUsers(Id),
-   CreatedOn DateTime Not Null Default(GetUTCDATE()),
-   IsExpired bit not null default(0),
-   LoggedInOn DateTime
-) 
-
-END
-
-Go
-/* =============================================      
- Author:  Jitendra Pancholi      
- Create date: 08-Nov-2017
- Description: This will Generate or Select Unique Login for a particular user
- ============================================= */
-IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.ROUTINES WHERE  ROUTINE_NAME = 'GenerateLoginCode')
-  BEGIN
-      DROP PROCEDURE GenerateLoginCode
-  END
- Go
- /*
-	GenerateLoginCode 3797
- */
- Create PROCEDURE GenerateLoginCode      
-(
-	@UserId  INT      
-)      
-AS      
-BEGIN
-	DECLARE @MyTableVar table(Id uniqueidentifier);
-	if exists (Select * From UserLoginCode Where UserId = @UserId And IsExpired = 0 And LoggedInOn Is Null)
+	IF @SecondaryStatus > 0
 		Begin
-			Select Id From UserLoginCode Where UserId = @UserId And IsExpired = 0 And LoggedInOn Is Null
+			Update tblInstallUsers Set SecondaryStatus = @SecondaryStatus Where Id = @UserId
 		End
+End
+
+Go
+IF  NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[BranchLocation]') AND type in (N'U'))
+BEGIN
+	CREATE TABLE [dbo].[BranchLocation](
+		Id int Primary Key,
+		BranchAddress1 Varchar(2000) Not Null,
+		BranchAddress2 Varchar(2000) Not Null,
+		DepartmentId int foreign key references tbl_Department(id),
+		Email Varchar(200),
+		PhoneNumber Varchar(50) Not Null,
+		CreatedOn DateTime Not Null Default(GetUTCDate())
+	) 
+	Insert Into BranchLocation (Id, BranchAddress1, BranchAddress2, PhoneNumber, DepartmentId, Email) 
+		Values(1, '72 E Lancaster Ave','Malvern, PA 19355','(215)483-3098', 1, 'HR@jmgroveconstruction.com');
+	Insert Into BranchLocation (Id, BranchAddress1, BranchAddress2, PhoneNumber, DepartmentId, Email) 
+		Values(2, 'Test Location','Florida, FL 32004','(415)451-1234', 1, 'HR@jmgroveconstruction.com')
+	Insert Into BranchLocation (Id, BranchAddress1, BranchAddress2, PhoneNumber, DepartmentId, Email) 
+		Values(3, 'Test Location','Philadelphia, PA 19355','(215)483-1234', 1, 'HR@jmgroveconstruction.com')
+	Insert Into BranchLocation (Id, BranchAddress1, BranchAddress2, PhoneNumber, DepartmentId, Email) 
+		Values(4, 'Test Location', 'India, ADI 320008','(91)987-123-3098', 2, 'HR@jmgroveconstruction.com')
+	Insert Into BranchLocation (Id, BranchAddress1, BranchAddress2, PhoneNumber, DepartmentId, Email) 
+		Values(5, 'Test Global Location', 'USA, PA 19355','(800)000-1234', 4, 'HR@jmgroveconstruction.com')
+END
+
+Go
+IF Not EXISTS (SELECT * FROM   sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[tblInstallUsers]') AND name = 'BranchLocationId')
+	Begin
+		Alter Table tblInstallUsers Add BranchLocationId int Foreign Key References BranchLocation(Id)
+	End
+
+Go
+IF EXISTS(SELECT 1 FROM   INFORMATION_SCHEMA.ROUTINES WHERE  ROUTINE_NAME = 'GetUserBranchLocation' AND SPECIFIC_SCHEMA = 'dbo')
+  BEGIN
+      DROP PROCEDURE GetUserBranchLocation
+  END
+Go
+ ---- =============================================  
+-- Author:  Jitendra Pancholi  
+-- Create date: 03/30/2018
+-- Description: Load all details of task for edit.  
+-- =============================================  
+-- [GetUserBranchLocation] 2877
+ 
+CREATE PROCEDURE [dbo].[GetUserBranchLocation]   
+(  
+	@UserId int
+)     
+AS  
+BEGIN
+	If Not Exists (Select L.* From tblInstallUsers U Join BranchLocation L On U.BranchLocationId = L.Id	Where U.Id = @UserId)
+		Begin
+			Select L.Id, L.BranchAddress1,L.BranchAddress2, L.DepartmentId, D.DepartmentName, L.Email,L.PhoneNumber, L.CreatedOn From BranchLocation L 
+			Join tbl_Department D On L.DepartmentId = D.Id 
+			Where L.Id = 1 And D.IsActive = 1
+		ENd
 	Else
 		Begin
-			Insert Into UserLoginCode (UserId) OUTPUT INSERTED.Id INTO @MyTableVar Values (@UserId)
-			Select Id from @MyTableVar
+			Select L.Id, L.BranchAddress1,L.BranchAddress2, L.DepartmentId, D.DepartmentName, L.Email,L.PhoneNumber, L.CreatedOn
+			 From tblInstallUsers U Join BranchLocation L On U.BranchLocationId = L.Id	
+			 Join tbl_Department D On L.DepartmentId = D.Id 
+			 Where U.Id = @UserId And D.IsActive = 1
 		End
 End
 
 Go
-/* =============================================      
- Author:  Jitendra Pancholi      
- Create date: 08-Nov-2017
- Description: This will expire the login code when user logs into the system.
- ============================================= */
-IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.ROUTINES WHERE  ROUTINE_NAME = 'ExpireLoginCode')
+IF EXISTS(SELECT 1 FROM   INFORMATION_SCHEMA.ROUTINES WHERE  ROUTINE_NAME = 'GetBranchLocations' AND SPECIFIC_SCHEMA = 'dbo')
   BEGIN
-      DROP PROCEDURE ExpireLoginCode
+      DROP PROCEDURE GetBranchLocations
   END
- Go
- /*
-	ExpireLoginCode '3B9FF355-9164-40B2-A701-8C6C0C259E2D'
- */
- Create PROCEDURE ExpireLoginCode      
-(
-	@Id NVarchar(50)
-)      
-AS      
+Go
+ ---- =============================================  
+-- Author:  Jitendra Pancholi  
+-- Create date: 03/30/2018
+-- Description: Load all details of task for edit.  
+-- =============================================  
+-- [GetBranchLocations]
+ 
+CREATE PROCEDURE [dbo].[GetBranchLocations]       
+AS  
 BEGIN
-	If exists (Select * from UserLoginCode Where Id = @Id And IsExpired = 0 and LoggedInOn IS NULL)
-		Begin
-			IF EXISTS (Select * from UserLoginCode Where Id = @Id And IsExpired = 0 and LoggedInOn IS NULL And DateDiff(MINUTE, CreatedOn, Getutcdate()) > 2880)
-				Begin
-					Update UserLoginCode Set IsExpired = 1, LoggedInOn = NULL Where Id = @Id
-					Select '' As Email
-				End
-			Else
-				Begin
-					Update UserLoginCode Set IsExpired = 1, LoggedInOn = GetUTCDate() Where Id = @Id
-					Select U.Email From tblInstallUsers U Join UserLoginCode L on U.Id = L.UserId Where L.Id = @Id
-				End
-		End
-	Else 
-		Begin
-			Select '' As Email
-		End
+	Select L.Id, L.BranchAddress1,L.BranchAddress2, L.DepartmentId, L.Email,L.PhoneNumber, L.CreatedOn ,
+		(L.BranchAddress1 + ', ' + L.BranchAddress2) As BranchLocationTitle
+	From BranchLocation L
 End
 
 Go
-/* =============================================      
- Author:  Jitendra Pancholi      
- Create date: 08-Nov-2017
- Description: This will expire the login code when user logs into the system.
- ============================================= */
-IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.ROUTINES WHERE  ROUTINE_NAME = 'ExpireAllLoginCode')
+IF EXISTS(SELECT 1 FROM   INFORMATION_SCHEMA.ROUTINES WHERE  ROUTINE_NAME = 'UDP_UpdateInstallUserOfferMade' AND SPECIFIC_SCHEMA = 'dbo')
   BEGIN
-      DROP PROCEDURE ExpireAllLoginCode
+      DROP PROCEDURE UDP_UpdateInstallUserOfferMade
   END
- Go
- /*
-	ExpireAllLoginCode
- */
- Create PROCEDURE ExpireAllLoginCode      
-(
-	@Id NVarchar(50)
-)      
-AS      
+Go
+ ---- =============================================  
+-- Author:		Dharmendra
+-- Create date: 2016-06-20
+-- Description:	Update install usere offer made
+-- =============================================
+CREATE PROCEDURE [dbo].[UDP_UpdateInstallUserOfferMade]
+	-- Add the parameters for the stored procedure here
+	@id int,  
+	@Email varchar(100),  
+	@password varchar(30),
+	@branchLocationId varchar(10)
+AS
 BEGIN
-	Update UserLoginCode Set IsExpired = 1 
-		Where IsExpired = 0 And LoggedInOn Is NULL And DateDiff(MINUTE, CreatedOn, Getutcdate()) > 2880
-End
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	if IsNull(@branchLocationId,'') = ''
+	begin
+		update tblInstallUsers set Email=@Email,[Password]=@password where Id=@id
+	end
+	else
+	Begin
+		update tblInstallUsers set Email=@Email,[Password]=@password, BranchLocationId = @branchLocationId where Id=@id
+	End
 
-/* =============================================      
- Author:  Jitendra Pancholi      
- Create date: 08-Nov-2017
- Description: This will call all procedure which needs to be run periodically.
- ============================================= */
+END
+
 Go
-IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.ROUTINES WHERE  ROUTINE_NAME = 'RunJobs')
-  BEGIN
-      DROP PROCEDURE RunJobs
-  END
- Go
-Create Procedure RunJobs
-As
+IF  NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UserManagers]') AND type in (N'U'))
+BEGIN
+	CREATE TABLE [dbo].[UserManagers](
+		Id int Primary Key Identity(1,1),
+		UserId int foreign key references tblInstallUsers(Id),
+		ManagerId int foreign key references tblInstallUsers(Id),
+		--ManagerDesignationId int foreign key references tbl_Designation(Id),
+		CreatedOn DateTime Not Null Default(GetUTCDate())
+	) 
+	Insert Into UserManagers(UserId, ManagerId) Select Id, 780 From tblInstallUsers Where Id Not in (780,901)
+	Insert Into UserManagers(UserId, ManagerId) Select Id, 901 From tblInstallUsers Where Id Not in (780,901)
+END
+
+-- Data Cleanup for chatmessage, added userchatgroupid for auto-entries
+Go
+IF OBJECT_ID('tempdb..#TempIds') IS NOT NULL DROP TABLE #TempIds Create Table #TempIds(Id int identity(1,1), ChatId int)
+Insert Into #TempIds (ChatId)
+Select Id From (
+Select 
+ROW_NUMBER()OVER(PARTITION BY ChatSourceId, ChatGroupId, SenderId, TextMessage, ChatFileId, ReceiverIds, TaskId, TaskMultilevelListId, UserChatGroupId
+ ORDER BY SenderId) As RN
+,Id,ChatSourceId, ChatGroupId, SenderId, TextMessage, ChatFileId, ReceiverIds, TaskId, TaskMultilevelListId, UserChatGroupId 
+From ChatMessage Where LTRIM(TextMessage) like 'User %'
+) As aa Where RN>1
+
+--Select * From #TempIds
+DELETE FROM ChatMessageReadStatus Where ChatMessageId IN (Select ChatId From #TempIds)
+Delete from ChatMessage Where Id IN (Select ChatId From #TempIds)
+Go 
+IF OBJECT_ID('tempdb..#TempIds') IS NOT NULL DROP TABLE #TempIds Create Table #TempIds(Id int identity(1,1), ChatGroupId varchar(200))
+Insert Into #TempIds (ChatGroupId)
+Select Distinct ChatGroupId From (Select 
+ROW_NUMBER()OVER(PARTITION BY ChatSourceId, ChatGroupId, SenderId, TextMessage, ChatFileId, ReceiverIds, TaskId, TaskMultilevelListId, UserChatGroupId
+ ORDER BY SenderId) As RN
+,Id,ChatSourceId, ChatGroupId, SenderId, TextMessage, ChatFileId, ReceiverIds, TaskId, TaskMultilevelListId, UserChatGroupId 
+From ChatMessage Where LTRIM(TextMessage) like 'User %' And UserChatGroupId IS NULL) As aa
+
+--Select * From #TempIds
+
+Declare @Min int=1, @Max int=1, @UserId int, @UserChatGroupId int, @ChatGroupId Varchar(200)
+
+Select @Min=Min(Id), @Max=Max(Id) From #TempIds
+
+While @Min <= @Max
 Begin
-	Declare @JobSchedulerLogId Bigint, @StartsOn DateTime, @ExecutionTime int
+	Select @ChatGroupId = ChatGroupId From #TempIds Where Id = @Min
+	Select top 1 @UserId = SenderId From ChatMessage Where ChatGroupId = @ChatGroupId
+	Insert Into UserChatGroup (CreatedBy) Values(@UserId)
+	Set @UserChatGroupId = IDENT_CURRENT('UserChatGroup')
+	Insert Into UserChatGroupMember (UserChatGroupId, UserId) Values (@UserChatGroupId, 780)
+	Insert Into UserChatGroupMember (UserChatGroupId, UserId) Values (@UserChatGroupId, 901)
+	Insert Into UserChatGroupMember (UserChatGroupId, UserId) Values (@UserChatGroupId, @UserId)
 
-	/* Call this procedure to change user's status to InterviewDateExpired. */
-	Set @StartsOn = GetDate()
-	Insert Into JobSchedulerLog (JobName, StartsOn) Values ('FreeTaskIfInterviewPassed',@StartsOn)
-	Exec FreeTaskIfInterviewPassed
-	Set @JobSchedulerLogId = ident_current('JobSchedulerLog')
-	Set @ExecutionTime = DateDiff(S,@StartsOn,GetDate())
-	Update JobSchedulerLog Set EndsOn = GetDate(), ExecutionTime = @ExecutionTime Where Id = @JobSchedulerLogId
-	/* Call this procedure to change user's status to InterviewDateExpired. */
-	
-	
-	/* Expire All LoggedInCodes After 48 hours of generation */
-	Exec ExpireAllLoginCode
-	
-
-	/* Call other job procedures like above */
+	Update ChatMessage Set UserChatGroupId = @UserChatGroupId, ReceiverIds = '780,901,' + Convert(Varchar(10), @UserId) 
+	Where ChatGroupId = @ChatGroupId
+	--Print @UserId
+	Set @Min = @Min + 1
 End

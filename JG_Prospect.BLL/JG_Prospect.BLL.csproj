@@ -88,13 +88,17 @@
     <Compile Include="ChatBLL.cs" />
     <Compile Include="clsProcurementData.cs" />
     <Compile Include="CountryBLL.cs" />
+    <Compile Include="CurrencyBLL.cs" />
     <Compile Include="CustomBLL.cs" />
     <Compile Include="DepartmentBLL.cs" />
+    <Compile Include="PayRateBLL.cs" />
     <Compile Include="DesignationBLL.cs" />
     <Compile Include="EmailSchedularManager.cs" />
     <Compile Include="ErrorLogBLL.cs" />
     <Compile Include="EventDAO.cs" />
     <Compile Include="existing_customerBLL.cs" />
+    <Compile Include="FilesBLL.cs" />
+    <Compile Include="FoldersBLL.cs" />
     <Compile Include="GoogleCalendarBLL.cs" />
     <Compile Include="GoogleCalendarEvent.cs" />
     <Compile Include="HTMLTemplateBLL.cs" />

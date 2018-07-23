@@ -13,6 +13,51 @@ namespace JG_Prospect.Sr_App {
     public partial class TaskGenerator {
         
         /// <summary>
+        /// txtDateFromRoman control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtDateFromRoman;
+        
+        /// <summary>
+        /// Calendarextender4 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::AjaxControlToolkit.CalendarExtender Calendarextender4;
+        
+        /// <summary>
+        /// txtDateToRoman control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtDateToRoman;
+        
+        /// <summary>
+        /// calExtendToDate control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::AjaxControlToolkit.CalendarExtender calExtendToDate;
+        
+        /// <summary>
+        /// ddlTasksDesignations control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.ListBox ddlTasksDesignations;
+        
+        /// <summary>
         /// upTask control.
         /// </summary>
         /// <remarks>
@@ -82,7 +127,7 @@ namespace JG_Prospect.Sr_App {
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlSelect ddlDesignationSeq;
+        protected global::System.Web.UI.WebControls.ListBox ddlDesignationSeq;
         
         /// <summary>
         /// hdnSelectedDesig control.

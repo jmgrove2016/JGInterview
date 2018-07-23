@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
@@ -194,6 +195,7 @@ namespace JG_Prospect.Common.modal
         public bool IsMailContactPreference;
 
         public string GitUserName;
+        public int CurrencyId;
     }
 
     public class user1
@@ -245,6 +247,55 @@ namespace JG_Prospect.Common.modal
 
     }
 
+    public class SalesUser
+    {
+        public int Id { get; set; }
+        public string UserInstallId { get; set; }
+        public string ProfilePic { get; set; }
+        public int? DesignationId { get; set; }
+        public string Designation { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public int Status { get; set; }
+        public string StatusName { get; set; }
+        public string StatusReason { get; set; }
+        public string RejectDetail { get; set; }
+        public string RejectedByUserName { get; set; }
+        public string RejectedByUserInstallId { get; set; }
+        public int? RejectedUserId { get; set; }
+        public string InterviewDetail { get; set; }
+        public string Source { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedByInstallId { get; set; }
+        public DateTime AddedOn { get; set; }
+        public string AddedOnFormatted { get; set; }
+        public string Email { get; set; }
+        public string PhoneType { get; set; }
+        public string Phone { get; set; }
+        public string Country { get; set; }
+        public string Zip { get; set; }
+        public string City { get; set; }
+        public string JobType { get; set; }
+        public string ResumeFileDisplayName { get; set; }
+        public string ResumeFileSavedName { get; set; }
+        public DateTime? LastCalledAt { get; set; }
+        public string LastCalledAtFormatted { get; set; }
+        public string PhoneCode { get; set; }
+    }
+
+    public class UserEmail
+    {
+        public int UserId { get; set; }
+        public string Email { get; set; }
+    }
+
+    public class UserPhone
+    {
+        public int UserId { get; set; }
+        public int PhoneTypeId { get; set; }
+        public string Phone { get; set; }
+    }
+
     public class LoginUser
     {
         public int ID { get; set; }
@@ -274,9 +325,9 @@ namespace JG_Prospect.Common.modal
         }
         public int? UserId { get; set; }
         public string UserInstallId { get; set; }
-      //  public string FirstName { get; set; }
-       // public string LastName { get; set; }
-       // public string Email { get; set; }
+        //  public string FirstName { get; set; }
+        // public string LastName { get; set; }
+        // public string Email { get; set; }
         public DateTime? OnlineAt { get; set; }
         public string OnlineAtFormatted { get; set; }
         public string ProfilePic { get; set; }
@@ -292,8 +343,22 @@ namespace JG_Prospect.Common.modal
         public string ReceiverIds { get; set; }
 
         public string GroupOrUsername { get; set; }
+        public int? InstallUserStatusId { get; set; } // 
+        public int? TaskId { get; set; }
+        public int? TaskMultilevelListId { get; set; }
+        public int UnreadCount { get; set; }
+        public string GroupNameAnchor { get; set; }
+        public int? UserChatGroupId { get; set; }
+
+        public DateTime? LastLoginAt { get; set; }
+        public string LastLoginAtFormatted { get; set; }
     }
 
+    public class ChatUnReadCount
+    {
+        public int UserId { get; set; }
+        public int UnReadCount { get; set; }
+    }
     public class ChatUser : ActiveUser
     {
         public ChatUser()
@@ -302,6 +367,22 @@ namespace JG_Prospect.Common.modal
         }
         public List<string> ConnectionIds { get; set; }
         public bool ChatClosed { get; set; }
+    }
+
+    public class InstallUser
+    {
+        public int Id { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+    }
+
+    public class ChatFile
+    {
+        public int Id { get; set; }
+        public string DisplayName { get; set; }
+        public string SavedName { get; set; }
+        public string Mime { get; set; }
+        public string DownloadBinary { get; set; }
     }
 
     public class ChatMessage
@@ -318,6 +399,12 @@ namespace JG_Prospect.Common.modal
 
         public string ChatGroupId { get; set; }
 
+        public int? FileId { get; set; }
+        public bool IsRead { get; set; }
+
+        public int? TaskId { get; set; }
+        public int? TaskMultilevelListId { get; set; }
+        public int? UserChatGroupId { get; set; }
     }
 
     public class ChatMessageActiveUser
@@ -331,6 +418,8 @@ namespace JG_Prospect.Common.modal
         public string ChatGroupName { get; set; }
         public List<ActiveUser> ActiveUsers { get; set; }
         public List<ChatMessage> ChatMessages { get; set; }
+        public DateTime? LastSeenAt { get; set; }
+        public string LastSeenAtFormated { get; set; }
     }
 
     public class ChatGroup
@@ -345,6 +434,92 @@ namespace JG_Prospect.Common.modal
         public List<ChatUser> ChatUsers { get; set; }
         public List<ChatMessage> ChatMessages { get; set; }
         public int SenderId { get; set; }
+    }
+
+    public class PhoneScript
+    {
+        public int Id { get; set; }
+        public int Type { get; set; }
+        public int SubType { get; set; }
+        public string Title { get; set; }
+        public string DescriptionPlain { get; set; }
+        public string FAQTitle { get; set; }
+        public string FAQDescription { get; set; }
+    }
+
+    public enum ScriptType
+    {
+        [Description("Inbound Calls")]
+        Inbound = 1,
+        [Description("Outbound Calls")]
+        Outbound = 2
+    }
+
+    public enum ScriptSubType
+    {
+        [Description("Hr Calls")]
+        Hr = 1,
+        [Description("Sales Calls")]
+        Sales = 2,
+        [Description("Customer Services")]
+        Customer = 3,
+        [Description("Vendor")]
+        Vendor = 4
+    }
+
+    public class PhoneScriptType
+    {
+        public PhoneScriptType()
+        {
+            SubTypes = new List<modal.PhoneScriptSubType>();
+        }
+        public int Type { get; set; }
+        public string TypeName { get; set; }
+        public List<PhoneScriptSubType> SubTypes { get; set; }
+    }
+
+    public class PhoneScriptSubType
+    {
+        public PhoneScriptSubType()
+        {
+            PhoneScripts = new List<modal.PhoneScript>();
+        }
+        public int Type { get; set; }
+        public int SubType { get; set; }
+        public string SubTypeName { get; set; }
+        public List<PhoneScript> PhoneScripts { get; set; }
+    }
+
+    public class TaskMultiLevelList
+    {
+        public TaskMultiLevelList()
+        {
+            Notes = new List<modal.Notes>();
+        }
+        public int Id { get; set; }
+        public int ParentTaskId { get; set; }
+        public int? UserChatGroupId { get; set; }
+        public string InstallId { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public int IndentLevel { get; set; }
+        public string Label { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public bool EstimatedHoursITLead { get; set; }
+        public bool EstimatedHoursUser { get; set; }
+        public DateTime? DateCreated { get; set; }
+        public DateTime? DateUpdatedITLead { get; set; }
+        public int ITLeadId { get; set; }
+        public DateTime? DateUpdatedUser { get; set; }
+        public int UserId { get; set; }
+        public int DisplayOrder { get; set; }
+        public int Status { get; set; }
+        public string ITLeadName { get; set; }
+        public string UserName { get; set; }
+        public string TaskAssignedUserIds { get; set; }
+        public List<Notes> Notes { get; set; }
+        public string ReceiverIds { get; set; }
     }
 
     public sealed class SingletonUserChatGroups
@@ -382,7 +557,8 @@ namespace JG_Prospect.Common.modal
     {
         SingletonGlobal()
         {
-            RandomGUID = JGConstant.RandomGUID;
+            Random generator = new Random();
+            RandomGUID = generator.Next(0, 999999).ToString("D6");
             ConnectedClients = new List<string>();
         }
 
@@ -407,5 +583,19 @@ namespace JG_Prospect.Common.modal
                 return instance;
             }
         }
+    }
+
+    public class BranchLocation
+    {
+        public int Id { get; set; }
+        public string BranchAddress1 { get; set; }
+        public string BranchAddress2 { get; set; }
+        public string Department { get; set; }
+        public int DepartmentId { get; set; }
+        public string Email { get; set; }
+        public string PhoneNumber { get; set; }
+        public DateTime CreatedOn { get; set; }
+
+        public string BranchLocationTitle { get; set; }
     }
 }

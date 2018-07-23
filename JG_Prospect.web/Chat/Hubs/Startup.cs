@@ -12,7 +12,7 @@ namespace JG_Prospect.Chat.Hubs
         {
             // Any connection or hub wire up and configuration should go here
             app.MapSignalR();
-
+            GlobalHost.Configuration.MaxIncomingWebSocketMessageSize = null;
             //app.Map("/signalr", map =>
             //{
             //    map.UseCors(CorsOptions.AllowAll);

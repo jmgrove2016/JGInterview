@@ -15,6 +15,8 @@ using System.Web.Script.Services;
 using System.Configuration;
 using System.Web.Script.Serialization;
 using JG_Prospect.Chat.Hubs;
+using static JG_Prospect.Common.JGCommon;
+using static JG_Prospect.Common.JGConstant;
 
 namespace JG_Prospect.WebServices
 {
@@ -28,6 +30,8 @@ namespace JG_Prospect.WebServices
     [System.Web.Script.Services.ScriptService]
     public class JGWebService : System.Web.Services.WebService
     {
+        public static string TaskUserStatuses { get; set; }
+
         #region '--TaskComments--'
 
         [WebMethod]
@@ -132,6 +136,28 @@ namespace JG_Prospect.WebServices
         #endregion
 
         #region '--TaskApproval--'
+        [WebMethod(EnableSession = true)]
+        public object FreezeFeedbackTask(int EstimatedHours, string Password, string StartDate, string EndDate, int TaskId, bool IsITLead)
+        {
+            string strMessage = "Task Freezed Successfully";
+            bool blSuccess = false;
+
+            if (!Password.Equals(Convert.ToString(Session["loginpassword"])))
+            {
+                strMessage = "Task cannot be freezed as password is not valid.";
+            }
+            else
+            {
+                blSuccess = TaskGeneratorBLL.Instance.UpdateFeedbackTask(EstimatedHours, Password, StartDate, EndDate, TaskId, (JGSession.DesignationId == (byte)JG_Prospect.Common.JGConstant.DesignationType.IT_Lead), Convert.ToInt32(Session[JG_Prospect.Common.SessionKey.Key.UserId.ToString()]));
+            }
+
+            var result = new
+            {
+                Message = strMessage,
+                Success = blSuccess
+            };
+            return result;
+        }
 
         [WebMethod(EnableSession = true)]
         public object FreezeTask(string strEstimatedHours, string strTaskApprovalId, string strTaskId, string strPassword)
@@ -546,35 +572,7 @@ namespace JG_Prospect.WebServices
         }
 
         #endregion
-
-        [WebMethod(EnableSession = true)]
-        public String GetCalendarTasksByDate(string StartDate, string EndDate)
-        {
-            string strMessage = string.Empty;
-            string userid = "";
-            DataSet dtResult = null;
-            if (!CommonFunction.CheckAdminAndItLeadMode())
-            {
-                int UserId = 0;
-                Int32.TryParse(JGSession.LoginUserID, out UserId);
-                userid = UserId.ToString();
-            }
-
-            dtResult = TaskGeneratorBLL.Instance.GetCalendarTasksByDate(StartDate, EndDate, userid);
-
-            if (dtResult != null && dtResult.Tables.Count > 0)
-            {
-                dtResult.DataSetName = "Events";
-                dtResult.Tables[0].TableName = "AllEvents";
-                strMessage = JsonConvert.SerializeObject(dtResult, Formatting.Indented);
-            }
-            else
-            {
-                strMessage = String.Empty;
-            }
-            return strMessage;
-        }
-
+              
         #region '--Task--'
         [WebMethod(EnableSession = true)]
         public String GetTaskUserFileByFileName(string FileName)
@@ -683,6 +681,12 @@ namespace JG_Prospect.WebServices
         }
 
         [WebMethod(EnableSession = true)]
+        public bool UpdateRomanTitle(string RomanId, string Title)
+        {
+            return TaskGeneratorBLL.Instance.UpdateRomanTitle(RomanId, Title) > 0;
+        }
+
+        [WebMethod(EnableSession = true)]
         public bool UpdateTaskDescriptionById(string tid, string Description)
         {
             TaskGeneratorBLL.Instance.UpdateTaskDescriptionById(tid, Description);
@@ -690,9 +694,55 @@ namespace JG_Prospect.WebServices
         }
 
         [WebMethod(EnableSession = true)]
-        public object AddNewSubTask(int ParentTaskId, String Title, String URL, String Desc, String Status, String Priority, String DueDate, String TaskHours, String InstallID, String Attachments, String TaskType, String TaskDesignations, int[] TaskAssignedUsers ,string TaskLvl, bool blTechTask, Int64? Sequence)
+        public object AddNewSubTask(int ParentTaskId, String Title, String URL, String Desc, String Status, String Priority, String DueDate, String TaskHours, String InstallID, String Attachments, String TaskType, String TaskDesignations, int[] TaskAssignedUsers, string TaskLvl, bool blTechTask, Int64? Sequence)
         {
             return SaveSubTask(ParentTaskId, Title, URL, Desc, Status, Priority, DueDate, TaskHours, InstallID, Attachments, TaskType, TaskDesignations, TaskAssignedUsers, TaskLvl, blTechTask, Sequence);
+        }
+
+        [WebMethod]
+        public string GetRootTasks(int ExcludedTaskId)
+        {
+            string strMessage = string.Empty;
+            DataSet dtResult = null;
+
+            dtResult = TaskGeneratorBLL.Instance.GetRootTasks(ExcludedTaskId);
+
+            if (dtResult != null && dtResult.Tables.Count > 0)
+            {
+                dtResult.DataSetName = "TasksDataSet";
+                dtResult.Tables[0].TableName = "Tasks";
+                System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+                doc.LoadXml(dtResult.GetXml());
+                strMessage = JsonConvert.SerializeXmlNode(doc);
+            }
+            else
+            {
+                strMessage = String.Empty;
+            }
+            return strMessage;
+        }
+
+        [WebMethod]
+        public string GetChildTasks(int ParentTaskId)
+        {
+            string strMessage = string.Empty;
+            DataSet dtResult = null;
+
+            dtResult = TaskGeneratorBLL.Instance.GetChildTasks(ParentTaskId);
+
+            if (dtResult != null && dtResult.Tables.Count > 0)
+            {
+                dtResult.DataSetName = "TasksDataSet";
+                dtResult.Tables[0].TableName = "Tasks";
+                System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+                doc.LoadXml(dtResult.GetXml());
+                strMessage = JsonConvert.SerializeXmlNode(doc);
+            }
+            else
+            {
+                strMessage = String.Empty;
+            }
+            return strMessage;
         }
 
         [WebMethod(EnableSession = true)]
@@ -909,6 +959,14 @@ namespace JG_Prospect.WebServices
         }
 
         [WebMethod(EnableSession = true)]
+        public bool MoveTask(int TaskId, int FromTaskId, int ToTaskId)
+        {
+            Boolean blnReturnResult = TaskGeneratorBLL.Instance.MoveTask(TaskId, FromTaskId, ToTaskId);
+
+            return blnReturnResult;
+        }
+
+        [WebMethod(EnableSession = true)]
         public bool DeleteTaskSubSequence(Int64 TaskId)
         {
             Boolean blnReturnResult = TaskGeneratorBLL.Instance.DeleteTaskSubSequence(TaskId);
@@ -968,7 +1026,7 @@ namespace JG_Prospect.WebServices
             else
             {
                 //Extract Selected Task & User Status
-                TaskUserStatus = GenerateStatusCodes(TaskUserStatus, true);
+                TaskUserStatus = GenerateStatusCodes(TaskUserStatus, true, false);
             }
 
 
@@ -1122,7 +1180,7 @@ namespace JG_Prospect.WebServices
                 UserId = "";
 
             //Extract Selected Task & User Status
-            TaskUserStatus = GenerateStatusCodes(TaskUserStatus, !ForInProgress);
+            TaskUserStatus = GenerateStatusCodes(TaskUserStatus, !ForInProgress, false);
 
             if (ForDashboard)
             {
@@ -1177,7 +1235,7 @@ namespace JG_Prospect.WebServices
             return strMessage;
         }
 
-        private static string GenerateStatusCodes(string TaskUserStatus, bool ForClosedGrid)
+        private static string GenerateStatusCodes(string TaskUserStatus, bool ForClosedGrid, bool ForCalendar)
         {
             string UserStatus = "";
             string TaskStatus = "";
@@ -1195,6 +1253,10 @@ namespace JG_Prospect.WebServices
                         {
                             TaskStatus += value.TrimStart("T".ToCharArray()) + ",";
                         }
+                    }
+                    else if (ForCalendar)
+                    {
+                        TaskStatus += value.TrimStart("T".ToCharArray()) + ",";
                     }
                     else
                     {
@@ -1390,9 +1452,37 @@ namespace JG_Prospect.WebServices
         }
 
         [WebMethod(EnableSession = true)]
+        public bool SaveAssignedTaskUsersRoman(Int32 RomanId, int[] UserIds)
+        {
+            string strUsersIds = UserIds != null ? string.Join(",", UserIds) : "";
+            bool isSuccessful = TaskGeneratorBLL.Instance.SaveTaskAssignedUsersRoman(Convert.ToUInt64(RomanId), strUsersIds);
+
+            return true;
+        }
+
+        [WebMethod(EnableSession = true)]
+        public bool SaveTaskQuery(int TaskId, string QueryDesc, int QueryTypeId)
+        {
+            int QueryStatusId = 1;//Default Raised
+            int CreatedById = 0;
+            int uid = 0;
+            Int32.TryParse(JGSession.LoginUserID, out uid);
+            CreatedById = uid;
+
+            bool isSuccessful = TaskGeneratorBLL.Instance.SaveTaskQuery(TaskId, QueryDesc, QueryTypeId, QueryStatusId, CreatedById);
+            return isSuccessful;
+        }
+
+        [WebMethod(EnableSession = true)]
         public bool SetTaskStatus(int intTaskId, string TaskStatus)
         {
             return TaskGeneratorBLL.Instance.SetTaskStatus(intTaskId, TaskStatus);
+        }
+
+        [WebMethod(EnableSession = true)]
+        public bool SetRomanTaskStatus(int TaskId, int TaskStatus)
+        {
+            return TaskGeneratorBLL.Instance.SetRomanTaskStatus(TaskId, TaskStatus);
         }
 
         [WebMethod(EnableSession = true)]
@@ -1402,9 +1492,16 @@ namespace JG_Prospect.WebServices
         }
 
         [WebMethod(EnableSession = true)]
-        public bool SaveTaskMultiLevelChild(int ParentTaskId, string InstallId, string Description, int IndentLevel, string Class)
+        public bool SetReassignableTaskType(int intTaskId, string TaskType)
         {
-            return TaskGeneratorBLL.Instance.SaveTaskMultiLevelChild(ParentTaskId, InstallId, Description, IndentLevel, Class);
+            return TaskGeneratorBLL.Instance.UpdateTaskReassignable(intTaskId, bool.Parse(TaskType));
+        }
+
+
+        [WebMethod(EnableSession = true)]
+        public bool SaveTaskMultiLevelChild(int ParentTaskId, string InstallId, string Title, string Description, int IndentLevel, string Class)
+        {
+            return TaskGeneratorBLL.Instance.SaveTaskMultiLevelChild(ParentTaskId, InstallId, Title, Description, IndentLevel, Class, Convert.ToInt16(Session[SessionKey.Key.UserId.ToString()]));
         }
 
         [WebMethod(EnableSession = true)]
@@ -1417,6 +1514,12 @@ namespace JG_Prospect.WebServices
         public bool TaskSwapSubSequence(Int64 FirstSequenceId, Int64 SecondSequenceId, Int64 FirstTaskId, Int64 SecondTaskId)
         {
             return TaskGeneratorBLL.Instance.TaskSwapSubSequence(FirstSequenceId, SecondSequenceId, FirstTaskId, SecondTaskId);
+        }
+
+        [WebMethod(EnableSession = true)]
+        public bool TaskSwapRoman(Int64 FirstRomanId, Int64 SecondRomanId)
+        {
+            return TaskGeneratorBLL.Instance.TaskSwapRoman(FirstRomanId, SecondRomanId);
         }
 
         [WebMethod(EnableSession = true)]
@@ -1459,6 +1562,83 @@ namespace JG_Prospect.WebServices
             }
         }
 
+        [WebMethod(EnableSession = true)]
+        public String GetFreezedRomanData(long RomanId)
+        {
+            string strMessage = string.Empty;
+            DataSet dtResult = null;
+
+            dtResult = TaskGeneratorBLL.Instance.GetFreezedRomanData(RomanId);
+
+            if (dtResult != null && dtResult.Tables.Count > 0)
+            {
+                dtResult.DataSetName = "RomanData";
+                dtResult.Tables[0].TableName = "Roman";
+                strMessage = JsonConvert.SerializeObject(dtResult, Formatting.Indented);
+            }
+            else
+            {
+                strMessage = String.Empty;
+            }
+            return strMessage;
+        }
+
+        [WebMethod(EnableSession = true)]
+        public String GetCalendarUsersByDate(string Date, string TaskUserStatus, string UserId)
+        {
+            string strMessage = string.Empty;
+            DataSet dtResult = null;
+            if (!CommonFunction.CheckAdminAndItLeadMode())
+            {
+                int uid = 0;
+                Int32.TryParse(JGSession.LoginUserID, out uid);
+                UserId = uid.ToString();
+            }
+
+            dtResult = TaskGeneratorBLL.Instance.GetCalendarUsersByDate(Date, TaskUserStatuses, UserId);
+
+            if (dtResult != null && dtResult.Tables.Count > 0)
+            {
+                dtResult.DataSetName = "Events";
+                dtResult.Tables[0].TableName = "Users";
+                strMessage = JsonConvert.SerializeObject(dtResult, Formatting.Indented);
+            }
+            else
+            {
+                strMessage = String.Empty;
+            }
+            return strMessage;
+        }
+
+        [WebMethod(EnableSession = true)]
+        public String GetCalendarTasksByDate(string StartDate, string EndDate, string UserId, String DesignationIDs, string TaskUserStatus)
+        {
+            string strMessage = string.Empty;
+            DataSet dtResult = null;
+            if (!CommonFunction.CheckAdminAndItLeadMode())
+            {
+                int uid = 0;
+                Int32.TryParse(JGSession.LoginUserID, out uid);
+                UserId = uid.ToString();
+            }
+
+            //Extract Selected Task & User Status
+            TaskUserStatuses = GenerateStatusCodes(TaskUserStatus, false, true);
+
+            dtResult = TaskGeneratorBLL.Instance.GetCalendarTasksByDate(StartDate, EndDate, UserId, DesignationIDs, TaskUserStatuses);
+
+            if (dtResult != null && dtResult.Tables.Count > 0)
+            {
+                dtResult.DataSetName = "Events";
+                dtResult.Tables[0].TableName = "AllEvents";
+                strMessage = JsonConvert.SerializeObject(dtResult, Formatting.Indented);
+            }
+            else
+            {
+                strMessage = String.Empty;
+            }
+            return strMessage;
+        }
 
 
         #endregion
@@ -1505,6 +1685,71 @@ namespace JG_Prospect.WebServices
             return Id.ToString();
         }
 
+        [WebMethod(EnableSession = true)]
+        public string QuickSaveUserwithEmailOrPhone(String FirstName, String LastName, String Email, String Phone, Int32 AddedByUserId)
+        {
+            String returnString = string.Empty;
+
+            user objInstallUser = new user();
+
+            objInstallUser.fristname = FirstName;
+            objInstallUser.lastname = LastName;
+            objInstallUser.email = Email;
+            objInstallUser.phone = Phone;
+            //objInstallUser.designation = DesignationText;
+            //objInstallUser.DesignationID = DesignationId;
+            objInstallUser.AddedBy = AddedByUserId;
+            objInstallUser.status = Convert.ToInt32(JGConstant.InstallUserStatus.Applicant).ToString();
+
+            DataSet ds = InstallUserBLL.Instance.QuickSaveUserWithEmailorPhone(objInstallUser);
+
+            if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            {
+                if (Convert.ToBoolean(ds.Tables[0].Rows[0]["PhoneExists"].ToString()) && Convert.ToBoolean(ds.Tables[0].Rows[0]["EmailExists"].ToString()))
+                {
+                    returnString = "Email and Phone number are already exists in database";
+                }
+                else if (Convert.ToBoolean(ds.Tables[0].Rows[0]["PhoneExists"].ToString()))
+                {
+                    returnString = "Phone number is already exists in database";
+                }
+                else if (Convert.ToBoolean(ds.Tables[0].Rows[0]["EmailExists"].ToString()))
+                {
+                    returnString = "Email is already exists in database";
+                }
+                else if (!Convert.ToBoolean(ds.Tables[0].Rows[0]["PhoneExists"].ToString()) && !Convert.ToBoolean(ds.Tables[0].Rows[0]["EmailExists"].ToString()) && String.IsNullOrEmpty(ds.Tables[0].Rows[0]["UserID"].ToString()))
+                {
+                    returnString = "User cannot be saved. Please try again.";
+                }
+                else
+                {
+                    returnString = "User saved successfully!";
+
+                    SendPHPWelcomeEmail(Email, Phone);
+                }
+            }
+
+            return returnString;
+        }
+
+        private void SendPHPWelcomeEmail(String UserEmailId, String PhoneNumber)
+        {
+            DataSet dsUser = InstallUserBLL.Instance.getInstallerUserDetailsByLoginId(String.IsNullOrEmpty(UserEmailId) == true ? PhoneNumber : UserEmailId);
+            String FirstName = string.Empty, LastName = string.Empty, Designation = string.Empty, EmployeeType = string.Empty, UserEmail = String.Empty, DesignationID = String.Empty, Phone = String.Empty;
+
+            if (dsUser.Tables.Count > 0 && dsUser.Tables[0].Rows.Count > 0)
+            {
+                FirstName = Convert.ToString(dsUser.Tables[0].Rows[0]["FristName"]);
+                LastName = Convert.ToString(dsUser.Tables[0].Rows[0]["LastName"]);
+                UserEmail = Convert.ToString(dsUser.Tables[0].Rows[0]["Email"]);
+                Phone = Convert.ToString(dsUser.Tables[0].Rows[0]["Phone"]);
+                DesignationID = "0";
+                Designation = Convert.ToString(dsUser.Tables[0].Rows[0]["Designation"]);
+            }
+
+            SendHRWelcomeEmail(UserEmail, FirstName, LastName, Designation, Phone, Convert.ToInt32(DesignationID), HTMLTemplates.PHP_HR_Welcome_Auto_Email, null, "JMGC-PC");
+
+        }
 
         private string[] getSUBSubtaskSequencing(string sequence)
         {
@@ -1613,11 +1858,14 @@ namespace JG_Prospect.WebServices
             {
                 // save assgined designation.
                 SaveTaskDesignations(TaskId, InstallID.Trim(), TaskDesignations);
-                SaveAssignedTaskUsers(int.Parse(TaskId.ToString()), 1/*OpenStatus*/, TaskAssignedUsers, null);
                 // save attached file by user to database.
                 UploadUserAttachements(Convert.ToInt64(TaskId), Attachments, JGConstant.TaskFileDestination.SubTask);
 
                 blnReturnVal = true;
+            }
+            if (TaskId > 0 && TaskAssignedUsers.Length > 0)
+            {
+                SaveAssignedTaskUsers(int.Parse(TaskId.ToString()), 1/*OpenStatus*/, TaskAssignedUsers, null);
             }
             if (TaskId > 0)
             {
@@ -1728,8 +1976,6 @@ namespace JG_Prospect.WebServices
             }
         }
 
-
-
         private void SendEmailToAssignedUsers(int intTaskId, string strInstallUserIDs)
         {
             try
@@ -1779,6 +2025,67 @@ namespace JG_Prospect.WebServices
             }
         }
 
+
+        #endregion
+
+        #region "-- PayRates --"
+        [WebMethod(EnableSession = true)]
+        public bool AddDesignationPayRate(int DesignationId, int EmpType, Decimal BaseRate, Decimal DisplayRate, String DisplayCurrencyCode)
+        {
+            int CreatedByUserId = Convert.ToInt32(Session[JG_Prospect.Common.SessionKey.Key.UserId.ToString()]);
+
+            bool returnVal = true;
+            PayRateBLL.Instance.AddDesignationPayRate(DesignationId, EmpType, BaseRate, DisplayRate, DisplayCurrencyCode, CreatedByUserId);
+            return returnVal;
+
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string GetDesignationPayRate(int DesignationId, int EmpType)
+        {
+            String DesignationPaymentRate = string.Empty;
+
+            DataSet returnDataSet = PayRateBLL.Instance.GetDesignationPayRate(DesignationId, EmpType);
+
+            if (returnDataSet != null && returnDataSet.Tables.Count > 0 )
+            {
+                returnDataSet.Tables[0].TableName = "DesignationRate";
+
+                DataTable dtResult = returnDataSet.Tables[0];
+
+                DesignationPaymentRate = JsonConvert.SerializeObject(dtResult, Formatting.Indented);
+                              
+            }
+
+            return DesignationPaymentRate;
+
+            
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string GetDesignationPayrates(int DesignationId)
+        {
+            String DesignationPaymentRate = string.Empty;
+
+            DataSet returnDataSet = PayRateBLL.Instance.GetDesignationPayRates(DesignationId);
+
+            if (returnDataSet != null && returnDataSet.Tables.Count > 0)
+            {
+                
+                DataTable dtResult = returnDataSet.Tables[0];
+
+                dtResult.TableName = "PayratesData";
+
+                DesignationPaymentRate = JsonConvert.SerializeObject(dtResult, Formatting.Indented);
+
+            }
+
+            return DesignationPaymentRate;
+
+
+        }
+
+        
 
 
         #endregion
@@ -1900,11 +2207,11 @@ namespace JG_Prospect.WebServices
         #region "-- HR Module Methods --"
 
         [WebMethod(EnableSession = true)]
-        public bool SendOfferMadeToCandidate(string UserEmail, Int32 UserID, string DesignationID)
+        public bool SendOfferMadeToCandidate(string UserEmail, Int32 UserID, string DesignationID, string branchLocationId)
         {
             int EditId = UserID;
 
-            InstallUserBLL.Instance.UpdateOfferMade(EditId, UserEmail, "jmgrove");
+            InstallUserBLL.Instance.UpdateOfferMade(EditId, UserEmail, "jmgrove", branchLocationId);
             //Add User to GitHub Live Repository
             String DesignationCode = InstallUserBLL.Instance.GetUserDesignationCode(EditId);
             if (DesignationCode.Equals(CommonFunction.GetDesignationCode(JGConstant.DesignationType.IT_Sr_Net_Developer))
@@ -2123,7 +2430,19 @@ namespace JG_Prospect.WebServices
             return strMessage;
         }
 
+        [WebMethod(EnableSession = true)]
+        public bool AcceptInterviewTask(string Password)
+        {
+            int UserId = Convert.ToInt32(Session[JG_Prospect.Common.SessionKey.Key.UserId.ToString()]);
+
+            Boolean boolResult = InstallUserBLL.Instance.ChangeInstallerPassword(UserId,Password);
+            
+            return true;
+
+        }
+
         #region "-- Private Methods --"
+
         private void SendEmail(string emailId, string FName, string LName, string status, string Reason, string Designition, int DesignitionId, string HireDate, string EmpType, string PayRates, HTMLTemplates objHTMLTemplateType, List<Attachment> Attachments = null, string strManager = "")
         {
             DesignationHTMLTemplate objHTMLTemplate = HTMLTemplateBLL.Instance.GetDesignationHTMLTemplate(objHTMLTemplateType, DesignitionId.ToString());
@@ -2220,6 +2539,73 @@ namespace JG_Prospect.WebServices
             }
         }
 
+        private void SendInterviewEmail(string emailId, string FName, string LName, string status, string Reason, string Designition, int DesignitionId,
+                                            string date, string time, string EmpType, string PayRates, HTMLTemplates objHTMLTemplateType,
+                                            List<Attachment> Attachments = null, string strManager = "")
+        {
+            DesignationHTMLTemplate objHTMLTemplate = HTMLTemplateBLL.Instance.GetDesignationHTMLTemplate(objHTMLTemplateType, DesignitionId.ToString());
+
+            string userName = ConfigurationManager.AppSettings["VendorCategoryUserName"].ToString();
+            string password = ConfigurationManager.AppSettings["VendorCategoryPassword"].ToString();
+            string fullname = FName + " " + LName;
+
+            string strHeader = objHTMLTemplate.Header;
+            string strBody = objHTMLTemplate.Body;
+            string strFooter = objHTMLTemplate.Footer;
+            string strsubject = objHTMLTemplate.Subject;
+
+            strBody = strBody.Replace("#Email#", emailId).Replace("#email#", emailId);
+            strBody = strBody.Replace("#FirstName#", FName);
+            strBody = strBody.Replace("#LastName#", LName);
+            strBody = strBody.Replace("#Name#", FName).Replace("#name#", FName);
+            strBody = strBody.Replace("#Date#", date).Replace("#date#", date);
+            strBody = strBody.Replace("#Time#", time).Replace("#time#", time);
+            strBody = strBody.Replace("#Designation#", Designition).Replace("#designation#", Designition);
+
+            strFooter = strFooter.Replace("#Name#", FName).Replace("#name#", FName);
+            strFooter = strFooter.Replace("#Date#", date).Replace("#date#", date);
+            strFooter = strFooter.Replace("#Time#", time).Replace("#time#", time);
+            strFooter = strFooter.Replace("#Designation#", Designition).Replace("#designation#", Designition);
+
+            strBody = strBody.Replace("Lbl Full name", fullname);
+            strBody = strBody.Replace("LBL position", Designition);
+            strBody = strBody.Replace("Reason", Reason);
+
+            strBody = strBody.Replace("#manager#", strManager);
+
+            strBody = strHeader + strBody + strFooter;
+
+
+            if (status == "OfferMade")
+            {
+                //TODO : commented code for missing directive using Word = Microsoft.Office.Interop.Word;
+                //createForeMenForJobAcceptance(strBody, FName, LName, Designition, emailId, HireDate, EmpType, PayRates);
+            }
+            if (status == "Deactive")
+            {
+                //TODO : commented code for missing directive using Word = Microsoft.Office.Interop.Word;
+                //CreateDeactivationAttachment(strBody, FName, LName, Designition, emailId, HireDate, EmpType, PayRates);
+            }
+
+            List<Attachment> lstAttachments = objHTMLTemplate.Attachments;
+
+            if (Attachments != null)
+            {
+                lstAttachments.AddRange(Attachments);
+            }
+
+            try
+            {
+                JG_Prospect.App_Code.CommonFunction.SendEmail(Designition, emailId, strsubject, strBody, lstAttachments);
+
+                //ScriptManager.RegisterStartupScript(this, this.GetType(), "UserMsg", "alert('An email notification has sent on " + emailId + ".');", true);
+            }
+            catch
+            {
+                //ScriptManager.RegisterStartupScript(this, this.GetType(), "UserMsg", "alert('Error while sending email notification on " + emailId + ".');", true);
+            }
+        }
+
         private void AssignedTaskToUser(int UserID, UInt64 TaskId)
         {
             string ApplicantId = UserID.ToString();
@@ -2259,6 +2645,60 @@ namespace JG_Prospect.WebServices
             //{
             //    AlertMsg = "Status change was not successfull, Please try again later.";
             //}
+        }
+
+        private void SendHRWelcomeEmail(string emailId, string FName, string LName, string Designition, string Phone, int DesignitionId, HTMLTemplates objHTMLTemplateType, List<Attachment> Attachments = null, string strManager = "")
+        {
+            DesignationHTMLTemplate objHTMLTemplate = HTMLTemplateBLL.Instance.GetDesignationHTMLTemplate(objHTMLTemplateType, DesignitionId.ToString());
+
+            string userName = ConfigurationManager.AppSettings["VendorCategoryUserName"].ToString();
+            string password = ConfigurationManager.AppSettings["VendorCategoryPassword"].ToString();
+            string fullname = FName + " " + LName;
+
+            string strHeader = objHTMLTemplate.Header;
+            string strBody = objHTMLTemplate.Body;
+            string strFooter = objHTMLTemplate.Footer;
+            string strsubject = objHTMLTemplate.Subject;
+
+            strBody = strBody.Replace("#Email#", emailId).Replace("#email#", emailId);
+            strBody = strBody.Replace("#FirstName#", FName);
+            strBody = strBody.Replace("#LastName#", LName);
+            strBody = strBody.Replace("#F&L name#", FName + " " + LName).Replace("#F&amp;L name#", FName + " " + LName);
+
+            strBody = strBody.Replace("#Phone number#", String.IsNullOrEmpty(Phone) == true ? Phone : String.Concat("OR ", Phone));
+
+            strBody = strBody.Replace("#Name#", FName).Replace("#name#", FName);
+            strBody = strBody.Replace("#Date#", "").Replace("#date#", "");
+            strBody = strBody.Replace("#Time#", "").Replace("#time#", "");
+            //strBody = strBody.Replace("#Designation#", Designition).Replace("#designation#", Designition);
+
+            strFooter = strFooter.Replace("#Name#", FName).Replace("#name#", FName);
+            strFooter = strFooter.Replace("#Date#", "").Replace("#date#", "");
+            strFooter = strFooter.Replace("#Time#", "").Replace("#time#", "");
+            strFooter = strFooter.Replace("#Designation#", Designition).Replace("#designation#", Designition);
+
+            strBody = strBody.Replace("Lbl Full name", fullname);
+            strBody = strBody.Replace("LBL position", Designition);
+
+            strBody = strBody.Replace("#manager#", strManager);
+
+            strBody = strHeader + strBody + strFooter;
+
+            List<Attachment> lstAttachments = objHTMLTemplate.Attachments;
+
+            if (Attachments != null)
+            {
+                lstAttachments.AddRange(Attachments);
+            }
+
+            try
+            {
+                JG_Prospect.App_Code.CommonFunction.SendEmail(Designition, emailId, strsubject, strBody, lstAttachments);
+            }
+            catch
+            {
+
+            }
         }
 
         #endregion
@@ -2376,25 +2816,67 @@ namespace JG_Prospect.WebServices
 
         #region Chat Section
         [WebMethod(EnableSession = true)]
-        public string InitiateChat(string receiverIds, string chatGroupId)
+        public string InitiateBlankChat()
+        {
+            // Update ActiveUsers in SingletonUserChatGroups
+            // Update ActiveUsers in SingletonUserChatGroups
+            var users = ChatBLL.Instance.GetOnlineUsers(JGSession.UserId).Results;
+            var oldOnlineUers = SingletonUserChatGroups.Instance.ActiveUsers;
+            SingletonUserChatGroups.Instance.ActiveUsers = users;
+            if (oldOnlineUers != null && SingletonUserChatGroups.Instance.ActiveUsers != null && SingletonUserChatGroups.Instance.ActiveUsers.Count() > 0)
+                foreach (var item in oldOnlineUers)
+                {
+                    if (SingletonUserChatGroups.Instance.ActiveUsers.Where(m => m.UserId == item.UserId)
+                                                    .FirstOrDefault() != null)
+                        SingletonUserChatGroups.Instance.ActiveUsers.Where(m => m.UserId == item.UserId)
+                                                        .FirstOrDefault().Status = item.Status;
+                }
+
+            if (SingletonUserChatGroups.Instance.ActiveUsers != null)
+            {
+                return new JavaScriptSerializer().Serialize(new ActionOutput<ActiveUser>
+                {
+                    Results = SingletonUserChatGroups.Instance.ActiveUsers.OrderByDescending(m => m.LastMessageAt).ToList(),
+                    Status = ActionStatus.Successfull
+                }); 
+            }
+            else
+            {
+                return string.Empty;
+            }
+            
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string InitiateChat(string receiverIds, string chatGroupId, int chatSourceId, int taskId = 0,
+                                    int taskMultilevelListId = 0, int userChatGroupId = 0)
         {
             if (chatGroupId.ToLower() == "undefind" || chatGroupId.ToLower() == "null")
                 chatGroupId = null;
             // Add Loggedin user into receiverIds
             //receiverIds += "," + JGSession.UserId;
-
+            List<int> usrs = new List<int>();
             List<int> userIds = receiverIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                                           .Select(m => Convert.ToInt32(m))                                           
+                                           .Select(m => Convert.ToInt32(m))
                                            .ToList();
             userIds.Add(JGSession.UserId);
             userIds = userIds.Distinct().OrderBy(m => m).ToList();
-
-            List<ChatUser> receivers = ChatBLL.Instance.GetChatUsers(userIds.Where(x => x != JGSession.UserId).ToList()).Results;
+            userIds = userIds.Where(x => x != JGSession.UserId).ToList();
+            if (userIds.Count() == 0)
+                userIds.Add(JGSession.UserId);
+            usrs.AddRange(userIds);
+            List<ChatUser> receivers = ChatBLL.Instance.GetChatUsers(usrs).Results;
 
             #region Chat Messages
-            List<ChatMessage> messages = ChatBLL.Instance.GetChatMessages(chatGroupId, string.Join(",", userIds.OrderBy(m => m).ToList())).Results;
+            List<ChatMessage> messages = taskId == 0 ? ChatBLL.Instance.GetChatMessages(JGSession.UserId, chatGroupId, string.Join(",", userIds.OrderBy(m => m).ToList()), chatSourceId, userChatGroupId).Results
+                                            :
+                                            ChatBLL.Instance.GetTaskChatMessages(JGSession.UserId, chatSourceId, taskId, taskMultilevelListId).Results;
             #endregion
-
+            // Create TaskGroup if taskId is not null and userChatGroupId is null/0
+            if (taskId > 0 && userChatGroupId <= 0)
+            {
+                userChatGroupId = ChatBLL.Instance.CreateTaskChatGroup(taskId, taskMultilevelListId);
+            }
             string ChatGroupName = string.Empty;
             var sender = ChatBLL.Instance.GetChatUser(JGSession.UserId).Object;
             //var receiver = ChatBLL.Instance.GetChatUser(userID).Object;
@@ -2411,11 +2893,12 @@ namespace JG_Prospect.WebServices
                     ProfilePic = sender.ProfilePic,
                     OnlineAt = sender.OnlineAt,
                     UserId = sender.UserId,
+                    UserInstallId = sender.UserInstallId,
                     OnlineAtFormatted = sender.OnlineAtFormatted,
                     ChatClosed = false
                 });
 
-                foreach (var receiver in receivers)
+                foreach (var receiver in receivers.Where(m => m.UserId != JGSession.UserId))
                 {
                     chatUsers.Add(new ChatUser // Set Receiver
                     {
@@ -2425,19 +2908,25 @@ namespace JG_Prospect.WebServices
                         ProfilePic = receiver.ProfilePic,
                         OnlineAt = receiver.OnlineAt,
                         UserId = receiver.UserId,
+                        UserInstallId = receiver.UserInstallId,
                         OnlineAtFormatted = receiver.OnlineAtFormatted,
                         ChatClosed = false
                     });
                 }
                 #endregion
-
-                ChatGroupName = string.Join("-", chatUsers.Select(m => m.GroupOrUsername).ToList());
+                DataSet taskDetail = TaskGeneratorBLL.Instance.GetTaskDetails(taskId);
+                DataSet taskMultilevelListItem = TaskGeneratorBLL.Instance.GetTaskMultilevelListItem(taskMultilevelListId);
+                ChatGroupName = taskId == 0 ? string.Join(", ", chatUsers.Select(m => m.GroupOrUsername + ":<a target=\"_blank\" uid=\"" + m.UserId + "\" href=\"/Sr_App/ViewSalesUser.aspx?id=" + m.UserId + "\">" + m.UserInstallId + "</a>").ToList())
+                                : taskMultilevelListId == 0 ? taskDetail.Tables[6].Rows[0]["TaskTitle"].ToString()
+                                : taskMultilevelListItem.Tables[0].Rows[0]["FormattedTitle"].ToString();
 
                 // Check if ChatGroupId is already exists
                 var existing = SingletonUserChatGroups.Instance.ChatGroups.Where(m => m.ChatGroupId == chatGroupId).FirstOrDefault();
                 if (existing != null)
                 {
-                    ChatGroupName = existing.ChatGroupName;
+                    ChatGroupName = taskId == 0 ? ChatGroupName
+                                    : taskMultilevelListId == 0 ? taskDetail.Tables[6].Rows[0]["TaskTitle"].ToString()
+                                    : taskMultilevelListItem.Tables[0].Rows[0]["FormattedTitle"].ToString();
                     existing.ChatUsers.Where(m => userIds.Contains(m.UserId.Value)).ToList().ForEach(m => m.ChatClosed = false);
 
                     SingletonUserChatGroups.Instance.ChatGroups.Where(m => m.ChatGroupId == chatGroupId)
@@ -2448,11 +2937,14 @@ namespace JG_Prospect.WebServices
                 }
                 else
                 {
-                    if (string.IsNullOrEmpty(chatGroupId))
+                    if (string.IsNullOrEmpty(chatGroupId) && receivers.Count() == 1)
                     {
                         // ChatGroupId is null means, 1-1 chat
                         // Check if sender/receiver has previous chat exists, if yes, then fetch existing ChatGroupId
-                        messages = ChatBLL.Instance.GetChatMessages(sender.UserId.Value, Convert.ToInt32(receiverIds)).Results;
+                        messages = taskId == 0 ? ChatBLL.Instance.GetChatMessages(sender.UserId.Value, Convert.ToInt32(receiverIds), chatSourceId).Results
+                                            :
+                                            ChatBLL.Instance.GetTaskChatMessages(JGSession.UserId, chatSourceId, taskId, taskMultilevelListId).Results;
+
                         if (messages != null && messages.Count() > 0)
                             chatGroupId = messages.FirstOrDefault().ChatGroupId;
                     }
@@ -2473,7 +2965,18 @@ namespace JG_Prospect.WebServices
                 }
 
                 // Update ActiveUsers in SingletonUserChatGroups
-                SingletonUserChatGroups.Instance.ActiveUsers = ChatBLL.Instance.GetOnlineUsers(sender.UserId.Value).Results;
+                // Update ActiveUsers in SingletonUserChatGroups
+                var users = ChatBLL.Instance.GetOnlineUsers(JGSession.UserId).Results;
+                var oldOnlineUers = SingletonUserChatGroups.Instance.ActiveUsers;
+                SingletonUserChatGroups.Instance.ActiveUsers = users;
+                if (oldOnlineUers != null && SingletonUserChatGroups.Instance.ActiveUsers != null && SingletonUserChatGroups.Instance.ActiveUsers.Count() > 0)
+                    foreach (var item in oldOnlineUers)
+                    {
+                        if (SingletonUserChatGroups.Instance.ActiveUsers.Where(m => m.UserId == item.UserId)
+                                                    .FirstOrDefault() != null)
+                            SingletonUserChatGroups.Instance.ActiveUsers.Where(m => m.UserId == item.UserId)
+                                                            .FirstOrDefault().Status = item.Status;
+                    }
             }
 
             #region Update ConnectionId
@@ -2490,39 +2993,42 @@ namespace JG_Prospect.WebServices
                 {
                     user.ConnectionIds = newConnections.Where(m => m.UserId == user.UserId).Select(m => m.ConnectionIds).FirstOrDefault();
                     user.OnlineAt = newConnections.Where(m => m.UserId == user.UserId).OrderByDescending(m => m.OnlineAt).Select(m => m.OnlineAt).FirstOrDefault();
-                    user.OnlineAtFormatted = newConnections.Where(m => m.UserId == user.UserId).OrderByDescending(m => m.OnlineAt).Select(m => m.OnlineAt.Value).FirstOrDefault().ToEST().ToString();
+                    user.OnlineAtFormatted = user.OnlineAt.HasValue ? user.OnlineAt.Value.ToEST().ToString() : null;
                 }
             }
             #endregion
-
             ChatMessageActiveUser obj = new ChatMessageActiveUser();
             obj.ChatGroupId = chatGroupId;
             obj.ChatGroupName = ChatGroupName;
             obj.ChatMessages = messages;
-            obj.ActiveUsers = SingletonUserChatGroups.Instance.ActiveUsers;
+            obj.ActiveUsers = SingletonUserChatGroups.Instance.ActiveUsers.OrderByDescending(m => m.LastMessageAt).ToList();
+            // Set LastSeen
+            int SenderUserId = userChatGroupId == 0 ? Convert.ToInt32(receiverIds) : 0;
+            ChatBLL.Instance.SaveLastChatSeen(SenderUserId, userChatGroupId, JGSession.UserId);
+
+            DateTime? LastSeenAt = ChatBLL.Instance.GetLastChatSeen(JGSession.UserId, userChatGroupId, SenderUserId);
+            obj.LastSeenAt = LastSeenAt.HasValue ? (DateTime?)LastSeenAt.Value : null;
+            obj.LastSeenAtFormated = obj.LastSeenAt.HasValue ? obj.LastSeenAt.Value.ToString() : "";
 
             return new JavaScriptSerializer().Serialize(new ActionOutput<ChatMessageActiveUser>
             {
                 Object = obj,
+                Message = userChatGroupId.ToString(),
                 Status = ActionStatus.Successfull
             });
         }
 
         [WebMethod(EnableSession = true)]
-        public string GetUsers(string keyword = null, string chatGroupId = null)
+        public string GetUsers(string keyword = null, int userChatGroupId = 0)
         {
             string baseUrl = System.Web.HttpContext.Current.Request.Url.Scheme + "://" +
                                 System.Web.HttpContext.Current.Request.Url.Authority +
                                 System.Web.HttpContext.Current.Request.ApplicationPath.TrimEnd('/') + "/";
-            string existingUsers = string.IsNullOrEmpty(chatGroupId) ? "" : string.Join(",", SingletonUserChatGroups.Instance.ChatGroups
-                                                                 .Where(m => m.ChatGroupId == chatGroupId)
-                                                                 .Select(m => m.ChatUsers)
-                                                                 .FirstOrDefault()
-                                                                 .Select(m => m.UserId)
-                                                                 .ToList());
-            existingUsers += "," + JGSession.UserId;
+            List<ChatUser> existingUsers = ChatBLL.Instance.GetChatGroupMembers(userChatGroupId);
+            string existingUserIds = existingUsers != null && existingUsers.Count() > 0 ? string.Join(",", existingUsers.Select(m => m.UserId).ToList()) : "";
+
             List<ChatMentionUser> users = new List<ChatMentionUser>();
-            ActionOutput<LoginUser> op = InstallUserBLL.Instance.GetUsers(keyword, existingUsers);
+            ActionOutput<LoginUser> op = InstallUserBLL.Instance.GetUsers(keyword, existingUserIds, JGSession.UserId);
             if (op != null && op.Status == ActionStatus.Successfull)
             {
                 users = op.Results.Select(m => new ChatMentionUser
@@ -2542,9 +3048,17 @@ namespace JG_Prospect.WebServices
         }
 
         [WebMethod(EnableSession = true)]
-        public string LoadPreviousChat(string chatGroupId, string receiverIds)
+        public string LoadPreviousChat(string chatGroupId, string receiverIds, int chatSourceId, int userChatGroupId)
         {
-            List<ChatMessage> messages = ChatBLL.Instance.GetChatMessages(chatGroupId, receiverIds).Results;
+            List<int> userIds = receiverIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                                           .Select(m => Convert.ToInt32(m))
+                                           .ToList();
+            userIds.Add(JGSession.UserId);
+            userIds = userIds.Distinct().OrderBy(m => m).ToList();
+
+            receiverIds = string.Join(",", userIds.OrderBy(m => m).ToList());
+
+            List<ChatMessage> messages = ChatBLL.Instance.GetChatMessages(JGSession.UserId, chatGroupId, receiverIds, chatSourceId, userChatGroupId).Results;
             return new JavaScriptSerializer().Serialize(new ActionOutput<ChatMessage>
             {
                 Results = messages,
@@ -2552,93 +3066,1668 @@ namespace JG_Prospect.WebServices
             });
         }
 
-        //[WebMethod(EnableSession = true)]
-        //public string InitiateOldChat(int userID, string ChatGroupId)
-        //{
-        //    #region Chat Messages
-        //    List<ChatMessage> messages = ChatBLL.Instance.GetChatMessages(ChatGroupId).Results;
-        //    #endregion
+        [WebMethod(EnableSession = true)]
+        public string ChatHistory(string chatGroupId, string receiverIds, int chatSourceId, int userChatGroupId)
+        {
+            List<int> userIds = receiverIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                                           .Select(m => Convert.ToInt32(m))
+                                           .ToList();
+            userIds = userIds.Distinct().OrderBy(m => m).ToList();
 
-        //    string ChatGroupName = string.Empty;
-        //    var sender = ChatBLL.Instance.GetChatUser(JGSession.UserId).Object;
-        //    var receiver = ChatBLL.Instance.GetChatUser(userID).Object;
-        //    if (receiver != null)
-        //    {
-        //        List<ChatUser> chatUsers = new List<ChatUser>();
-        //        #region Chat Users
-        //        chatUsers.Add(new ChatUser // Set Sender
-        //        {
-        //            ConnectionIds = sender.ConnectionIds,
-        //            Email = sender.Email,
-        //            FirstName = sender.FirstName,
-        //            LastName = sender.LastName,
-        //            ProfilePic = sender.ProfilePic,
-        //            OnlineAt = sender.OnlineAt,
-        //            UserId = sender.UserId,
-        //            OnlineAtFormatted = sender.OnlineAtFormatted,
-        //            ChatClosed = false
-        //        });
-        //        chatUsers.Add(new ChatUser // Set Receiver
-        //        {
-        //            ConnectionIds = receiver.ConnectionIds,
-        //            Email = receiver.Email,
-        //            FirstName = receiver.FirstName,
-        //            LastName = receiver.LastName,
-        //            ProfilePic = receiver.ProfilePic,
-        //            OnlineAt = receiver.OnlineAt,
-        //            UserId = receiver.UserId,
-        //            OnlineAtFormatted = receiver.OnlineAtFormatted,
-        //            ChatClosed = false
-        //        });
-        //        #endregion
+            receiverIds = string.Join(",", userIds.OrderBy(m => m).ToList());
 
-        //        ChatGroupName = string.Join("-", chatUsers.Select(m => m.FirstName).ToList());
+            List<ChatMessage> messages = ChatBLL.Instance.GetChatMessages(JGSession.UserId, chatGroupId, receiverIds, chatSourceId, userChatGroupId).Results;
+            return new JavaScriptSerializer().Serialize(new ActionOutput<ChatMessage>
+            {
+                Results = messages,
+                Status = ActionStatus.Successfull
+            });
+        }
 
-        //        // If both users does not have any personal chat then add it
-        //        var existing = SingletonUserChatGroups.Instance.ChatGroups.Where(m => m.ChatUsers.Count() == 2)
-        //                                                   //.Select(m => m.ChatUsers)
-        //                                                   //.ToList()
-        //                                                   .Where(m => m.ChatUsers.Where(x => x.UserId == userID).Any())
-        //                                                   .FirstOrDefault();
-        //        if (existing != null)
-        //        {
-        //            ChatGroupId = existing.ChatGroupId;
-        //            ChatGroupName = existing.ChatGroupName;
+        [WebMethod(EnableSession = true)]
+        public string GetChatUnReadCount()
+        {
+            return new JavaScriptSerializer().Serialize(ChatBLL.Instance.GetChatUnReadCount(JGSession.UserId));
+        }
 
-        //            existing.ChatUsers.Where(m => m.UserId == userID).ToList().ForEach(m => m.ChatClosed = false);
-        //            SingletonUserChatGroups.Instance.ChatGroups.Where(m => m.ChatUsers.Count() == 2)
-        //                                                   .Where(m => m.ChatUsers.Where(x => x.UserId == userID).Any())
-        //                                                   .Select(m => m.ChatUsers)
-        //                                                   .FirstOrDefault()
-        //                                                   .ForEach(m => m.ChatClosed = false);
-        //        }
-        //        else
-        //        {
-        //            SingletonUserChatGroups.Instance.ChatGroups.Add(new ChatGroup
-        //            {
-        //                SenderId = JGSession.UserId,
-        //                ChatGroupId = ChatGroupId,
-        //                ChatGroupName = ChatGroupName,
-        //                ChatUsers = chatUsers,
-        //                ChatMessages = new List<ChatMessage>()
-        //            });
-        //        }
+        [WebMethod(EnableSession = true)]
+        public string GetChatGroupMembers(int? UserChatGroupId, string SenderUserId)
+        {
+            List<ChatUser> members = ChatBLL.Instance.GetChatGroupMembers(JGSession.UserId, UserChatGroupId);
+            var loggedInUser = members.Where(m => m.UserId == JGSession.UserId).FirstOrDefault();
+            if (loggedInUser != null)
+                members.Remove(loggedInUser);
 
-        //        // Update ActiveUsers in SingletonUserChatGroups
-        //        SingletonUserChatGroups.Instance.ActiveUsers = ChatBLL.Instance.GetOnlineUsers(sender.UserId).Results;
-        //    }
-        //    ChatMessageActiveUser obj = new ChatMessageActiveUser();
-        //    obj.ChatGroupId = ChatGroupId;
-        //    obj.ChatGroupName = ChatGroupName;
-        //    obj.ChatMessages = messages;
-        //    obj.ActiveUsers = SingletonUserChatGroups.Instance.ActiveUsers;
+            int senderUserId = 0;
+            List<int> Ids = SenderUserId.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(m => Convert.ToInt32(m)).ToList();
+            Ids.Remove(JGSession.UserId);
 
-        //    return new JavaScriptSerializer().Serialize(new ActionOutput<ChatMessageActiveUser>
-        //    {
-        //        Object = obj,
-        //        Status = ActionStatus.Successfull
-        //    });
-        //}
+            if (UserChatGroupId.HasValue & UserChatGroupId.Value == 0)
+            {
+                int.TryParse(Ids.First().ToString(), out senderUserId);
+            }
+
+            // Set LastSeen
+            //int SenderUserId = userChatGroupId == 0 ? Convert.ToInt32(receiverIds) : 0;
+            ChatBLL.Instance.SaveLastChatSeen(senderUserId, UserChatGroupId.Value, JGSession.UserId);
+
+
+            DateTime? LastSeenAt = ChatBLL.Instance.GetLastChatSeen(JGSession.UserId, UserChatGroupId.Value, senderUserId);
+            LastSeenAt = LastSeenAt.HasValue ? (DateTime?)LastSeenAt.Value : null;
+
+            return new JavaScriptSerializer().Serialize(new ActionOutput<ChatUser>
+            {
+                Results = members,
+                Status = ActionStatus.Successfull,
+                Message = LastSeenAt.HasValue ? LastSeenAt.Value.ToString() : ""
+            });
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string RemoveChatGroupMember(int UserChatGroupId, int UserId)
+        {
+            ChatBLL.Instance.RemoveChatGroupMember(UserChatGroupId, UserId);
+
+            return new JavaScriptSerializer().Serialize(new ActionOutput<ChatUser>
+            {
+                Status = ActionStatus.Successfull
+            });
+        }
+
+        #endregion
+
+        #region Phone
+        [WebMethod(EnableSession = true)]
+        public string GetPhoneScripts(int? id)
+        {
+            List<PhoneScript> scripts = UserBLL.Instance.GetPhoneScripts(id);
+            if (scripts != null)
+            {
+                List<int> distTypes = scripts.Select(m => m.Type).Distinct().ToList();
+                List<PhoneScriptType> types = new List<PhoneScriptType>();
+                foreach (var item in scripts)
+                {
+                    if (!types.Where(m => m.Type == item.Type).Any())
+                        types.Add(new PhoneScriptType
+                        {
+                            Type = item.Type,
+                            TypeName = ((ScriptType)item.Type).ToEnumDescription()
+                        });
+                }
+                foreach (var type in types)
+                {
+                    foreach (var item in scripts)
+                    {
+                        if (!type.SubTypes.Where(m => m.SubType == item.SubType && m.Type == type.Type).Any())
+                            type.SubTypes.Add(new PhoneScriptSubType
+                            {
+                                Type = type.Type,
+                                SubType = item.SubType,
+                                SubTypeName = ((ScriptSubType)item.SubType).ToEnumDescription(),
+                            });
+                    }
+                }
+                foreach (var type in types)
+                {
+                    foreach (var subType in type.SubTypes)
+                    {
+                        subType.PhoneScripts = scripts.Where(m => m.Type == subType.Type && m.SubType == subType.SubType)
+                                                    .Select(m => new PhoneScript
+                                                    {
+                                                        Title = m.Title,
+                                                        DescriptionPlain = m.DescriptionPlain,
+                                                        FAQTitle = m.FAQTitle,
+                                                        FAQDescription = m.FAQDescription,
+                                                        Id = m.Id,
+                                                        SubType = m.SubType,
+                                                        Type = m.Type
+                                                    }).ToList();
+                    }
+                }
+
+
+                return new JavaScriptSerializer().Serialize(new ActionOutput<PhoneScriptType>
+                {
+                    Status = ActionStatus.Successfull,
+                    Results = types
+                });
+            }
+            else
+                return new JavaScriptSerializer().Serialize(new ActionOutput { Status = ActionStatus.Successfull });
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string UpdatePhoneScript(int id, string title, string desc)
+        {
+            UserBLL.Instance.UpdatePhoneScript(id, title, desc);
+            return new JavaScriptSerializer().Serialize(new ActionOutput { Status = ActionStatus.Successfull });
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string UpdatePhoneScriptFAQ(int id, string title, string desc)
+        {
+            UserBLL.Instance.UpdatePhoneScriptFAQ(id, title, desc);
+            return new JavaScriptSerializer().Serialize(new ActionOutput { Status = ActionStatus.Successfull });
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string GetSalesUsers(string keyword, string status, int designationId, int source,
+                                        DateTime from, DateTime to, int addedByUserId, int startIndex, int pageSize,
+                                        string sortBY)
+        {
+           PagingResult<SalesUser, UserEmail, UserPhone> list = new PagingResult<SalesUser, UserEmail, UserPhone>();
+            List<SalesUser> salesUsers = new List<SalesUser>();
+            DataSet dsSalesUserData = ChatBLL.Instance.GetSalesUsersStaticticsAndData
+                                                        (
+                                                            keyword,
+                                                            status,
+                                                            designationId,
+                                                            source,
+                                                            from,
+                                                            to,
+                                                            addedByUserId,
+                                                            startIndex,
+                                                            pageSize,
+                                                            sortBY
+                                                        );
+            if (dsSalesUserData != null)
+            {
+                DataTable dtSalesUser_Statictics_Status = dsSalesUserData.Tables[0];
+                DataTable dtSalesUser_Statictics_AddedBy = dsSalesUserData.Tables[1];
+                DataTable dtSalesUser_Statictics_Designation = dsSalesUserData.Tables[2];
+                DataTable dtSalesUser_Statictics_Source = dsSalesUserData.Tables[3];
+                DataTable dtSalesUser_Grid = dsSalesUserData.Tables[4];
+
+                DataTable dt_UserEmails = dsSalesUserData.Tables[7];
+                DataTable dt_UserPhones = dsSalesUserData.Tables[8];
+
+
+                if (dtSalesUser_Grid.Rows.Count > 0)
+                {
+                    #region Sales User List
+                    //Session["UserGridData"] = dtSalesUser_Grid;
+                    //BindUsers(dtSalesUser_Grid);
+                    foreach (DataRow dr in dtSalesUser_Grid.Rows)
+                    {
+                        salesUsers.Add(new SalesUser
+                        {
+                            Id = Convert.ToInt32(dr["Id"].ToString()),
+                            UserInstallId = dr["UserInstallId"].ToString(),
+                            AddedOnFormatted = dr["CreatedDateTime"].ToString(),
+                            AddedBy = dr["AddedBy"].ToString(),
+                            AddedByInstallId = dr["AddedByUserInstallId"].ToString(),
+                            AddedOn = Convert.ToDateTime(dr["CreatedDateTime"].ToString()),
+                            City = dr["City"].ToString(),
+                            Country = dr["CountryCode"].ToString(),
+                            DesignationId = string.IsNullOrEmpty(dr["DesignationID"].ToString()) ? null : (int?)Convert.ToInt32(dr["DesignationID"].ToString()),
+                            Designation = dr["Designation"].ToString(),
+                            Email = dr["Email"].ToString(),
+                            FirstName = dr["FristName"].ToString(),
+                            JobType = dr["EmpType"].ToString(),
+                            LastName = dr["LastName"].ToString(),
+                            Phone = dr["Phone"].ToString(),
+                            ProfilePic = string.IsNullOrEmpty(dr["picture"].ToString()) ? "default.jpg" : dr["picture"].ToString(),
+                            ResumeFileSavedName = dr["Resumepath"].ToString(),
+                            ResumeFileDisplayName = dr["Resumepath"].ToString().Length > 14 ? dr["Resumepath"].ToString().Substring(14) : dr["Resumepath"].ToString(),
+                            Source = dr["Source"].ToString(),
+                            Status = Convert.ToInt32(dr["Status"].ToString()),
+                            StatusName = ((InstallUserStatus)Convert.ToInt32(dr["Status"].ToString())).ToEnumDescription(),
+                            StatusReason = dr["StatusReason"].ToString(),
+                            RejectDetail = dr["RejectDetail"].ToString(),
+                            RejectedByUserName = dr["RejectedByUserName"].ToString(),
+                            RejectedByUserInstallId = dr["RejectedByUserInstallId"].ToString(),
+                            RejectedUserId = string.IsNullOrEmpty(dr["RejectedUserId"].ToString()) ? null : (int?)Convert.ToInt32(dr["RejectedUserId"].ToString()),
+                            InterviewDetail = dr["InterviewDetail"].ToString(),
+                            Zip = dr["Zip"].ToString(),
+                            LastCalledAt = !string.IsNullOrEmpty(dr["LastCalledAt"].ToString()) ? (DateTime?)Convert.ToDateTime(dr["LastCalledAt"].ToString()) : null,
+                            LastCalledAtFormatted = !string.IsNullOrEmpty(dr["LastCalledAt"].ToString()) ? Convert.ToDateTime(dr["LastCalledAt"].ToString()).ToEST().ToString() : "",
+                            PhoneCode = dr["PhoneCode"].ToString()
+                        });
+                    }
+                    #endregion
+
+                    #region User Emails
+                    list.QData = new List<UserEmail>();
+                    foreach (DataRow item in dt_UserEmails.Rows)
+                    {
+                        list.QData.Add(new UserEmail
+                        {
+                            UserId = Convert.ToInt32(item["UserID"].ToString()),
+                            Email = item["emailID"].ToString()
+                        });
+                    }
+                    #endregion
+
+                    #region User Phones
+                    list.RData = new List<UserPhone>();
+                    foreach (DataRow item in dt_UserPhones.Rows)
+                    {
+                        list.RData.Add(new UserPhone
+                        {
+                            UserId = Convert.ToInt32(item["UserID"].ToString()),
+                            //PhoneTypeId = Convert.ToInt32(item["PhoneTypeID"].ToString()),
+                            Phone = item["Phone"].ToString()
+                        });
+                    }
+                    #endregion
+                    list.Data = salesUsers;
+                    list.Status = ActionStatus.Successfull;
+                    list.TotalResults = Convert.ToInt32(dsSalesUserData.Tables[6].Rows[0][0].ToString());
+                    return new JavaScriptSerializer().Serialize(list);
+                }
+            }
+            return new JavaScriptSerializer().Serialize(new PagingResult<SalesUser>
+            {
+                Status = ActionStatus.Successfull,
+                TotalResults = 0
+            });
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string AddSocial(int userId, int type, string phone, bool primary)
+        {
+            InstallUserBLL.Instance.AddUserEmailOrPhone(userId, phone.Trim(), (type == 7 ? 2 : 1), type.ToString(), "", primary);
+            return new JavaScriptSerializer().Serialize(new ActionOutput { Status = ActionStatus.Successfull });
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string ChangeUserDesignation(int userId, int designationId)
+        {
+            InstallUserBLL.Instance.ChangeDesignition(userId, designationId);
+            return new JavaScriptSerializer().Serialize(new ActionOutput { Status = ActionStatus.Successfull });
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string ChangeUserStatus(int userId, int newStatus, int oldStatus)
+        {
+            if (oldStatus == (int)JGConstant.InstallUserStatus.Active &&
+                                (!(Convert.ToString(Session["usertype"]).Contains("Admin")) &&
+                                !(Convert.ToString(Session["usertype"]).Contains("SM"))))
+            {
+                return new JavaScriptSerializer().Serialize(new ActionOutput
+                {
+                    Status = ActionStatus.Error,
+                    Message = "You do not have rights to change the status."
+                });
+            }
+            else if ((
+                         oldStatus == (int)JGConstant.InstallUserStatus.Active &&
+                         newStatus != (int)JGConstant.InstallUserStatus.Deactive
+                    ) && ((Convert.ToString(Session["usertype"]).Contains("Admin")) ||
+                            (Convert.ToString(Session["usertype"]).Contains("SM")))
+                    )
+            {
+                return new JavaScriptSerializer().Serialize(new ActionOutput<string>
+                {
+                    Status = ActionStatus.Successfull,
+                    Message = userId + "," + newStatus + "," + oldStatus,
+                    Object = "overlayPassword" // not found on edituser.aspx
+                });
+            }
+            bool status = CheckRequiredFields(newStatus.ToString(), userId);
+            DataRow user = InstallUserBLL.Instance.getuserdetails(userId).Tables[0].Rows[0];
+            if (!status)
+            {
+                if (newStatus == (int)JGConstant.InstallUserStatus.OfferMade)
+                {
+                    var branches = InstallUserBLL.Instance.GetBranchLocations();
+                    return new JavaScriptSerializer().Serialize(new ActionOutput<string>
+                    {
+                        Status = ActionStatus.Successfull,
+                        Message = userId + "," + newStatus + "," + oldStatus + ","
+                                    + user["FristName"].ToString() + " " + user["LastName"].ToString()
+                                    + "," + user["Designation"].ToString()
+                                    + "," + user["Email"].ToString() + "," + "jmgrove"
+                                    + "," + user["DesignationId"].ToString(),
+                        Object = "OverlayPopupOfferMade",
+                        Results = new List<string> { new JavaScriptSerializer().Serialize(branches) }
+                    });
+                    /*
+                    hdnFirstName.Value = lblFirstName.Text;
+                    hdnLastName.Value = lblLastName.Text;
+                    txtEmail.Text = lbtnEmail.Text;
+                    txtPassword1.Attributes.Add("value", "jmgrove");
+                    txtpassword2.Attributes.Add("value", "jmgrove");
+                    ScriptManager.RegisterStartupScript(this, this.GetType(), "Overlay", "OverlayPopupOfferMade();", true);
+                    return;
+                    */
+                }
+                else
+                {
+                    return new JavaScriptSerializer().Serialize(new ActionOutput
+                    {
+                        Status = ActionStatus.Error,
+                        Message = "Status cannot be changed as required field for selected status are not field"
+                    });
+                    /*
+                    //binddata();
+                    GetSalesUsersStaticticsAndData();
+                    ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Status cannot be changed as required field for selected status are not field')", true);
+                    return;
+                    */
+                }
+            }
+            if (
+                (
+                    newStatus == (int)JGConstant.InstallUserStatus.Active ||
+                    newStatus == (int)JGConstant.InstallUserStatus.Deactive
+                ) &&
+                (
+                    !(Convert.ToString(Session["usertype"]).Contains("Admin")) &&
+                    !(Convert.ToString(Session["usertype"]).Contains("SM"))
+                )
+            )
+            {
+                return new JavaScriptSerializer().Serialize(new ActionOutput
+                {
+                    Status = ActionStatus.Error,
+                    Message = "You do not have permission to Activate or Deactivate user"
+                });
+            }
+            else if (newStatus == (int)JGConstant.InstallUserStatus.Rejected)
+            {
+                return new JavaScriptSerializer().Serialize(new ActionOutput<string>
+                {
+                    Status = ActionStatus.Successfull,
+                    Message = userId + "," + newStatus + "," + oldStatus,
+                    Object = "overlay"
+                });
+            }
+            else if (newStatus == (int)JGConstant.InstallUserStatus.InterviewDate)
+            {
+                return new JavaScriptSerializer().Serialize(new ActionOutput<string>
+                {
+                    Status = ActionStatus.Successfull,
+                    Message = userId + "," + newStatus + "," + oldStatus + ","
+                                    + user["FristName"].ToString() + " " + user["LastName"].ToString()
+                                    + "," + user["Designation"].ToString()
+                                    + "," + user["Email"].ToString() + "," + "jmgrove"
+                                    + "," + user["DesignationId"].ToString(),
+                    Object = "overlayInterviewDate"
+                });
+                /*
+                LoadUsersByRecruiterDesgination(ddlUsers);
+                FillTechTaskDropDown(ddlTechTask, ddlTechSubTask, Convert.ToInt32(ddlDesignationForTask.SelectedValue));
+                ddlInsteviewtime.DataSource = GetTimeIntervals();
+                ddlInsteviewtime.DataBind();
+                dtInterviewDate.Text = DateTime.Now.AddDays(1).ToShortDateString();
+                ddlInsteviewtime.SelectedValue = "10:00 AM";
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "Overlay", "overlayInterviewDate()", true);
+                return;
+                */
+            }
+            else if (
+                        newStatus == (int)JGConstant.InstallUserStatus.Deactive &&
+                        (
+                            (Convert.ToString(Session["usertype"]).Contains("Admin")) &&
+                            (Convert.ToString(Session["usertype"]).Contains("SM"))
+                        )
+                    )
+            {
+                Session["DeactivationStatus"] = "Deactive";
+                return new JavaScriptSerializer().Serialize(new ActionOutput<string>
+                {
+                    Status = ActionStatus.Successfull,
+                    Message = userId + "," + newStatus + "," + oldStatus,
+                    Object = "overlay"
+                });
+            }
+            else if (newStatus == (int)JGConstant.InstallUserStatus.OfferMade)
+            {
+                var branches = InstallUserBLL.Instance.GetBranchLocations();
+                return new JavaScriptSerializer().Serialize(new ActionOutput<string>
+                {
+                    Status = ActionStatus.Successfull,
+                    Message = userId + "," + newStatus + "," + oldStatus + ","
+                                    + user["FristName"].ToString() + " " + user["LastName"].ToString()
+                                    + "," + user["Designation"].ToString()
+                                    + "," + user["Email"].ToString() + "," + "jmgrove"
+                                    + "," + user["DesignationId"].ToString(),
+                    Object = "OverlayPopupOfferMade",
+                    Results = new List<string> { new JavaScriptSerializer().Serialize(branches) }
+                });
+                /*
+                txtEmail.Text = lbtnEmail.Text;
+                txtPassword1.Attributes.Add("value", "jmgrove");
+                txtpassword2.Attributes.Add("value", "jmgrove");
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "Overlay", "OverlayPopupOfferMade();", true);
+                return;
+                */
+            }
+
+            if (newStatus == (int)JGConstant.InstallUserStatus.InstallProspect)
+            {
+                return new JavaScriptSerializer().Serialize(new ActionOutput
+                {
+                    Status = ActionStatus.Error,
+                    Message = "Status cannot be changed to Install Prospect"
+                });
+            }
+
+            if (oldStatus == (int)JGConstant.InstallUserStatus.Active &&
+                (!(Convert.ToString(Session["usertype"]).Contains("Admin"))))
+            {
+                return new JavaScriptSerializer().Serialize(new ActionOutput
+                {
+                    Status = ActionStatus.Error,
+                    Message = "Status cannot be changed to any other status other than Deactive once user is Active"
+                });
+            }
+            else
+            {
+                // Adding a popUp...
+                InstallUserBLL.Instance.ChangeStatus(newStatus.ToString(), userId, DateTime.Today, DateTime.Now.ToShortTimeString(),
+                                                    Convert.ToInt32(Session[JG_Prospect.Common.SessionKey.Key.UserId.ToString()]), JGSession.IsInstallUser.Value, "txtReason.Text");
+
+                //Remove user from GitHub Repository
+                if (newStatus == (int)JGConstant.InstallUserStatus.Deactive)
+                {
+                    String GitUserName = InstallUserBLL.Instance.GetUserGithubUserName(userId);
+                    if (!string.IsNullOrEmpty(GitUserName.Trim()))
+                    {
+                        CommonFunction.DeleteUserFromGit(GitUserName, JGConstant.GitRepo.Interview);
+                    }
+                }
+
+                //binddata();
+                //GetSalesUsersStaticticsAndData();
+
+                if (newStatus == (int)JGConstant.InstallUserStatus.Active ||
+                    newStatus == (int)JGConstant.InstallUserStatus.Deactive)
+                    return new JavaScriptSerializer().Serialize(new ActionOutput<string>
+                    {
+                        Status = ActionStatus.Successfull,
+                        Message = userId + "," + newStatus + "," + oldStatus,
+                        Object = "showStatusChangePopUp" // not found on edituser.aspx
+                    });
+                return new JavaScriptSerializer().Serialize(new ActionOutput
+                {
+                    Status = ActionStatus.Successfull,
+                    Message = "Status Changed"
+                });
+            }
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string bulkDeactivateUsers(string userIds)
+        {
+            if ((!(Convert.ToString(Session["usertype"]).Contains("Admin")) &&
+                                !(Convert.ToString(Session["usertype"]).Contains("SM"))))
+            {
+                return new JavaScriptSerializer().Serialize(new ActionOutput
+                {
+                    Status = ActionStatus.Error,
+                    Message = "You do not have rights to change the status."
+                });
+            }
+            List<int> Ids = string.IsNullOrEmpty(userIds) ? new List<int>() :
+                            userIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                                    .Select(m => Convert.ToInt32(m))
+                                    .ToList();
+            if (Ids.Count() > 0)
+            {
+                if (InstallUserBLL.Instance.DeactivateInstallUsers(Ids))
+                {
+                    return new JavaScriptSerializer().Serialize(new ActionOutput
+                    {
+                        Status = ActionStatus.Successfull,
+                        Message = "Status Changed"
+                    });
+                }
+            }
+            return new JavaScriptSerializer().Serialize(new ActionOutput
+            {
+                Status = ActionStatus.Error,
+                Message = "Status not Changed"
+            });
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string ChangeUserStatusWithReason(int userId, int newStatus, string reason)
+        {
+            if (Convert.ToString(Session["DeactivationStatus"]) == "Deactive")
+            {
+                DataSet ds = new DataSet();
+                string email = "";
+                string HireDate = "";
+                string EmpType = "";
+                string PayRates = "";
+                ds = InstallUserBLL.Instance.ChangeStatus(newStatus.ToString(), userId, DateTime.Today,
+                        DateTime.Now.ToShortTimeString(),
+                        Convert.ToInt32(Session[JG_Prospect.Common.SessionKey.Key.UserId.ToString()]),
+                        JGSession.IsInstallUser.Value, reason);
+                if (ds.Tables.Count > 0)
+                {
+                    if (ds.Tables[0].Rows.Count > 0)
+                    {
+                        if (Convert.ToString(ds.Tables[0].Rows[0][0]) != "")
+                        {
+                            email = Convert.ToString(ds.Tables[0].Rows[0][0]);
+                        }
+                        if (Convert.ToString(ds.Tables[0].Rows[0][1]) != "")
+                        {
+                            HireDate = Convert.ToString(ds.Tables[0].Rows[0][1]);
+                        }
+                        if (Convert.ToString(ds.Tables[0].Rows[0][2]) != "")
+                        {
+                            EmpType = Convert.ToString(ds.Tables[0].Rows[0][2]);
+                        }
+                        if (Convert.ToString(ds.Tables[0].Rows[0][3]) != "")
+                        {
+                            PayRates = Convert.ToString(ds.Tables[0].Rows[0][3]);
+                        }
+                    }
+                }
+                DataRow user = InstallUserBLL.Instance.getuserdetails(userId).Tables[0].Rows[0];
+                SendEmail(email, user["FristName"].ToString(), user["LastName"].ToString(),
+                            "Deactivation", reason, user["Designation"].ToString(),
+                            Convert.ToInt32(user["DesignationId"].ToString()), HireDate, EmpType, PayRates, 0);
+            }
+            else
+            {
+                InstallUserBLL.Instance.ChangeStatus(newStatus.ToString(), userId, DateTime.Today, DateTime.Now.ToShortTimeString(), Convert.ToInt32(Session[JG_Prospect.Common.SessionKey.Key.UserId.ToString()]), JGSession.IsInstallUser.Value, reason);
+            }
+
+            //Remove user from GitHub Repository
+            if (newStatus == (int)JGConstant.InstallUserStatus.Rejected)
+            {
+                String GitUserName = InstallUserBLL.Instance.GetUserGithubUserName(userId);
+                if (!string.IsNullOrEmpty(GitUserName.Trim()))
+                {
+                    CommonFunction.DeleteUserFromGit(GitUserName, JGConstant.GitRepo.Interview);
+                }
+            }
+            return new JavaScriptSerializer().Serialize(new ActionOutput
+            {
+                Status = ActionStatus.Successfull,
+                Message = "Status Changed"
+            });
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string UpdateEmpType(int userId, string empType)
+        {
+            InstallUserBLL.Instance.UpdateEmpType(userId, empType);
+            return new JavaScriptSerializer().Serialize(new ActionOutput
+            {
+                Status = ActionStatus.Successfull,
+                Message = "Status Changed"
+            });
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string ChangeUserStatusOfferMade(int userId, int newStatus, string newEmail, string password, string branchLocationId)
+        {
+            InstallUserBLL.Instance.UpdateOfferMade(userId, newEmail, password, branchLocationId);
+
+            DataSet ds = new DataSet();
+            string email, HireDate, EmpType, PayRates, Desig, LastName, Address, FirstName;
+            email = HireDate = EmpType = PayRates = Desig = LastName = Address = FirstName = String.Empty;
+
+            ds = InstallUserBLL.Instance.ChangeStatus(newStatus.ToString(), userId, DateTime.Today, DateTime.Now.ToShortTimeString(), Convert.ToInt32(Session[JG_Prospect.Common.SessionKey.Key.UserId.ToString()]), JGSession.IsInstallUser.Value, "");
+            if (ds.Tables.Count > 0)
+            {
+                if (ds.Tables[0].Rows.Count > 0)
+                {
+                    if (Convert.ToString(ds.Tables[0].Rows[0]["Email"]) != "")
+                    {
+                        email = Convert.ToString(ds.Tables[0].Rows[0]["Email"]);
+                    }
+                    if (Convert.ToString(ds.Tables[0].Rows[0]["HireDate"]) != "")
+                    {
+                        HireDate = Convert.ToString(ds.Tables[0].Rows[0]["HireDate"]);
+                    }
+                    if (Convert.ToString(ds.Tables[0].Rows[0]["EmpType"]) != "")
+                    {
+                        EmpType = Convert.ToString(ds.Tables[0].Rows[0]["EmpType"]);
+                    }
+                    if (Convert.ToString(ds.Tables[0].Rows[0]["PayRates"]) != "")
+                    {
+                        PayRates = Convert.ToString(ds.Tables[0].Rows[0]["PayRates"]);
+                    }
+                    if (Convert.ToString(ds.Tables[0].Rows[0]["Designation"]) != "")
+                    {
+                        Desig = Convert.ToString(ds.Tables[0].Rows[0]["Designation"]);
+                    }
+                    if (!String.IsNullOrEmpty(ds.Tables[0].Rows[0]["FristName"].ToString()))
+                    {
+                        FirstName = ds.Tables[0].Rows[0]["FristName"].ToString();
+                    }
+                    if (!String.IsNullOrEmpty(ds.Tables[0].Rows[0]["LastName"].ToString()))
+                    {
+                        LastName = ds.Tables[0].Rows[0]["LastName"].ToString();
+                    }
+                    if (!String.IsNullOrEmpty(ds.Tables[0].Rows[0]["Address"].ToString()))
+                    {
+                        Address = ds.Tables[0].Rows[0]["Address"].ToString();
+                    }
+                }
+            }
+            DataRow user = InstallUserBLL.Instance.getuserdetails(userId).Tables[0].Rows[0];
+            //string strHtml = JG_Prospect.App_Code.CommonFunction.GetContractTemplateContent(199, 0, Desig);
+            DesignationHTMLTemplate objHTMLTemplate = HTMLTemplateBLL.Instance.GetDesignationHTMLTemplate(HTMLTemplates.Offer_Made_Attachment_Template, user["DesignationId"].ToString());
+            string strHtml = objHTMLTemplate.Header + objHTMLTemplate.Body + objHTMLTemplate.Footer;
+            strHtml = strHtml.Replace("#CurrentDate#", DateTime.Now.ToShortDateString());
+            strHtml = strHtml.Replace("#FirstName#", FirstName);
+            strHtml = strHtml.Replace("#LastName#", LastName);
+            strHtml = strHtml.Replace("#Address#", Address);
+            strHtml = strHtml.Replace("#Designation#", Desig);
+            if (!string.IsNullOrEmpty(EmpType))
+            {
+                int intEmpType = 0;
+                int.TryParse(EmpType, out intEmpType);
+
+                if (intEmpType > 0)
+                {
+                    EmpType = CommonFunction.GetEnumDescription((JGConstant.EmploymentType)intEmpType);
+                }
+
+                strHtml = strHtml.Replace("#EmpType#", EmpType);
+
+            }
+            else
+            {
+                strHtml = strHtml.Replace("#EmpType#", "________________");
+            }
+            strHtml = strHtml.Replace("#JoiningDate#", HireDate);
+            if (!string.IsNullOrEmpty(PayRates))
+            {
+                strHtml = strHtml.Replace("#RatePerHour#", PayRates);
+            }
+            else
+            {
+                strHtml = strHtml.Replace("#RatePerHour#", "____");
+            }
+            DateTime dtPayCheckDate;
+            if (!string.IsNullOrEmpty(HireDate))
+            {
+                dtPayCheckDate = Convert.ToDateTime(HireDate);
+            }
+            else
+            {
+                dtPayCheckDate = DateTime.Now;
+            }
+            dtPayCheckDate = new DateTime(dtPayCheckDate.Year, dtPayCheckDate.Month, DateTime.DaysInMonth(dtPayCheckDate.Year, dtPayCheckDate.Month));
+            strHtml = strHtml.Replace("#PayCheckDate#", dtPayCheckDate.ToShortDateString());
+
+            string strPath = JG_Prospect.App_Code.CommonFunction.ConvertHtmlToPdf(strHtml, Server.MapPath(@"~\Sr_App\MailDocument\MailAttachments\"), "Job acceptance letter");
+            List<Attachment> lstAttachments = new List<Attachment>();
+            if (File.Exists(strPath))
+            {
+                Attachment attachment = new Attachment(strPath);
+                attachment.Name = Path.GetFileName(strPath);
+                lstAttachments.Add(attachment);
+            }
+
+            SendEmail(email, FirstName, LastName, "Offer Made", "", Desig, Convert.ToInt32(user["DesignationId"].ToString()), HireDate, EmpType, PayRates,
+                HTMLTemplates.Offer_Made_Auto_Email, lstAttachments);
+
+            return new JavaScriptSerializer().Serialize(new ActionOutput { Status = ActionStatus.Successfull });
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string GetTechTasks(int designationId)
+        {
+            DataSet dsTechTask;
+            if (designationId == 0)
+            {
+                dsTechTask = TaskGeneratorBLL.Instance.GetAllActiveTechTask();
+            }
+            else
+            {
+                dsTechTask = TaskGeneratorBLL.Instance.GetAllActiveTechTaskForDesignationID(designationId);
+            }
+            List<TechTask> tasks = new List<TechTask>();
+            if (dsTechTask != null && dsTechTask.Tables[0] != null && dsTechTask.Tables[0].Rows.Count > 0)
+            {
+                foreach (DataRow item in dsTechTask.Tables[0].Rows)
+                {
+                    tasks.Add(new TechTask
+                    {
+                        Id = Convert.ToInt32(item["TaskId"].ToString()),
+                        Title = item["Title"].ToString()
+                    });
+                }
+            }
+            return new JavaScriptSerializer().Serialize(new ActionOutput<TechTask>
+            {
+                Status = ActionStatus.Successfull,
+                Results = tasks
+            });
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string GetSubTechTasks(int taskId)
+        {
+            List<SubTechTask> subTasks = new List<SubTechTask>();
+            DataSet dsSubTasks = TaskGeneratorBLL.Instance.GetTaskHierarchy(taskId, CommonFunction.CheckAdminAndItLeadMode());
+            DataTable dtLevel1SubTasks = null;
+            DataTable dtLevel2SubTasks = null;
+            DataTable dtLevel3SubTasks = null;
+
+            if (dsSubTasks != null && dsSubTasks.Tables.Count > 0 && dsSubTasks.Tables[0].Rows.Count > 0)
+            {
+                DataView dvSubTasks = dsSubTasks.Tables[0].DefaultView;
+
+                dvSubTasks.RowFilter = string.Format("TaskId <> {0} AND TaskLevel = 1", taskId);
+                dtLevel1SubTasks = dvSubTasks.ToTable();
+
+                foreach (DataRow drSubTask1 in dtLevel1SubTasks.Rows)
+                {
+                    string strTaskId = Convert.ToString(drSubTask1["TaskId"]);
+                    string strTitle = Convert.ToString(drSubTask1["Title"]);
+
+                    subTasks.Add(new SubTechTask
+                    {
+                        Id = Convert.ToInt32(drSubTask1["TaskId"].ToString()),
+                        Title = drSubTask1["Title"].ToString()
+                    });
+
+                    dvSubTasks.RowFilter = string.Format("ParentTaskId = {0} AND TaskLevel = 2", strTaskId);
+                    dtLevel2SubTasks = dvSubTasks.ToTable();
+
+                    foreach (DataRow drSubTask2 in dtLevel2SubTasks.Rows)
+                    {
+                        strTaskId = Convert.ToString(drSubTask2["TaskId"]);
+                        strTitle = "|--" + Convert.ToString(drSubTask2["Title"]);
+
+                        subTasks.Add(new SubTechTask
+                        {
+                            Id = Convert.ToInt32(drSubTask2["TaskId"].ToString()),
+                            Title = "|--" + drSubTask2["Title"].ToString()
+                        });
+
+                        dvSubTasks.RowFilter = string.Format("ParentTaskId = {0} AND TaskLevel = 3", strTaskId);
+                        dtLevel3SubTasks = dvSubTasks.ToTable();
+
+                        foreach (DataRow drSubTask3 in dtLevel3SubTasks.Rows)
+                        {
+                            strTaskId = Convert.ToString(drSubTask3["TaskId"]);
+                            strTitle = "|----" + Convert.ToString(drSubTask3["Title"]);
+
+                            subTasks.Add(new SubTechTask
+                            {
+                                Id = Convert.ToInt32(drSubTask3["TaskId"].ToString()),
+                                Title = "|----" + drSubTask3["Title"].ToString()
+                            });
+                        }
+                    }
+                }
+            }
+
+            return new JavaScriptSerializer().Serialize(new ActionOutput<SubTechTask>
+            {
+                Status = ActionStatus.Successfull,
+                Results = subTasks
+            });
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string GetRecruiters()
+        {
+            List<Recruiter> recruiters = new List<Recruiter>();
+            DataSet dsUsers = TaskGeneratorBLL.Instance.GetInstallUsers(2, "Admin,Admin Recruiter,Office Manager,Recruiter,ITLead,");
+            if (dsUsers != null && dsUsers.Tables.Count > 0)
+            {
+                DataView dvUsers = dsUsers.Tables[0].DefaultView;
+                dvUsers.RowFilter = string.Format(
+                                                    "[Status] IN ('{0}','{1}')",
+                                                    Convert.ToByte(JGConstant.InstallUserStatus.Active).ToString(),
+                                                    Convert.ToByte(JGConstant.InstallUserStatus.OfferMade).ToString()
+                                                );
+                dvUsers.Sort = "[Status] ASC";
+
+                DataTable dtUsers = dvUsers.ToTable();
+
+                for (int i = 0; i < dtUsers.Rows.Count; i++)
+                {
+                    DataRow objUser = dtUsers.Rows[i];
+                    recruiters.Add(new Recruiter
+                    {
+                        Id = Convert.ToInt32(objUser["Id"].ToString()),
+                        Name = objUser["FristName"].ToString(),
+                        optionCss = Convert.ToInt32(objUser["Status"].ToString()) == (int)JGConstant.InstallUserStatus.Active ? "color-red" : ""
+                    });
+                }
+            }
+
+            return new JavaScriptSerializer().Serialize(new ActionOutput<Recruiter>
+            {
+                Status = ActionStatus.Successfull,
+                Results = recruiters
+            });
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string ChangeUserStatusToInterviewDate(string date, int status, int userId, string time,
+                                                        int recruiterId, int taskId, int subTaskId, string recruiterName, string taskName,
+                                                        int designationId, string designationName)
+        {
+            DataRow user = InstallUserBLL.Instance.getuserdetails(userId).Tables[0].Rows[0];
+            DataSet ds = new DataSet();
+            string email = "";
+            string HireDate = "";
+            string EmpType = "";
+            string PayRates = "";
+            string gitusername = string.Empty;
+
+
+            //string InterviewDate = dtInterviewDate.Text;
+            DateTime interviewDate;
+            DateTime.TryParse(date, out interviewDate);
+            if (interviewDate == null)
+            {
+                return new JavaScriptSerializer().Serialize(new ActionOutput
+                {
+                    Status = ActionStatus.Error,
+                    Message = "Invalid Interview Date, Please verify"
+                });
+            }
+
+            ds = InstallUserBLL.Instance.ChangeStatus(status.ToString(), userId, interviewDate, time, Convert.ToInt32(Session[JG_Prospect.Common.SessionKey.Key.UserId.ToString()]), JGSession.IsInstallUser.Value, "", recruiterId.ToString());
+            if (ds.Tables.Count > 0)
+            {
+                if (ds.Tables[0].Rows.Count > 0)
+                {
+                    if (Convert.ToString(ds.Tables[0].Rows[0][0]) != "")
+                    {
+                        email = Convert.ToString(ds.Tables[0].Rows[0][0]);
+                    }
+                    if (Convert.ToString(ds.Tables[0].Rows[0][1]) != "")
+                    {
+                        HireDate = Convert.ToString(ds.Tables[0].Rows[0][1]);
+                    }
+                    if (Convert.ToString(ds.Tables[0].Rows[0][2]) != "")
+                    {
+                        EmpType = Convert.ToString(ds.Tables[0].Rows[0][2]);
+                    }
+                    if (Convert.ToString(ds.Tables[0].Rows[0][3]) != "")
+                    {
+                        PayRates = Convert.ToString(ds.Tables[0].Rows[0][3]);
+                    }
+                    if (ds.Tables[0].Rows[0]["GitUserName"] != null)
+                    {
+                        gitusername = ds.Tables[0].Rows[0]["GitUserName"].ToString();
+                    }
+                }
+            }
+
+            SendInterviewEmail(email, user["FristName"].ToString(), user["LastName"].ToString(),
+                "Interview Date Auto Email", "", user["Designation"].ToString(), Convert.ToInt32(user["DesignationId"].ToString()), date, time, EmpType,
+                PayRates, HTMLTemplates.InterviewDateAutoEmail
+                , null, recruiterName);
+            if (!string.IsNullOrEmpty(gitusername))
+            {
+                CommonFunction.AddUserAsGitcollaborator(gitusername, JGConstant.GitRepo.Interview);
+            }
+
+            //AssignedTask if any or Default
+            //AssignedTaskToUser(Convert.ToInt32(Session["EditId"]), ddlTechTask, ddlTechSubTask);
+            // save assigned user a TASK.
+            bool isSuccessful = TaskGeneratorBLL.Instance.SaveTaskAssignedToMultipleUsers(Convert.ToUInt64(subTaskId), userId.ToString());
+            // Change task status to assigned = 3.
+            if (isSuccessful)
+                UpdateTaskStatus(Convert.ToInt32(subTaskId), Convert.ToUInt16(JGConstant.TaskStatus.Assigned));
+
+            SendEmailToAssignedUsers(userId.ToString(), taskId.ToString(), subTaskId.ToString(), taskName,
+                designationId, designationName);
+            return new JavaScriptSerializer().Serialize(new ActionOutput
+            {
+                Status = ActionStatus.Successfull
+            });
+            // Response.Redirect(JG_Prospect.Common.JGConstant.PG_PATH_MASTER_CALENDAR);
+        }
+
+        private void SendEmailToAssignedUsers(string strInstallUserIDs, string strTaskId, string strSubTaskId,
+            string strTaskTitle, int designationId, string designationName)
+        {
+            try
+            {
+                DesignationHTMLTemplate objHTMLTemplate = HTMLTemplateBLL.Instance.GetDesignationHTMLTemplate(HTMLTemplates.Task_Generator_Auto_Email, JGSession.DesignationId.ToString());
+
+                foreach (string userID in strInstallUserIDs.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    DataSet dsUser = TaskGeneratorBLL.Instance.GetInstallUserDetails(Convert.ToInt32(userID));
+
+                    string emailId = dsUser.Tables[0].Rows[0]["Email"].ToString();
+                    string FName = dsUser.Tables[0].Rows[0]["FristName"].ToString();
+                    string LName = dsUser.Tables[0].Rows[0]["LastName"].ToString();
+                    string fullname = FName + " " + LName;
+
+                    string strHeader = objHTMLTemplate.Header;
+                    string strBody = objHTMLTemplate.Body;
+                    string strFooter = objHTMLTemplate.Footer;
+                    string strsubject = objHTMLTemplate.Subject;
+                    string strTaskLinkTitle = CommonFunction.GetTaskLinkTitleForAutoEmail(int.Parse(strTaskId));
+
+                    strsubject = strsubject.Replace("#ID#", strTaskId);
+                    strsubject = strsubject.Replace("#TaskTitleID#", strTaskTitle);
+                    strsubject = strsubject.Replace("#TaskTitle#", strTaskTitle);
+
+                    strBody = strBody.Replace("#ID#", strTaskId);
+                    strBody = strBody.Replace("#TaskTitleID#", strTaskTitle);
+                    strBody = strBody.Replace("#TaskTitle#", strTaskTitle);
+                    strBody = strBody.Replace("#Fname#", fullname);
+                    strBody = strBody.Replace("#email#", emailId);
+                    strBody = strBody.Replace("#Designation(s)#", designationName);
+                    strBody = strBody.Replace("#TaskLink#", string.Format(
+                                                                            "{0}?TaskId={1}&hstid={2}&{3}",
+                                                                            string.Concat(
+                                                                                             HttpContext.Current.Request.Url.Scheme,
+                                                                                            Uri.SchemeDelimiter,
+                                                                                            HttpContext.Current.Request.Url.Host.Split('?')[0],
+                                                                                            "/Sr_App/TaskGenerator.aspx"
+                                                                                         ),
+                                                                            strTaskId,
+                                                                            strSubTaskId,
+                                                                            strTaskLinkTitle
+                                                                        )
+                                            );
+
+
+                    strBody = strBody.Replace("#TaskTitle#", string.Format("{0}?TaskId={1}", HttpContext.Current.Request.Url.ToString().Split('?')[0], strTaskId));
+
+                    strBody = strHeader + strBody + strFooter;
+
+                    string strHTMLTemplateName = "Task Generator Auto Email";
+                    DataSet dsEmailTemplate = AdminBLL.Instance.GetEmailTemplate(strHTMLTemplateName, 108);
+                    List<Attachment> lstAttachments = new List<Attachment>();
+                    // your remote SMTP server IP.
+                    for (int i = 0; i < dsEmailTemplate.Tables[1].Rows.Count; i++)
+                    {
+                        string sourceDir = Server.MapPath(dsEmailTemplate.Tables[1].Rows[i]["DocumentPath"].ToString());
+                        if (File.Exists(sourceDir))
+                        {
+                            Attachment attachment = new Attachment(sourceDir);
+                            attachment.Name = Path.GetFileName(sourceDir);
+                            lstAttachments.Add(attachment);
+                        }
+                    }
+
+                    CommonFunction.SendEmail(HTMLTemplates.Task_Generator_Auto_Email.ToString(), emailId, strsubject, strBody, lstAttachments);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("{0} Exception caught.", ex);
+            }
+        }
+
+        public bool CheckRequiredFields(string SelectedStatus, int Id)
+        {
+            DataSet dsNew = new DataSet();
+            dsNew = InstallUserBLL.Instance.getuserdetails(Id);
+            if (dsNew.Tables.Count > 0)
+            {
+                if (dsNew.Tables[0].Rows.Count > 0)
+                {
+                    if (SelectedStatus == "Applicant")
+                    {
+                        if (Convert.ToString(dsNew.Tables[0].Rows[0][1]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][2]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][3]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][8]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][38]) == "")
+                        {
+                            //ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Status cannot be changed to Applicant as required fields for it are not filled.')", true);
+                            return false;
+                        }
+                    }
+                    else if (SelectedStatus == "OfferMade" || SelectedStatus == "Offer Made")
+                    {
+                        //if (Convert.ToString(dsNew.Tables[0].Rows[0][1]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][2]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][4]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][5]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][11]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][12]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][13]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][3]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][8]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][38]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][44]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][46]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][48]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][50]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][100]) == "")
+                        if (Convert.ToString(dsNew.Tables[0].Rows[0]["Email"]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0]["Password"]) == "")
+                        {
+                            // txtEmail.Text = Convert.ToString(dsNew.Tables[0].Rows[0]["Email"]);
+                            //ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Status cannot be changed to Offer Made as required fields for it are not filled.')", true);
+                            return false;
+                        }
+                    }
+                    else if (SelectedStatus == "Active")
+                    {
+                        if (Convert.ToString(dsNew.Tables[0].Rows[0][1]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][2]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][3]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][4]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][5]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][7]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][9]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][11]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][12]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][13]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][17]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][16]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][17]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][8]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][18]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][19]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][20]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][35]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][38]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][39]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][44]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][46]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][48]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][50]) == "" || Convert.ToString(dsNew.Tables[0].Rows[0][100]) == "")
+                        {
+                            //ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Status cannot be changed to Offer Made as required fields for it are not filled.')", true); 
+                            return false;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string savePhoneCallLog(string mode, string num, string dur, int? userId)
+        {
+            PhoneCallLog phLog = new PhoneCallLog()
+            {
+                CreatedBy = JGSession.UserId,
+                ReceiverNumber = num,
+                Mode = mode,
+                ReceiverUserId = userId,
+                CallerNumber = "12154833098",
+                CallDurationInSeconds = TimeSpan.Parse(dur).TotalSeconds
+            };
+            InstallUserBLL.Instance.SavePhoneCallLog(phLog);
+            return new JavaScriptSerializer().Serialize(new ActionOutput { Status = ActionStatus.Successfull });
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string UpdateSecondaryStatus(int userId, int newStatus)
+        {
+            InstallUserBLL.Instance.UpdateSecondaryStatus(userId, newStatus, JGSession.UserId);
+            return new JavaScriptSerializer().Serialize(new ActionOutput { Status = ActionStatus.Successfull });
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string GetPhoneCallLog(int index = 1, int pageSize = 5)
+        {
+            return new JavaScriptSerializer().Serialize(
+                new ActionOutput<PhoneCallLog>
+                {
+                    Results = InstallUserBLL.Instance.GetPhoneCallLog(index, pageSize),
+                    Status = ActionStatus.Successfull
+                });
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string GetPhoneCallStatistics()
+        {
+            return new JavaScriptSerializer().Serialize(
+                new ActionOutput<PhoneCallStatistics>
+                {
+                    Object = InstallUserBLL.Instance.GetPhoneCallStatistics(),
+                    Status = ActionStatus.Successfull
+                });
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string GetReminderEmailContent(int userId)
+        {
+            DataRow user = InstallUserBLL.Instance.getuserdetails(userId).Tables[0].Rows[0];
+            DesignationHTMLTemplate objHTMLTemplate = HTMLTemplateBLL.Instance.GetDesignationHTMLTemplate(HTMLTemplates.InterviewDateAutoEmail, JGSession.DesignationId.ToString());
+
+            string subject = objHTMLTemplate.Subject;
+            string strBody = string.Concat(
+                                                //objHTMLTemplate.Designation + " --- ",
+                                                objHTMLTemplate.Header,
+                                                objHTMLTemplate.Body,
+                                                objHTMLTemplate.Footer
+                                            );
+
+            string strEmail = user["Email"].ToString();
+            string strFirstName = user["FristName"].ToString();
+            string strLastName = user["Lastname"].ToString();
+            string strDesignation = user["Designation"].ToString();
+
+            strBody = strBody.Replace("#Email#", strEmail).Replace("#email#", strEmail);
+            strBody = strBody.Replace("#FirstName#", strFirstName);
+            strBody = strBody.Replace("#LastName#", strLastName);
+            strBody = strBody.Replace("#Name#", strFirstName).Replace("#name#", strFirstName);
+            strBody = strBody.Replace("#Designation#", strDesignation).Replace("#designation#", strDesignation);
+
+            return new JavaScriptSerializer().Serialize(new ActionOutput<ReminderEmail>
+            {
+                Status = ActionStatus.Successfull,
+                Object = new ReminderEmail
+                {
+                    Body = strBody,
+                    CustomMessage = "",
+                    Email = strEmail,
+                    Subject = subject,
+                    UserId = Convert.ToInt32(user["Id"].ToString())
+                }
+            });
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string SendReminderEmailContent(int userId, string subject, string body, string customMessage)
+        {
+            subject = subject.Replace("Subject:", "").Trim();
+            DataRow user = InstallUserBLL.Instance.getuserdetails(userId).Tables[0].Rows[0];
+            DataSet ds = AdminBLL.Instance.GetEmailTemplate(JGSession.Designation, 110);
+
+            if (ds == null)
+            {
+                ds = AdminBLL.Instance.GetEmailTemplate("Admin");
+            }
+            else if (ds.Tables[0].Rows.Count == 0)
+            {
+                ds = AdminBLL.Instance.GetEmailTemplate("Admin");
+            }
+
+            List<Attachment> lstAttachments = new List<Attachment>();
+
+            for (int i = 0; i < ds.Tables[1].Rows.Count; i++)
+            {
+                string sourceDir = Server.MapPath(ds.Tables[1].Rows[i]["DocumentPath"].ToString());
+                if (File.Exists(sourceDir))
+                {
+                    Attachment attachment = new Attachment(sourceDir);
+                    attachment.Name = Path.GetFileName(sourceDir);
+                    lstAttachments.Add(attachment);
+                }
+            }
+
+            string strBody = body + customMessage;
+            try
+            {
+                CommonFunction.SendEmail(JGSession.Designation, user["Email"].ToString(), subject, strBody, lstAttachments);
+                return new JavaScriptSerializer().Serialize(
+                    new ActionOutput
+                    {
+                        Status = ActionStatus.Successfull,
+                        Message = "Email has been sent."
+                    });
+            }
+            catch (Exception ex)
+            {
+                return new JavaScriptSerializer().Serialize(
+                    new ActionOutput
+                    {
+                        Status = ActionStatus.Successfull,
+                        Message = ex.Message
+                    });
+            }
+        }
+        #endregion
+
+        [WebMethod(EnableSession = true)]
+        public String GetMultiLevelList(string ParentTaskId, int chatSourceId)
+        {
+            string strMessage = string.Empty;
+            DataSet dtResult = null;
+
+            dtResult = TaskGeneratorBLL.Instance.GetMultilevelChildren(ParentTaskId);
+            List<TaskMultiLevelList> list = new List<TaskMultiLevelList>();
+            if (dtResult != null && dtResult.Tables.Count > 0)
+            {
+                var users = ChatBLL.Instance.GetTaskUsers(Convert.ToInt32(ParentTaskId)).Results;
+                string receiverId = string.Empty;
+                if (users != null && users.Count() > 0)
+                {
+                    receiverId = string.Join(",", users.OrderBy(m => m).ToList());
+                }
+                //if (dtResult != null && dtResult.Tables.Count > 0)
+                //{
+                //    dtResult.DataSetName = "ChildrenData";
+                //    dtResult.Tables[0].TableName = "Children";
+                //    System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+                //    doc.LoadXml(dtResult.GetXml());
+                //    strMessage = JsonConvert.SerializeXmlNode(doc);
+                //}
+                //else
+                //{
+                //    strMessage = String.Empty;
+                //}
+                foreach (DataRow item in dtResult.Tables[0].Rows)
+                {
+                    list.Add(new TaskMultiLevelList
+                    {
+                        ReceiverIds = receiverId,
+                        Id = Convert.ToInt32(item["Id"].ToString()),
+                        ParentTaskId = Convert.ToInt32(item["ParentTaskId"].ToString()),
+                        Title = item["Title"] == null ? "" : item["Title"].ToString(),
+                        Description = item["Description"].ToString(),
+                        IndentLevel = Convert.ToInt32(item["IndentLevel"].ToString()),
+                        InstallId = item["InstallId"].ToString(),
+                        Label = item["Label"].ToString(),
+                        StartDate = string.IsNullOrEmpty(item["StartDate"].ToString()) ? null :
+                                        (DateTime?)(Convert.ToDateTime(item["StartDate"].ToString())),
+                        EndDate = string.IsNullOrEmpty(item["EndDate"].ToString()) ? null :
+                                        (DateTime?)(Convert.ToDateTime(item["EndDate"].ToString())),
+                        UserChatGroupId = string.IsNullOrEmpty(item["UserChatGroupId"].ToString()) ? 0
+                                            : Convert.ToInt32(item["UserChatGroupId"].ToString()),
+
+                        EstimatedHoursITLead = string.IsNullOrEmpty(item["EstimatedHoursITLead"].ToString()) ? false : true,
+                        EstimatedHoursUser = string.IsNullOrEmpty(item["EstimatedHoursUser"].ToString()) ? false : true,
+                        DateCreated = string.IsNullOrEmpty(item["DateCreated"].ToString()) ? null :
+                                        (DateTime?)(Convert.ToDateTime(item["DateCreated"].ToString())),
+                        DateUpdatedITLead = string.IsNullOrEmpty(item["DateUpdatedITLead"].ToString()) ? null :
+                                        (DateTime?)(Convert.ToDateTime(item["DateUpdatedITLead"].ToString())),
+                        ITLeadId = string.IsNullOrEmpty(item["ITLeadId"].ToString()) ? 1 : 0,
+                        DateUpdatedUser = string.IsNullOrEmpty(item["DateUpdatedUser"].ToString()) ? null :
+                                        (DateTime?)(Convert.ToDateTime(item["DateUpdatedUser"].ToString())),
+                        UserId = string.IsNullOrEmpty(item["UserId"].ToString()) ? 1 : 0,
+                        DisplayOrder = string.IsNullOrEmpty(item["DisplayOrder"].ToString()) ? 1 : int.Parse(item["DisplayOrder"].ToString()),
+                        Status = string.IsNullOrEmpty(item["Status"].ToString()) ? 0 : int.Parse(item["Status"].ToString()),
+                        ITLeadName = item["ITLeadName"].ToString(),
+                        UserName = item["UserName"].ToString(),
+                        TaskAssignedUserIds = item["TaskAssignedUserIds"].ToString(),
+                    });
+                }
+                foreach (var row in list)
+                {
+                    List<ChatMessage> chatMessages = ChatBLL.Instance.GetTaskChatMessages(JGSession.UserId, chatSourceId, row.ParentTaskId, row.Id).Results;
+                    row.Notes = chatMessages.Select(m => new Notes
+                    {
+                        UserChatGroupId = m.UserChatGroupId,
+                        TaskMultilevelListId = row.Id,
+                        TaskId = row.ParentTaskId,
+                        UpdatedByUserID = m.UserId,
+                        UpdatedUserInstallID = m.UserInstallId,
+                        ChangeDateTime = m.MessageAt,
+                        LogDescription = m.Message,
+                        UpdatedByFirstName = m.UserFullname.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[0],
+                        UpdatedByLastName = m.UserFullname.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Count() > 1 ? m.UserFullname.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[1] : "",
+                        UpdatedByEmail = "",
+                        FristName = m.UserFullname.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[0],
+                        LastName = m.UserFullname.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Count() > 1 ? m.UserFullname.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[1] : "",
+                        Email = "",
+                        Phone = "",
+                        ChangeDateTimeFormatted = m.MessageAtFormatted,
+                        SourceUser = m.UserFullname.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[0],
+                        SourceUserInstallId = m.UserInstallId,
+                        SourceUsername = m.UserFullname,
+                        TouchPointSource = m.ChatSourceId
+                    }).OrderByDescending(x => x.ChangeDateTime).OrderByDescending(x => x.ChangeDateTime).Take(5).ToList();
+                }
+                return new JavaScriptSerializer().Serialize(new ActionOutput<TaskMultiLevelList>
+                {
+                    Status = ActionStatus.Successfull,
+                    Results = list
+                });
+            }
+            else
+            {
+                return new JavaScriptSerializer().Serialize(new ActionOutput { Status = ActionStatus.Successfull });
+            }
+        }
+
+        #region Manage Resources
+        [WebMethod(EnableSession = true)]
+        public string GetDesignations()
+        {
+            string strMessage = string.Empty;
+            DataSet dtDesig = CommonFunction.GetDesignations();
+            //DataSet dtDesig = FoldersBLL.Instance.GetFoldersByDesgId(9);
+            if (dtDesig != null && dtDesig.Tables.Count > 0 && dtDesig.Tables[0].Rows.Count > 0)
+            {
+                strMessage = JsonConvert.SerializeObject(dtDesig.Tables[0], Formatting.Indented);
+            }
+            else
+            {
+                strMessage = String.Empty;
+            }
+            return strMessage;
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string GetSources(string data)
+        {
+            string strMessage = string.Empty;
+            DataSet dtDesig = CommonFunction.GetDesignations();
+            //DataSet dtDesig = FoldersBLL.Instance.GetFoldersByDesgId(9);
+            if (dtDesig != null && dtDesig.Tables.Count > 0 && dtDesig.Tables[0].Rows.Count > 0)
+            {
+                strMessage = JsonConvert.SerializeObject(dtDesig.Tables[0], Formatting.Indented);
+            }
+            else
+            {
+                strMessage = String.Empty;
+            }
+            return strMessage;
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string GetLocation(string data)
+        {
+            string strMessage = string.Empty;
+            List<ListResult> locations = new List<ListResult>();
+            foreach (Enums.Location foo in Enum.GetValues(typeof(Enums.Location)))
+            {
+                locations.Add(new ListResult() { Id = (int)foo, Value = foo.ToEnumDescription() });
+            }
+
+            strMessage = JsonConvert.SerializeObject(locations, Formatting.Indented);
+            return strMessage;
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string GetResourceTypes(string data)
+        {
+            string strMessage = string.Empty;
+            List<ListResult> resourceTypes = new List<ListResult>();
+            foreach (Enums.ResourceType foo in Enum.GetValues(typeof(Enums.ResourceType)))
+            {
+                resourceTypes.Add(new ListResult() { Id = (int)foo, Value = foo.ToString() });
+            }
+
+            strMessage = JsonConvert.SerializeObject(resourceTypes, Formatting.Indented);
+            return strMessage;
+        }
+
+
+        [WebMethod(EnableSession = true)]
+        public string GetFolders(int designationId)
+        {
+            List<Folders> folders = new List<Folders>();
+            string strMessage = string.Empty;
+            DataSet dtFolders = FoldersBLL.Instance.GetFoldersByDesgId(designationId);
+
+            if (dtFolders != null && dtFolders.Tables.Count > 0 && dtFolders.Tables[0].Rows.Count > 0)
+            {
+                strMessage = JsonConvert.SerializeObject(dtFolders.Tables[0], Formatting.Indented);
+            }
+            else
+            {
+                strMessage = String.Empty;
+            }
+            return strMessage;
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string SaveFolders(string name, int designationId)
+        {
+            int result = 0;
+            try
+            {
+                result = FoldersBLL.Instance.InsertFolders(name, designationId, JGSession.UserId);
+
+                var originalDirectory = new DirectoryInfo(Server.MapPath(JGConstant.ResourceFilePath));
+                JGCommon.CreateIfNotExists(Convert.ToString(originalDirectory));
+                
+                // Create Designation Folder
+                var desigFolderPath = originalDirectory + "\\" + designationId.ToString();
+                JGCommon.CreateIfNotExists(Convert.ToString(desigFolderPath));
+
+                var folderPath = desigFolderPath + "\\" + name;
+                JGCommon.CreateIfNotExists(Convert.ToString(folderPath));
+            }
+            catch (Exception ex)
+            {
+                return new JavaScriptSerializer().Serialize(new ActionOutput { Status = ActionStatus.Error });
+            }
+
+            return new JavaScriptSerializer().Serialize(new ActionOutput { Status = ActionStatus.Successfull, ID = result });
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string SaveFiles(string name, int folderId, int designationId,  int locationId)
+        {
+            if (!string.IsNullOrEmpty(name) && name.Split('^').Length > 0)
+            {
+                foreach (var item in name.Split('^'))
+                {
+                    if (!string.IsNullOrEmpty(item))
+                    {
+                        string strFilePath = Server.MapPath("~/UploadedExcel/" + item.Split('@')[0]);
+                        string uniqueFileName = Path.GetFileName(strFilePath);
+                        string fileName = item.Split('@')[1];
+                        string Extension = Path.GetExtension(strFilePath);
+                        if (File.Exists(strFilePath))
+                        {
+                            DataSet dsFolder = FoldersBLL.Instance.GetFoldersByd(folderId);
+                            if (dsFolder != null && dsFolder.Tables.Count > 0 && dsFolder.Tables[0] != null && dsFolder.Tables[0].Rows.Count > 0)
+                            {
+                                var folderName = Convert.ToString(dsFolder.Tables[0].Rows[0]["Name"]);
+                                var originalDirectory = new DirectoryInfo(Server.MapPath(JGConstant.ResourceFilePath));
+                                JGCommon.CreateIfNotExists(Convert.ToString(originalDirectory));
+
+                                // Create Designation Folder
+                                var desigFolderPath = originalDirectory + "\\" + designationId.ToString();
+                                JGCommon.CreateIfNotExists(Convert.ToString(desigFolderPath));
+
+                                var folderPath = desigFolderPath + "\\" + folderName;
+                                JGCommon.CreateIfNotExists(Convert.ToString(folderPath));
+                                var filePath = folderPath + "\\" + uniqueFileName;
+
+                                File.Move(strFilePath, filePath);
+
+                                int resourceTypeId = Convert.ToInt32(CommonFunction.GetFileType(fileName));
+
+                                FilesBLL.Instance.InsertFiles(fileName, uniqueFileName, folderId, JGSession.UserId, designationId, resourceTypeId, locationId);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return new JavaScriptSerializer().Serialize(new ActionOutput { Status = ActionStatus.Successfull });
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string DeleteFolders(int folderId)
+        {
+            try
+            {
+                string name = FoldersBLL.Instance.DeleteFolders(folderId);
+
+                var originalDirectory = new DirectoryInfo(Server.MapPath(JGConstant.ResourceFilePath));
+                var folderPath = Convert.ToString(originalDirectory) + "\\" + name;
+                bool isExists = System.IO.Directory.Exists(folderPath);
+                if (isExists)
+                {
+                    DirectoryInfo d = new DirectoryInfo(folderPath);//Assuming Test is your Folder
+                    FileInfo[] Files = d.GetFiles(); //Getting Text files
+                    foreach (FileInfo file in Files)
+                    {
+                        file.Delete();
+                    }
+                    System.IO.Directory.Delete(folderPath);
+                }
+            }
+            catch (Exception ex)
+            {
+                return new JavaScriptSerializer().Serialize(new ActionOutput { Status = ActionStatus.Error });
+            }
+
+            return new JavaScriptSerializer().Serialize(new ActionOutput { Status = ActionStatus.Successfull });
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string DeleteFiles(int fileId)
+        {
+            try
+            {
+                string name = FilesBLL.Instance.DeleteFiles(fileId);
+                var originalDirectory = new DirectoryInfo(Server.MapPath(JGConstant.ResourceFilePath));
+                var filePath = Convert.ToString(originalDirectory) + "\\" + name;
+                bool isExists = System.IO.File.Exists(filePath);
+                if (isExists)
+                {
+                    File.Delete(filePath);
+                }
+            }
+            catch (Exception ex)
+            {
+                return new JavaScriptSerializer().Serialize(new ActionOutput { Status = ActionStatus.Error });
+            }
+           
+            return new JavaScriptSerializer().Serialize(new ActionOutput { Status = ActionStatus.Successfull });
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string GetFiles(int locationId)
+        {
+            List<Folders> folders = new List<Folders>();
+            string strMessage = string.Empty;
+            DataSet dtFolders = FilesBLL.Instance.GetFilesTreeView(locationId);
+
+            if (dtFolders != null && dtFolders.Tables.Count > 0 && dtFolders.Tables[0].Rows.Count > 0)
+            {
+                List<FilesTreeView> lstFilesTreeViews = new List<FilesTreeView>();
+                dtFolders.Tables[0].AsEnumerable().Select(d => d.Field<string>("DesignationName")).Distinct().ToList().ForEach(d => {
+                FilesTreeView filesTreeView = new FilesTreeView();
+                filesTreeView.Title = d;
+                List<FilesTreeViewCategories> lstFilesTreeViewCategories = new List<FilesTreeViewCategories>();
+                    dtFolders.Tables[0].AsEnumerable().Where(k => k.Field<string>("DesignationName") == d).Select(k => k.Field<string>("FolderName")).Distinct().ToList().ForEach(k =>
+                    {
+                        
+                        List<FilesTreeViewCategoriesNested> lstFilesTreeViewCategoriesNested = new List<FilesTreeViewCategoriesNested>();
+                        dtFolders.Tables[0].AsEnumerable().Where(x => x.Field<string>("FolderName") == k).Select(x => new { Id = x.Field<int>("ID"), Name = x.Field<string>("Name"), Type = x.Field<int>("ResourceTypeId") }).ToList().ForEach(x => {
+                            lstFilesTreeViewCategoriesNested.Add(new FilesTreeViewCategoriesNested() { Title = x.Name,ID=x.Id, Type= x.Type});
+                        });
+                        lstFilesTreeViewCategories.Add(new FilesTreeViewCategories() { Title = k ,Categories = lstFilesTreeViewCategoriesNested}); 
+                    });
+                    filesTreeView.Categories = lstFilesTreeViewCategories;
+                    lstFilesTreeViews.Add(filesTreeView);
+                });
+                strMessage = JsonConvert.SerializeObject(lstFilesTreeViews, Formatting.Indented);
+            }
+            else
+            {
+                strMessage = String.Empty;
+            }
+            return strMessage;
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string GetFilesByDesignationId(int locationId,int DesignationId)
+        {
+            List<Folders> folders = new List<Folders>();
+            string strMessage = string.Empty;
+            DataSet dtFolders = FilesBLL.Instance.GetFilesTreeViewByDesignationId(locationId,DesignationId);
+
+            if (dtFolders != null && dtFolders.Tables.Count > 0 && dtFolders.Tables[0].Rows.Count > 0)
+            {
+                List<FilesTreeView> lstFilesTreeViews = new List<FilesTreeView>();
+                dtFolders.Tables[0].AsEnumerable().Select(d => d.Field<string>("DesignationName")).Distinct().ToList().ForEach(d => {
+                    FilesTreeView filesTreeView = new FilesTreeView();
+                    filesTreeView.Title = d;
+                    List<FilesTreeViewCategories> lstFilesTreeViewCategories = new List<FilesTreeViewCategories>();
+                    dtFolders.Tables[0].AsEnumerable().Where(k => k.Field<string>("DesignationName") == d).Select(k => k.Field<string>("FolderName")).Distinct().ToList().ForEach(k =>
+                    {
+
+                        List<FilesTreeViewCategoriesNested> lstFilesTreeViewCategoriesNested = new List<FilesTreeViewCategoriesNested>();
+                        dtFolders.Tables[0].AsEnumerable().Where(x => x.Field<string>("FolderName") == k).Select(x => new { Id = x.Field<int>("ID"), Name = x.Field<string>("Name"), Type = x.Field<int>("ResourceTypeId"), UniqueName = x.Field<string>("UniqueName"), DesignationId = x.Field<int>("DesignationId") }).ToList().ForEach(x => {
+                            lstFilesTreeViewCategoriesNested.Add(new FilesTreeViewCategoriesNested() { Title = x.Name,UniqueName = x.UniqueName,DesignationId = x.DesignationId.ToString(), ID = x.Id, Type = x.Type });
+                        });
+                        lstFilesTreeViewCategories.Add(new FilesTreeViewCategories() { Title = k, Categories = lstFilesTreeViewCategoriesNested });
+                    });
+                    filesTreeView.Categories = lstFilesTreeViewCategories;
+                    lstFilesTreeViews.Add(filesTreeView);
+                });
+                strMessage = JsonConvert.SerializeObject(lstFilesTreeViews, Formatting.Indented);
+            }
+            else
+            {
+                strMessage = String.Empty;
+            }
+            return strMessage;
+        }
+
+        [WebMethod(EnableSession = true)]
+        public string SaveFilesForMultipleDesignations(string Foldername,int LocationId,string designationIds , string FileNames)
+        {
+            String Result = String.Empty;
+            
+            if (!String.IsNullOrEmpty(designationIds))
+            {
+                //1. Create folder for all given designations and save folder id for respective designation.
+                Dictionary<int, int> dicDesFolder = CreateFoldersForMultipleDesignations(designationIds, Foldername);
+
+                //2. Save file for each designations from its respective folderid saved in dictonary.
+                SaveFilesForMultipleDesignations(LocationId, FileNames, dicDesFolder);
+
+                Result = new JavaScriptSerializer().Serialize(new ActionOutput { Status = ActionStatus.Successfull });
+            }
+            else
+            {
+                Result = new JavaScriptSerializer().Serialize(new ActionOutput { Status = ActionStatus.Error});
+            }
+
+            return Result;
+        }
+
+        private void SaveFilesForMultipleDesignations(int LocationId, string FileNames, Dictionary<int, int> dicDesFolder)
+        {
+            // Copy files under each designations.
+            foreach (KeyValuePair<int, int> DesgNFolderId in dicDesFolder)
+            {
+                if (!string.IsNullOrEmpty(FileNames) && FileNames.Split('^').Length > 0)
+                {
+                    // for all uplaoded files iterate through and save under each desination. 
+                    foreach (var item in FileNames.Split('^'))
+                    {
+                        if (!string.IsNullOrEmpty(item))
+                        {
+                            string strFilePath = Server.MapPath("~/UploadedExcel/" + item.Split('@')[0]);
+                            string uniqueFileName = Path.GetFileName(strFilePath);
+                            string fileName = item.Split('@')[1];
+                            string Extension = Path.GetExtension(strFilePath);
+                            if (File.Exists(strFilePath))
+                            {
+                                DataSet dsFolder = FoldersBLL.Instance.GetFoldersByd(DesgNFolderId.Value);
+                                if (dsFolder != null && dsFolder.Tables.Count > 0 && dsFolder.Tables[0] != null && dsFolder.Tables[0].Rows.Count > 0)
+                                {
+                                    var folderName = Convert.ToString(dsFolder.Tables[0].Rows[0]["Name"]);
+                                    var originalDirectory = new DirectoryInfo(Server.MapPath(JGConstant.ResourceFilePath));
+                                    JGCommon.CreateIfNotExists(Convert.ToString(originalDirectory));
+
+                                    // Create Designation Folder
+                                    var desigFolderPath = originalDirectory + "\\" + DesgNFolderId.Key.ToString();
+                                    JGCommon.CreateIfNotExists(Convert.ToString(desigFolderPath));
+
+                                    var folderPath = desigFolderPath + "\\" + folderName;
+                                    JGCommon.CreateIfNotExists(Convert.ToString(folderPath));
+
+                                    var filePath = folderPath + "\\" + uniqueFileName;
+                                    File.Copy(strFilePath, filePath);
+                                    FilesBLL.Instance.InsertFiles(fileName, uniqueFileName, DesgNFolderId.Value, JGSession.UserId, DesgNFolderId.Key, Convert.ToInt16(CommonFunction.GetFileType(fileName)), LocationId);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Clear all files from temp uploaded folders.
+            if (!string.IsNullOrEmpty(FileNames) && FileNames.Split('^').Length > 0)
+            {
+                // for all uplaoded files iterate through and save under each desination. 
+                foreach (var item in FileNames.Split('^'))
+                {
+                    if (!string.IsNullOrEmpty(item))
+                    {
+                        string strFilePath = Server.MapPath("~/UploadedExcel/" + item.Split('@')[0]);
+                        string uniqueFileName = Path.GetFileName(strFilePath);
+                        string fileName = item.Split('@')[1];
+                        string Extension = Path.GetExtension(strFilePath);
+                        if (File.Exists(strFilePath))
+                        {                       
+                                File.Delete(strFilePath);                         
+                        }
+                    }
+                }
+            }
+
+        }
+
+        private Dictionary<int, int> CreateFoldersForMultipleDesignations(string designationIds, string Foldername)
+        {
+            Dictionary<int, int> dicDesFolder = new Dictionary<int, int>();
+            // Prepare total designations for which folder and files needs to be saved.
+            String[] DesignationIds = designationIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (String DesgId in DesignationIds)
+            {
+                //1. Create folder for all given designations and save folder id for respective designation.
+                int result = 0;
+                try
+                {
+                    int DesigId = Convert.ToInt32(DesgId);
+
+                    result = FoldersBLL.Instance.InsertFolders(Foldername, DesigId, JGSession.UserId);
+
+                    var originalDirectory = new DirectoryInfo(Server.MapPath(JGConstant.ResourceFilePath));
+                    
+                    JGCommon.CreateIfNotExists(Convert.ToString(originalDirectory));
+
+                    // Create Designation Folder
+                    var desigFolderPath = originalDirectory + "\\" + DesigId.ToString();
+                    JGCommon.CreateIfNotExists(Convert.ToString(desigFolderPath));
+
+                    var folderPath = desigFolderPath + "\\" + Foldername;
+                    JGCommon.CreateIfNotExists(Convert.ToString(folderPath));
+
+                    dicDesFolder.Add(DesigId, result);
+                }
+                catch (Exception ex)
+                {
+                    
+                }
+            }
+
+            return dicDesFolder;
+        }
+
         #endregion
     }
 }

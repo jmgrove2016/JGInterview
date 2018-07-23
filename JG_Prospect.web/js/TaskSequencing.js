@@ -203,6 +203,79 @@ function ShowNonFrozenTaskSequenceDashBoard(DesId, UserId) {
     sequenceScopeNonFrozenTasks.getAssignUsers();
 
 }
+function expandTask(TaskId) {
+    sequenceScope.expandTask(TaskId);
+}
+function ShowCalendarTasks() {
+    CalendarUserClickSource = 'FILTER';
+    sequenceScope.LoadCalendarData();
+}
+function clearSelectedDates() {
+    //sequenceScope.StartDate = sequenceScope.EndDate = '';
+}
+function setCalendarFilterData(uid) {
+    //Data for fetching records
+    var DesignationIDs = "";
+    var userids = "";
+    DesignationIDs = $('#ddlDesignationSeq').val();
+    userids = $("#ddlSelectUser").val();
+
+    if (DesignationIDs != undefined) {
+        DesignationIDs = DesignationIDs.join();
+        DesignationIDs = DesignationIDs == '0' ? '' : DesignationIDs;
+    }
+    else {
+        DesignationIDs = "";
+    }
+
+    if (userids != undefined) {
+        userids = userids.join();
+        userids = userids == '0' ? '' : userids;
+    }
+    else {
+        userids = "";
+    }
+    if (uid != undefined && uid != null) {
+        userids = uid;
+    }
+
+    var UserStatus = $('#ddlUserStatus').length > 0 ? $('#ddlUserStatus').val().join() : ':';
+    /////////////
+
+    sequenceScope.UserSelectedDesigIds = DesignationIDs;
+    sequenceScope.UserStatus = UserStatus;
+    sequenceScope.UserId = userids;
+    //Start Date
+    var StartDate = $('.dateFrom').val();
+    if (StartDate != undefined)
+        sequenceScope.StartDate = StartDate;
+    else
+        sequenceScope.StartDate = "";
+
+    //End Date
+    var EndDate = $('.dateTo').val();
+    if (EndDate != undefined)
+        sequenceScope.EndDate = EndDate;
+    else
+        sequenceScope.EndDate = "";
+}
+function resetChosen(selector) {
+    var val = $(selector).val();
+
+    //
+    if (val != undefined && val != '') {
+        $(selector)
+            .find('option:first-child').prop('selected', false)
+            .end().trigger('chosen:updated');
+    } else {
+        $(selector)
+            .find('option:first-child').prop('selected', true)
+            .end().trigger('chosen:updated');
+    }
+}
+function refreshCalendarTasks() {
+    $('#calendar').fullCalendar('refetchEvents');
+}
 
 function ShowTaskSequenceDashBoard(DesId, UserId, For) {
 
@@ -465,7 +538,7 @@ function getLastAvailableSequence(TaskID, DesignationID, isFromDropDown) {
 
             DisplySequenceBox(TaskID, sequence.Table[0].Sequence);
 
-
+            
         }
 
     }
@@ -617,7 +690,49 @@ function BindSeqDesignationChange(ControlID) {
 
     });
 }
+function swapRomans(sender, isDown) {
+    var ParentTaskId = $(sender).attr('data-parenttaskid');
+    var CurrentRomanId = $(sender).attr('data-taskid');
+    var OtherRomanId = 0;
+    if (isDown) {
+        OtherRomanId = $(sender).parent().parent().parent().nextAll('.parent:first').attr('data-romanid');
+    }
+    else {
+        OtherRomanId = $(sender).parent().parent().parent().prevAll('.parent:first').attr('data-romanid');
+    }
 
+    $('#romanList_' + ParentTaskId).find('.ecBtn').remove();
+
+    CallJGWebService('TaskSwapRoman', {
+        FirstRomanId: CurrentRomanId,
+        SecondRomanId: OtherRomanId
+    },
+        function (data) {
+            //alert('Romans swapped successfully');
+            reloadTaskRomans(ParentTaskId);
+        },
+        function (err) {
+            alert('Error swappping romans.');
+        }
+    );
+}
+function reloadTaskRomans(TaskId) {
+    clearRomans(TaskId);
+    sequenceScope.expandTask(TaskId);
+}
+function clearRomans(TaskId) {
+    var toDelete = [];
+    toDelete.push(parseInt(TaskId));
+    for (var i = 0; i < sequenceScope.Romans.length; i++) {
+        var obj = sequenceScope.Romans[i];
+        if (toDelete.indexOf(obj.ParentTaskId) !== -1) {
+            sequenceScope.Romans.splice(i, 1);
+            i--;
+        }
+        $('#romanList_' + TaskId + ' .data-row').html('');
+        //console.log(obj.ParentTaskId);
+    }
+}
 function swapSequence(hyperlink, isup) {
 
     var FirstTaskID = $(hyperlink).attr("data-taskid");
@@ -937,6 +1052,40 @@ function SetChosenAssignedUser() {
 
         $(this).chosen();
     });
+}
+
+function SetChosenAssignedUserRoman() {
+    $('*[data-chosen="11"]').each(function (index) {
+
+        var dropdown = $(this);
+
+        //$(dropdown).parent().find('.chosen-container').css('width', '200px');
+        if (dropdown.attr("data-AssignedUsers")) {
+            var assignedUsers = JSON.parse("[" + dropdown.attr("data-AssignedUsers") + "]");
+            $.each(assignedUsers, function (Index, Item) {
+                dropdown.find("option[value='" + Item.Id + "']").prop("selected", true);
+            });
+        }
+
+        $(this).chosen();
+    });
+}
+
+function EditSeqAssignedTaskUsersRoman(sender) {
+    var RomanTaskId = $(sender).attr('data-taskid');
+    var Users = $(sender).val();
+
+    CallJGWebService('SaveAssignedTaskUsersRoman', {
+        RomanId: RomanTaskId,
+        UserIds: Users
+    },
+        function (response) {
+            alert('Task assignement completed successfully.');
+    },
+        function (error) {
+            alert('Error assigning task.');
+        }
+    );
 }
 
 function EditSeqAssignedTaskUsers(sender) {

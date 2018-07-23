@@ -216,11 +216,8 @@ ajaxExt = function (parameters) {
         if (data.Status == ActionStatus.Error) {
             if (parameters.showErrorMessage != false)
                 ShowMessage($(parameters.messageControl), data.Message, MessageType.Error);
-            if (parameters.error != undefined) {
-                parameters.error(data.Message);
-            }
             if (data.Results != undefined && data.Results[0] == 'LoginExipred')
-                window.location.href = data.Results[1];
+                window.location.href = '/';
                 // else if (data.Results != undefined && data.Results[0] == "HttpRequestValidationException")
                 //alert(data.Message);
                 //else
@@ -297,6 +294,7 @@ ajaxExt = function (parameters) {
                 data: parameters.data,
                 error: function (a, b, c) { onError(a, b, c, parameters); },
                 success: function (data) {
+                    
                     var parsed = $.parseJSON(data.d);
                     onSuccess(parsed, parameters);
                 }
@@ -697,3 +695,41 @@ function Hexc(colorval) {
         return color = '#' + parts.join('');
     }
 }
+
+function htmlEncode(value) {
+    //create a in-memory div, set it's inner text(which jQuery automatically encodes)
+    //then grab the encoded contents back out.  The div never exists on the page.
+    return $('<div/>').text(value).html();
+}
+
+function htmlDecode(value) {
+    return $('<div/>').html(value).text();
+}
+
+function ValidURL(str) {
+    var myVariable = str;
+    if (/^(http|https|ftp):\/\/[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/i.test(myVariable)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+$(document).on('click', '.clickable-dropdown .arrow-to-open', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    $('.clickable-dropdown ul.options').hide();
+    $(this).parent().find('ul.options').show();
+    
+});
+$(document).on('click', '.clickable-dropdown .options li', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    var value = $(this).attr('value');
+    var text = $(this).html();
+    $(this).parents('.clickable-dropdown').find('.selected-item').attr('value', value);
+    $(this).parents('.clickable-dropdown').find('.selected-item').html(text);
+});
+$(document).on('click', 'body', function () {
+    $('.clickable-dropdown ul.options').hide();
+});

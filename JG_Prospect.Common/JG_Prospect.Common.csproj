@@ -112,6 +112,8 @@
     <Compile Include="modal\Department.cs" />
     <Compile Include="modal\Designation.cs" />
     <Compile Include="modal\DesignationHTMLTemplate.cs" />
+    <Compile Include="modal\FilesTreeView.cs" />
+    <Compile Include="modal\Folders.cs" />
     <Compile Include="modal\HTMLTemplatesMaster.cs" />
     <Compile Include="modal\MCQ_Exam.cs" />
     <Compile Include="modal\MCQ_Option.cs" />

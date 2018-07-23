@@ -38,14 +38,14 @@
         function showAptTestPage(PageUrl) {
 
             var dialogApptitude = $('<div class="Aptitude-popup"></div>')
-                           .html('<iframe style="border: 0px; " src="' + PageUrl + '" width="100%" height="100%"></iframe>')
-                           .dialog({
-                               autoOpen: false,
-                               modal: false,
-                               height: 625,
-                               width: 900,
-                               title: "Aptitude Test"
-                           });
+                .html('<iframe style="border: 0px; " src="' + PageUrl + '" width="100%" height="100%"></iframe>')
+                .dialog({
+                    autoOpen: false,
+                    modal: false,
+                    height: 625,
+                    width: 900,
+                    title: "Aptitude Test"
+                });
 
             dialogApptitude.dialog('open');
 
@@ -573,10 +573,10 @@
                         $(RemovItem).parent().remove();
                         SetPhoneValuefromCtlToHid();
                     },
-                    function () {
-                        //alert('You clicked Cancel');
-                    },
-                      'Confirm Delete'
+                        function () {
+                            //alert('You clicked Cancel');
+                        },
+                        'Confirm Delete'
                     );
                 });
 
@@ -593,10 +593,10 @@
                         $(RemovItem).parent().remove();
                         SetEmailValuefromCtlToHid();
                     },
-                    function () {
-                        //alert('You clicked Cancel');
-                    },
-                      'Confirm Delete'
+                        function () {
+                            //alert('You clicked Cancel');
+                        },
+                        'Confirm Delete'
                     );
                 });
 
@@ -1136,9 +1136,9 @@
                             width: 350,
                             height: 160,
                             buttons:
-                                {
-                                    OK: function () { $(this).dialog("close"); }
-                                }
+                            {
+                                OK: function () { $(this).dialog("close"); }
+                            }
                         });
 
                         $('#dialog').dialog('open');
@@ -1204,20 +1204,20 @@
                             width: 350,
                             height: 160,
                             buttons: [
-                            {
-                                id: "Yes",
-                                text: "Yes",
-                                click: function () {
-                                    window.location = "CreateSalesUser.aspx?id=" + dataInput[0];
+                                {
+                                    id: "Yes",
+                                    text: "Yes",
+                                    click: function () {
+                                        window.location = "CreateSalesUser.aspx?id=" + dataInput[0];
+                                    }
+                                },
+                                {
+                                    id: "Cancel",
+                                    text: "Cancel",
+                                    click: function () {
+                                        $(this).dialog('close');
+                                    }
                                 }
-                            },
-                            {
-                                id: "Cancel",
-                                text: "Cancel",
-                                click: function () {
-                                    $(this).dialog('close');
-                                }
-                            }
                             ]
                         });
 
@@ -1408,8 +1408,15 @@
             margin-right: 0;
             margin-bottom: 0;
         }
-        .seq-tasktitle{width:40%;word-wrap:break-word;}
-        .seq-notes {width: 35%; }
+
+        .seq-tasktitle {
+            width: 40%;
+            word-wrap: break-word;
+        }
+
+        .seq-notes {
+            width: 35%;
+        }
     </style>
     <script type="text/javascript">
         function uploadComplete2() {
@@ -1906,17 +1913,14 @@
                                         <br />
                                         <asp:DropDownList ID="ddlEmpType" runat="server" Width="170px" AutoPostBack="true" OnSelectedIndexChanged="ddlEmpType_SelectedIndexChanged">
                                             <%--TabIndex="155"--%>
-                                            <asp:ListItem Text="Select" Value="0"></asp:ListItem>
-                                            <asp:ListItem Text="Temp" Value="Temp"></asp:ListItem>
-                                            <asp:ListItem Text="Internship" Value="Internship"></asp:ListItem>
-                                            <asp:ListItem Text="Part Time - Remote" Value="Part Time - Remote"></asp:ListItem>
-                                            <asp:ListItem Text="Part Time - Onsite" Value="Part Time - Onsite"></asp:ListItem>
-                                            <asp:ListItem Text="Full Time - Remote" Value="Full Time - Remote"></asp:ListItem>
-                                            <asp:ListItem Text="Full Time - Onsite" Value="Full Time - Onsite"></asp:ListItem>
-                                            <asp:ListItem Text="Full Time Hourly" Value="Full Time Hourly"></asp:ListItem>
-                                            <asp:ListItem Text="Full Time Salary" Value="Full Time Salary"></asp:ListItem>
-                                            <asp:ListItem Text="Part Time" Value="Part Time"></asp:ListItem>
-                                            <asp:ListItem Text="Sub" Value="Sub"></asp:ListItem>
+                                            <asp:ListItem Text="--Select--" Value="0"></asp:ListItem>
+                                            <asp:ListItem Text="Part Time - Remote" Value="1"></asp:ListItem>
+                                            <asp:ListItem Text="Full Time - Remote" Value="2"></asp:ListItem>
+                                            <asp:ListItem Text="Part Time - Onsite" Value="3"></asp:ListItem>
+                                            <asp:ListItem Text="Full Time - Onsite" Value="4"></asp:ListItem>
+                                            <asp:ListItem Text="Internship" Value="5"></asp:ListItem>
+                                            <asp:ListItem Text="Temp" Value="6"></asp:ListItem>
+                                            <asp:ListItem Text="Sub" Value="7"></asp:ListItem>
                                         </asp:DropDownList>
 
                                         <asp:RequiredFieldValidator ID="rqEmpType" runat="server" ControlToValidate="ddlEmpType"
@@ -5388,7 +5392,7 @@
         <table id="tblProfile" style="border: solid 1px gray; margin: 10px; padding: 5px;">
             <tr>
                 <td style="width: 5%;">
-                    <asp:Image Style="width: 55px;height:55px;" ID="imgprofile" runat="server"></asp:Image></td>
+                    <asp:Image Style="width: 55px; height: 55px;" ID="imgprofile" runat="server"></asp:Image></td>
                 <td style="width: 18%;">
                     <a id="hypExam" runat="server" class="bluetext" href="ViewApplicantUser.aspx?Id=">
                         <asp:Literal ID="ltlAssignToInstallID" runat="server"></asp:Literal></a><br />
@@ -5452,9 +5456,11 @@
                 </td>
             </tr>
         </table>
-        <div id="divTaskAssigned"  visible ="true" runat="server">
+        <div id="divTaskAssigned" visible="true" runat="server">
             <div id="divTechAssignment">
-                Your first tech assignment is <strong><a id="hypTaskLink" target="_blank" style="color: blue;" runat="server"><asp:Literal ID="ltlTaskInstallID" runat="server"></asp:Literal> </a></strong>, 
+                Your first tech assignment is <strong><a id="hypTaskLink" target="_blank" style="color: blue;" runat="server">
+                    <asp:Literal ID="ltlTaskInstallID" runat="server"></asp:Literal>
+                </a></strong>, 
                 details in grid below. Please review your assignment and either ACCEPT or REJECT. if accepted your interview date with recruiter IMG ID#name,date&time, this assignment is due for this interview date. IF NOT ACCEPTED in 24 hours, your assigned task will be REASSIGNED. If REJECTED, you will ve reassigned a new task, with a reason.
             </div>
 
@@ -5832,76 +5838,76 @@
                         });
                     }
                 });
+        }
+
+        function AddAttachmenttoViewState(serverfilename, hdnControlID) {
+            var attachments;
+
+            if ($(hdnControlID).val()) {
+                attachments = $(hdnControlID).val() + serverfilename + "^";
+            }
+            else {
+                attachments = serverfilename + "^";
             }
 
-            function AddAttachmenttoViewState(serverfilename, hdnControlID) {
-                var attachments;
+            $(hdnControlID).val(attachments);
+        }
 
-                if ($(hdnControlID).val()) {
-                    attachments = $(hdnControlID).val() + serverfilename + "^";
+        $(document).ready(function () {
+
+
+            $("#<%=ddlstatus.ClientID%>").click(function () {
+                if ($('#<%=ddlstatus.ClientID%>').val() == "Active") {
+                    $('#pnlcolaps').show(500);
+                } else {
+                    $("#pnlcolaps").hide(500);
                 }
-                else {
-                    attachments = serverfilename + "^";
-                }
-
-                $(hdnControlID).val(attachments);
-            }
-
-            $(document).ready(function () {
-
-
-                $("#<%=ddlstatus.ClientID%>").click(function () {
-                    if ($('#<%=ddlstatus.ClientID%>').val() == "Active") {
-                        $('#pnlcolaps').show(500);
-                    } else {
-                        $("#pnlcolaps").hide(500);
-                    }
-                });
-                var des = $("#ddldesignation").val();
+            });
+            var des = $("#ddldesignation").val();
+            $("#lnkW9").hide();
+            $("#lnkw4").hide();
+            $("#lnkI9").hide();
+            $("#lnkEsrow").hide();
+            $("#lnkface").hide();
+            if (des == "ForeMan") {
                 $("#lnkW9").hide();
-                $("#lnkw4").hide();
-                $("#lnkI9").hide();
+                $("#lnkw4").show();
+                $("#lnkI9").show();
                 $("#lnkEsrow").hide();
                 $("#lnkface").hide();
-                if (des == "ForeMan") {
-                    $("#lnkW9").hide();
-                    $("#lnkw4").show();
-                    $("#lnkI9").show();
-                    $("#lnkEsrow").hide();
-                    $("#lnkface").hide();
-                    Installer;
-                }
-                else if (des == "Installer") {
-                    $("#lnkW9").hide();
-                    $("#lnkw4").show();
-                    $("#lnkI9").show();
-                    $("#lnkEsrow").hide();
-                    $("#lnkface").hide();
+                Installer;
+            }
+            else if (des == "Installer") {
+                $("#lnkW9").hide();
+                $("#lnkw4").show();
+                $("#lnkI9").show();
+                $("#lnkEsrow").hide();
+                $("#lnkface").hide();
 
-                }
-                else if (des == "SubContractor") {
-                    $("#lnkW9").show();
-                    $("#lnkw4").hide();
-                    $("#lnkI9").show();
-                    $("#lnkEsrow").show();
-                    $("#lnkface").show();
+            }
+            else if (des == "SubContractor") {
+                $("#lnkW9").show();
+                $("#lnkw4").hide();
+                $("#lnkI9").show();
+                $("#lnkEsrow").show();
+                $("#lnkface").show();
 
-                }
+            }
 
-                //On UpdatePanel Refresh
-                //;
-                var prm = Sys.WebForms.PageRequestManager.getInstance();
-                if (prm != null) {
-                    // ;
-                    prm.add_beginRequest(function (sender, e) {
-                        if (sender._postBackSettings.panelsToUpdate != null) {
-                            $(".loading").show();
-                        }
-                    });
-                    prm.add_endRequest(function (sender, e) {
-                        if (sender._postBackSettings.panelsToUpdate != null) {
-                            $(".loading").hide();
-                            $("#<%=ddlstatus.ClientID %>").msDropDown();
+            //On UpdatePanel Refresh
+            //;
+            var prm = Sys.WebForms.PageRequestManager.getInstance();
+            if (prm != null) {
+                // ;
+                prm.add_beginRequest(function (sender, e) {
+                    if (sender._postBackSettings.panelsToUpdate != null) {
+                        $(".loading").show();
+                    }
+                });
+                prm.add_endRequest(function (sender, e) {
+                    if (sender._postBackSettings.panelsToUpdate != null) {
+                        $(".loading").hide();
+                        $("#<%=ddlstatus.ClientID %>").msDropDown();
                         }
                     });
 
@@ -5911,23 +5917,23 @@
                 } catch (e) {
                     alert(e.message);
                 }
-            });
+        });
 
-            function TaskAcceptSuccessRedirect(HREF) {
-                window.parent.location.href = HREF;
-            }
+        function TaskAcceptSuccessRedirect(HREF) {
+            window.parent.location.href = HREF;
+        }
 
-            function setEmployeeType(sender) {
-                var type = $(sender).val();
-                if (type != '' && type != '0') {
-                    ajaxExt({
-                        url: '/WebServices/JGWebService.asmx/SetEmployeeType',
-                        type: 'POST',
-                        data: '{ id: <%=Request.QueryString["id"].ToString()%>, type: "' + type + '" }',
+        function setEmployeeType(sender) {
+            var type = $(sender).val();
+            if (type != '' && type != '0') {
+                ajaxExt({
+                    url: '/WebServices/JGWebService.asmx/SetEmployeeType',
+                    type: 'POST',
+                    data: '{ id: <%=Request.QueryString["id"].ToString()%>, type: "' + type + '" }',
                         showThrobber: true,
                         throbberPosition: { my: "left center", at: "right center", of: $(sender), offset: "5 0" },
                         success: function (data, msg) {
-                            
+
                         }
                     });
                 }

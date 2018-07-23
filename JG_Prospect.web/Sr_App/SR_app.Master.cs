@@ -14,17 +14,20 @@ namespace JG_Prospect.Sr_App
 {
     public partial class SR_app : System.Web.UI.MasterPage
     {
-        public string RandomGUID;
+        //public string RandomGUID;
+        public int UserId;
         protected void Page_Load(object sender, EventArgs e)
         {
-            RandomGUID = SingletonGlobal.Instance.RandomGUID;
+            Page.Header.DataBind();
+           // RandomGUID = SingletonGlobal.Instance.RandomGUID;
             if (Session["loginid"] != null)
             {
+                UserId = JGSession.UserId;
 
-                if (JGSession.IsFirstTime == true)
-                {
-                    Response.Redirect("~/changepassword.aspx", false);
-                }
+                //if (JGSession.IsFirstTime == true)
+                //{
+                //    Response.Redirect("~/changepassword.aspx", false);
+                //}
 
                 if ((string)Session["usertype"] == "MM" || (string)Session["usertype"] == "SSE")
                 {
@@ -46,11 +49,15 @@ namespace JG_Prospect.Sr_App
 
                 // Code change by Deep
                 var page = HttpContext.Current.Handler as Page;
-                if (page is EditUser)
+                if(page is AutoDialer)
                 {
                     leftmenudiv.Visible = false;
+                    mainheader.Visible = false;
                 }
-
+                if(page is ViewApplicantUser)
+                {
+                    SearchGoogle.Visible = false;
+                }
             }
             else
             {
@@ -59,7 +66,7 @@ namespace JG_Prospect.Sr_App
             }
         }
 
-       
+
 
         protected void searchbutton_Click(object sender, EventArgs e)
         {

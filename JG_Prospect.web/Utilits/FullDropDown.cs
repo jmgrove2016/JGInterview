@@ -8,6 +8,7 @@ using System.Web.UI.WebControls;
 
 using System.Collections.Generic;
 using JG_Prospect.Common;
+using static JG_Prospect.Common.JGCommon;
 
 namespace JG_Prospect.Utilits
 {
@@ -160,6 +161,110 @@ namespace JG_Prospect.Utilits
             #endregion
         }
 
+
+        /// <summary>
+        /// Fill UserStatus a Static Method in future can replace with DB
+        /// </summary>
+        /// <param name="ddlUserStatus"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// Used with both JQuery Image msDropDown() and plain dropdown.
+        /// </remarks>
+        public static ListBox FillUserStatus(ListBox lstbUserStatus, string FirstItem = "", string FirstItemValue = "", Boolean Formatted = true)
+        {
+            List<UserStatus> lstUserStatus = new List<UserStatus>();
+            UserStatus objUserStatus;
+
+            if (FirstItem != "" && FirstItemValue != "")
+            {
+                objUserStatus = new UserStatus();
+                objUserStatus.Status = FirstItem;
+                objUserStatus.StatusValue = FirstItemValue;
+                lstUserStatus.Add(objUserStatus);
+            }
+
+            objUserStatus = new UserStatus();
+            objUserStatus.Status = "Referral applicant";
+            objUserStatus.StatusValue = Convert.ToByte(JGConstant.InstallUserStatus.ReferralApplicant).ToString();
+            lstUserStatus.Add(objUserStatus);
+
+            //Task ID - ID#: ITSN042 - Passing the Status Text with HTML elements
+            //for JQuery Image dropdown msDropDown()
+            objUserStatus = new UserStatus();
+            objUserStatus.Status = Formatted ? "Applicant <span class='ddlstatus-per-text' id='ddlstatusApplicant'><i class='fa fa-asterisk userstatus-applicant-as'></i>Applicant Screened : 25%</span>" : "Applicant";
+            objUserStatus.StatusValue = Convert.ToByte(JGConstant.InstallUserStatus.Applicant).ToString();
+            lstUserStatus.Add(objUserStatus);
+
+            objUserStatus = new UserStatus();
+            objUserStatus.Status = Formatted ? "Interview Date <span class='ddlstatus-per-text' id='ddlstatusInterviewDate'><i class='fa fa-asterisk userstatus-interviewdate-as'></i>Applicant Screened : 20%</span>" : "Interview Date";
+            objUserStatus.StatusValue = Convert.ToByte(JGConstant.InstallUserStatus.InterviewDate).ToString();
+            lstUserStatus.Add(objUserStatus);
+
+            objUserStatus = new UserStatus();
+            objUserStatus.Status = "Rejected";
+            objUserStatus.StatusValue = Convert.ToByte(JGConstant.InstallUserStatus.Rejected).ToString();
+            lstUserStatus.Add(objUserStatus);
+
+            objUserStatus = new UserStatus();
+            objUserStatus.Status = Formatted ? "Offer Made <span class='ddlstatus-per-text' id='ddlstatusOfferMade'><i class='fa fa-asterisk userstatus-offermade-as'></i>New Hire : 80%</span>" : "Offer Made";
+            objUserStatus.StatusValue = Convert.ToByte(JGConstant.InstallUserStatus.OfferMade).ToString();
+            lstUserStatus.Add(objUserStatus);
+
+            objUserStatus = new UserStatus();
+            objUserStatus.Status = "Active";
+            objUserStatus.StatusValue = Convert.ToByte(JGConstant.InstallUserStatus.Active).ToString();
+            lstUserStatus.Add(objUserStatus);
+
+            objUserStatus = new UserStatus();
+            objUserStatus.Status = "Deactive";
+            objUserStatus.StatusValue = Convert.ToByte(JGConstant.InstallUserStatus.Deactive).ToString();
+            lstUserStatus.Add(objUserStatus);
+
+            objUserStatus = new UserStatus();
+            objUserStatus.Status = "Interview Date Expired";
+            objUserStatus.StatusValue = Convert.ToByte(JGConstant.InstallUserStatus.InterviewDateExpired).ToString();
+            lstUserStatus.Add(objUserStatus);
+
+            lstbUserStatus.DataSource = lstUserStatus;
+            lstbUserStatus.DataTextField = "Status";
+            lstbUserStatus.DataValueField = "StatusValue";
+            lstbUserStatus.DataBind();
+            
+            lstbUserStatus.SelectedIndex = 0;
+
+            return lstbUserStatus;
+
+            #region Old code  removed for Task ID - ID#: ITSN042
+            /**             
+            objUserStatus = new UserStatus();
+            objUserStatus.Status = "Phone/Video Screened";
+            objUserStatus.StatusValue = Convert.ToByte(JGConstant.InstallUserStatus.Phone_VideoScreened).ToString();
+            lstUserStatus.Add(objUserStatus);
+
+            //objUserStatus = new UserStatus();
+            //objUserStatus.Status = "Install Prospect";
+            //objUserStatus.StatusValue = Convert.ToByte(JGConstant.InstallUserStatus.InstallProspect).ToString();
+            //lstUserStatus.Add(objUserStatus);
+
+            //objUserStatus = new UserStatus();
+            //objUserStatus.Status = "Applicant Screened : 20%";
+            //objUserStatus.StatusValue = Convert.ToByte(JGConstant.InstallUserStatus.ApplicantScreened_20).ToString();
+            //lstUserStatus.Add(objUserStatus);
+            
+            //objUserStatus = new UserStatus();
+            //objUserStatus.Status = "Applicant Screened : 25%";
+            //objUserStatus.StatusValue = Convert.ToByte(JGConstant.InstallUserStatus.ApplicantScreened_25).ToString();
+            //lstUserStatus.Add(objUserStatus);
+
+            //objUserStatus = new UserStatus();
+            //objUserStatus.Status = "New Hire : 80%";
+            //objUserStatus.StatusValue = Convert.ToByte(JGConstant.InstallUserStatus.NewHire_80).ToString();
+            //lstUserStatus.Add(objUserStatus);                           
+             * */
+            #endregion
+        }
+
+
         /// <summary>
         /// Set value of Image Attributes on the base of the status
         /// Currently Image Path only for Sr_App Pages.
@@ -222,10 +327,127 @@ namespace JG_Prospect.Utilits
             #endregion
         }
 
-        class UserStatus
+        /// <summary>
+        /// Set value of Image Attributes on the base of the status
+        /// Currently Image Path only for Sr_App Pages.
+        /// </summary>
+        public static ListBox UserStatusDropDown_Set_ImageAtt(ListBox lstbstatus)
         {
-            public string Status { get; set; }
-            public string StatusValue { get; set; }
+            string imageURL = "";
+
+            for (int i = 0; i < lstbstatus.Items.Count; i++)
+            {
+                if (!String.IsNullOrEmpty((lstbstatus.Items[i].Value.Trim())))
+                {
+                    Byte statusVal = Convert.ToByte(lstbstatus.Items[i].Value);
+
+                    switch ((JGConstant.InstallUserStatus)statusVal)
+                    {
+                        case JGConstant.InstallUserStatus.Applicant:
+                        case JGConstant.InstallUserStatus.ReferralApplicant:
+                            imageURL = "../Sr_App/img/red-astrek.png";
+                            lstbstatus.Items[i].Attributes["data-image"] = imageURL;
+                            break;
+                        case JGConstant.InstallUserStatus.OfferMade:
+                            imageURL = "../Sr_App/img/dark-blue-astrek.png";
+                            lstbstatus.Items[i].Attributes["data-image"] = imageURL;
+                            break;
+                        case JGConstant.InstallUserStatus.Active:
+                            imageURL = "../Sr_App/img/green-astrek.png";
+                            lstbstatus.Items[i].Attributes["data-image"] = imageURL;
+                            break;
+                        case JGConstant.InstallUserStatus.InterviewDate:
+                            imageURL = "../Sr_App/img/Light-Blue-astrek.png"; //purple-astrek.png
+                            lstbstatus.Items[i].Attributes["data-image"] = imageURL;
+                            break;
+                        case JGConstant.InstallUserStatus.Deactive:
+                        case JGConstant.InstallUserStatus.Rejected:
+                            lstbstatus.Items[i].Attributes["data-image"] = "../Sr_App/img/white-astrek.png";
+                            break;
+                        default:
+                            break;
+                    } 
+                }
+            }
+            return lstbstatus;
+
+            #region Old code  removed for Task ID - ID#: ITSN042
+            /**
+            case jgconstant.installuserstatus.phonescreened:
+                imageurl = "../sr_app/img/yellow-astrek.png";
+                ddlstatus.items[i].attributes["data-image"] = imageurl;
+                break;
+             
+            case jgconstant.installuserstatus.applicantscreened_20:
+                imageurl = "../sr_app/img/purple-astrek.png";
+                ddlstatus.items[i].attributes["data-image"] = imageurl;
+                break;
+            case jgconstant.installuserstatus.applicantscreened_25:
+                imageurl = "../sr_app/img/yellow-astrek.png";
+                ddlstatus.items[i].attributes["data-image"] = imageurl;
+                break;
+            case jgconstant.installuserstatus.newhire_80:
+                imageurl = "../sr_app/img/black-astrek.png";
+                ddlstatus.items[i].attributes["data-image"] = imageurl;
+                break;
+             * */
+            #endregion
+        }
+
+
+        public static List<UserStatus> GetUserStatuses(Boolean Formatted = true)
+        {
+            List<UserStatus> lstUserStatus = new List<UserStatus>();
+            UserStatus objUserStatus;
+
+            objUserStatus = new UserStatus();
+            objUserStatus.Status = "Referral applicant";
+            objUserStatus.StatusValue = Convert.ToByte(JGConstant.InstallUserStatus.ReferralApplicant).ToString();
+            lstUserStatus.Add(objUserStatus);
+
+            //Task ID - ID#: ITSN042 - Passing the Status Text with HTML elements
+            //for JQuery Image dropdown msDropDown()
+            objUserStatus = new UserStatus();
+            objUserStatus.Status = Formatted ? "Applicant <span class='ddlstatus-per-text' id='ddlstatusApplicant'><img src='../Sr_App/img/yellow-astrek.png' class='fnone'>Applicant Screened : 25%</span>" : "Applicant";
+            objUserStatus.StatusValue = Convert.ToByte(JGConstant.InstallUserStatus.Applicant).ToString();
+            lstUserStatus.Add(objUserStatus);
+
+            objUserStatus = new UserStatus();
+            objUserStatus.Status = Formatted ? "Interview Date <span class='ddlstatus-per-text' id='ddlstatusInterviewDate'><img src='../Sr_App/img/purple-astrek.png' class='fnone'>Applicant Screened : 20%</span>" : "Interview Date";
+            objUserStatus.StatusValue = Convert.ToByte(JGConstant.InstallUserStatus.InterviewDate).ToString();
+            lstUserStatus.Add(objUserStatus);
+
+            objUserStatus = new UserStatus();
+            objUserStatus.Status = "Rejected";
+            objUserStatus.StatusValue = Convert.ToByte(JGConstant.InstallUserStatus.Rejected).ToString();
+            lstUserStatus.Add(objUserStatus);
+
+            objUserStatus = new UserStatus();
+            objUserStatus.Status = Formatted ? "Offer Made <span class='ddlstatus-per-text' id='ddlstatusOfferMade'><img src='../Sr_App/img/black-astrek.png' class='fnone'>New Hire : 80%</span>" : "Offer Made";
+            objUserStatus.StatusValue = Convert.ToByte(JGConstant.InstallUserStatus.OfferMade).ToString();
+            lstUserStatus.Add(objUserStatus);
+
+            objUserStatus = new UserStatus();
+            objUserStatus.Status = "Active";
+            objUserStatus.StatusValue = Convert.ToByte(JGConstant.InstallUserStatus.Active).ToString();
+            lstUserStatus.Add(objUserStatus);
+
+            objUserStatus = new UserStatus();
+            objUserStatus.Status = "Deactive";
+            objUserStatus.StatusValue = Convert.ToByte(JGConstant.InstallUserStatus.Deactive).ToString();
+            lstUserStatus.Add(objUserStatus);
+
+            objUserStatus = new UserStatus();
+            objUserStatus.Status = "Interview Date Expired";
+            objUserStatus.StatusValue = Convert.ToByte(JGConstant.InstallUserStatus.InterviewDateExpired).ToString();
+            lstUserStatus.Add(objUserStatus);
+
+            return lstUserStatus;
+        }
+
+        public static List<UserDesignation> GetUserDesignation(int? Id = null)
+        {
+           return  UserBLL.Instance.GetUserDesignation(Id);
         }
     }
 }

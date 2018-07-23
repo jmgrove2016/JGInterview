@@ -3,7 +3,7 @@
 <%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="asp" %>
 <%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit.HTMLEditor" TagPrefix="ajax" %>
 
-<link rel="stylesheet" href="../css/jquery-ui.css" />
+<link rel="stylesheet" href="../css/jquery-ui.css">
 <style>
     table tr th {
         border: 1px solid;
@@ -85,174 +85,1201 @@
         overflow: auto;
         overflow-x: hidden;
     }
+    .chosen-disabled{
+        width: 150px !important;
+    }
+    /*#divTask{
+        height: 265px;
+        margin-right: 400px !important;
+        width: 100%;
+    }*/
 </style>
 
-<div id="divTaskMain" class="tasklist">
-    <asp:UpdatePanel ID="upnlTasks" runat="server" UpdateMode="Always">
-        <ContentTemplate>
-            <table class="table">
-                <tr>
-                    <td id="tdAddCap" runat="server" style="width: 7%;"></td>
+<%--<div id="divTaskMain" class="tasklist" style="max-height: 256px;">
+    <table style="background: url(../img/dashboard-bg.png); width: 100%;" class="tableFilter">
+        <tbody>
+            <tr style="background-color: #000; color: white; font-weight: bold; text-align: center;">
+                <td style="width: 10%;">
+                    <span id="lblDesignation">Designation</span></td>
+                <td>
+                    <span id="lblUserStatus">User &amp; Task Status</span><span style="color: red">*</span></td>
+                <td>
+                    <span id="lblAddedBy">Users</span></td>
 
-                    <td id="tdDesigCap" runat="server">
-                        <span style="color: #fefefe;">Designation:</span>
-                    </td>
-                    <td id="tdUserCap" runat="server">
-                        <span style="color: #fefefe;">User:</span>
-                    </td>
-                    <td>
-                        <span style="color: #fefefe;">Status:</span>
-                    </td>
-                    <td>
-                        <span style="color: #fefefe;">Period From:</span>
+                <td style="width: 435px !important;">
+                    <span id="Label2">Select Period</span>
+                </td>
+                <td>Search</td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="chosen-container chosen-container-multi" style="width: 129px;" title="" id="ddlDesignationSeq_chosen">
+                        <ul class="chosen-choices">
+                            <li class="search-choice"><span>All</span><a class="search-choice-close" data-option-array-index="0"></a></li>
+                            <li class="search-field"></li>
+                        </ul>
+                        <div class="chosen-drop">
+                            <ul class="chosen-results">
+                                <li class="result-selected" data-option-array-index="0" style="">All</li>
+                            </ul>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="chosen-container chosen-container-multi" style="width: 122px;" title="" id="ddlUserStatus_chosen">
+                        <ul class="chosen-choices">
+                            <li class="search-choice"><span>Active</span><a class="search-choice-close" data-option-array-index="2"></a></li>
+                            <li class="search-field"></li>
+                        </ul>
+                        <div class="chosen-drop">
+                            <ul class="chosen-results"></ul>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="chosen-container chosen-container-multi" style="width: 200px;" title="" id="chosen-drop-user">
+                        <ul class="chosen-choices">
+                            <li class="search-choice"><span>justin m. grove&nbsp;-&nbsp;<a style="color: blue;" href="javascript:;" onclick="redir(&quot;/Sr_App/ViewSalesUser.aspx?id=780&quot;)">ADM-A0064</a></span><a class="search-choice-close" data-option-array-index="1"></a></li>
+                            <li class="search-choice"><span>Yogesh N. Keraliya&nbsp;-&nbsp;<a style="color: blue;" href="javascript:;" onclick="redir(&quot;/Sr_App/ViewSalesUser.aspx?id=901&quot;)">ITL-A0002</a></span><a class="search-choice-close" data-option-array-index="8"></a></li>
+                            <li class="search-field"></li>
+                        </ul>
+                    </div>
+                    <span id="lblLoading" style="display: none;">Loading...</span>
+                </td>
 
-                    </td>
-                    <td><span style="color: #fefefe;">To:</span></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td style="display: none"></td>
-                </tr>
-                <tr>
-                    <td id="tdAdd" runat="server" style="width: 7%;">
+                <td style="text-align: left; text-wrap: avoid; padding: 0px">
+                    <div style="float: left; width: 57%;">
+                        <input class="chkAllDates" name="chkAllDates" type="checkbox" checked="checked"><label for="chkAllDates">All</label>
+                        <input class="chkOneYear" name="chkOneYear" type="checkbox"><label for="chkOneYear">1 year</label>
+                        <input class="chkThreeMonth" name="chkThreeMonth" type="checkbox"><label for="chkThreeMonth"> Quarter (3 months)</label>
+                        <br>
+                        <input class="chkOneMonth" name="chkOneMonth" type="checkbox"><label for="chkOneMonth"> 1 month</label>
+                        <input class="chkTwoWks" name="chkTwoWks" type="checkbox"><label for="chkTwoWks"> 2 weeks (pay period!)</label>
+                    </div>
 
-                        <asp:LinkButton ID="lbtnAddNew" runat="server" Text="Add New" OnClick="lbtnAddNew_Click" />
-                    </td>
+                    <div>
+                        <span id="Label3">From :*
+                            <input type="text" maxlength="10" tabindex="2" onkeypress="return false" style="width: 80px;">
+                            <br>
+                        </span>
 
-                    <td id="tdDesig" runat="server">
+                        <span id="Label4">To :*
+                            <input type="text" maxlength="10" tabindex="3" onkeypress="return false" style="width: 80px; margin-left: 16px;">
+                        </span>
+                    </div>
+                </td>
+                <td>
+                    <input class="textbox ui-autocomplete-input" maxlength="15" placeholder="search users" type="text">
+                </td>
+            </tr>
+            <tr style="">
+                <td style=""></td>
+                <td></td>
+                <td></td>
+                <td colspan="2" style="padding: 0px;">
+                    <div class="ui-tabs ui-widget ui-widget-content ui-corner-all" style="width: 58%; float: right;">
+                        <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all" role="tablist">
+                            <li class="ui-state-default ui-corner-top ui-tabs-active ui-state-active" role="tab" tabindex="0" aria-controls="StaffTask" aria-labelledby="ui-id-29" aria-selected="true"><a href="#StaffTask" class="ui-tabs-anchor" role="presentation" tabindex="-1" id="ui-id-29">Staff Tasks</a></li>
+                            <li class="ui-state-default ui-corner-top" role="tab" tabindex="-1" aria-controls="TechTask" aria-labelledby="ui-id-30" aria-selected="false"><a href="#TechTask" class="ui-tabs-anchor" role="presentation" tabindex="-1" id="ui-id-30">Tech Tasks</a></li>
 
-                        <asp:DropDownList ID="ddlDesignation" Width="130" AutoPostBack="true" runat="server" OnSelectedIndexChanged="ddlDesignation_SelectedIndexChanged">
-                            <Items>
-                                <asp:ListItem Text="Admin" Value="Admin"></asp:ListItem>
-                                <asp:ListItem Text="ITLead" Value="ITLead"></asp:ListItem>
-                                <asp:ListItem Text="Jr. Sales" Value="Jr. Sales"></asp:ListItem>
-                                <asp:ListItem Text="Jr Project Manager" Value="Jr Project Manager"></asp:ListItem>
-                                <asp:ListItem Text="Office Manager" Value="Office Manager"></asp:ListItem>
-                                <asp:ListItem Text="Recruiter" Value="Recruiter"></asp:ListItem>
-                                <asp:ListItem Text="Sales Manager" Value="Sales Manager"></asp:ListItem>
-                                <asp:ListItem Text="Sr. Sales" Value="Sr. Sales"></asp:ListItem>
-                                <asp:ListItem Text="IT - Network Admin" Value="ITNetworkAdmin"></asp:ListItem>
-                                <asp:ListItem Text="IT - Jr .Net Developer" Value="ITJr.NetDeveloper"></asp:ListItem>
-                                <asp:ListItem Text="IT - Sr .Net Developer" Value="ITSr.NetDeveloper"></asp:ListItem>
-                                <asp:ListItem Text="IT - Android Developer" Value="ITAndroidDeveloper"></asp:ListItem>
-                                <asp:ListItem Text="IT - PHP Developer" Value="ITPHPDeveloper"></asp:ListItem>
-                                <asp:ListItem Text="IT - SEO / BackLinking" Value="ITSEOBackLinking"></asp:ListItem>
-                                <asp:ListItem Text="Installer - Helper" Value="InstallerHelper"></asp:ListItem>
-                                <asp:ListItem Text="Installer - Journeyman" Value="InstallerJourneyman"></asp:ListItem>
-                                <asp:ListItem Text="Installer - Mechanic" Value="InstallerMechanic"></asp:ListItem>
-                                <asp:ListItem Text="Installer - Lead mechanic" Value="InstallerLeadMechanic"></asp:ListItem>
-                                <asp:ListItem Text="Installer - Foreman" Value="InstallerForeman"></asp:ListItem>
-                                <asp:ListItem Text="Commercial Only" Value="CommercialOnly"></asp:ListItem>
-                                <asp:ListItem Text="SubContractor" Value="SubContractor"></asp:ListItem>
-                            </Items>
-                        </asp:DropDownList></td>
-                    <td id="tdUsers" runat="server">
-
-                        <asp:DropDownList ID="ddlUsers" Width="100" AutoPostBack="true" runat="server" OnSelectedIndexChanged="ddlUsers_SelectedIndexChanged">
-                        </asp:DropDownList></td>
-                    <td>
-
-                        <asp:DropDownList ID="ddlTaskStatus" Width="100" runat="server" AutoPostBack="True" OnSelectedIndexChanged="ddlTaskStatus_SelectedIndexChanged">
-                            <%--<asp:ListItem Text="--All--" Value="0"></asp:ListItem>
-                            <asp:ListItem Text="Open" Value="1"></asp:ListItem>
-                            <asp:ListItem Text="Assigned" Value="2"></asp:ListItem>
-                            <asp:ListItem Text="In Progress" Value="3"></asp:ListItem>
-                            <asp:ListItem Text="Pending" Value="4"></asp:ListItem>
-                            <asp:ListItem Text="Re-Opened" Value="5"></asp:ListItem>
-                            <asp:ListItem Text="Closed" Value="6"></asp:ListItem>--%>
-                        </asp:DropDownList></td>
-                    <td>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="div-table-row-header">
+        <div class="div-table-col seq-number-fixed">Sequence#</div>
+        <div class="div-table-col seq-taskid-fixed">
+            ID#<div>Designation</div>
+        </div>
+        <div class="div-table-col seq-tasktitle-fixed" style="width: 179px;">
+            Parent Task
+                                        <div>SubTask Title</div>
+        </div>
+        <div class="div-table-col seq-taskstatus-fixed">
+            Status<div>Assigned To</div>
+        </div>
+        <div class="div-table-col seq-taskduedate-fixed" style="width: 11% !important;">
+            Total Hours<br>
+            Total $
+        </div>
+        <div class="div-table-col seq-notes-fixed" style="width: 18% !important;">Notes</div>
+    </div>
+    <div ng-attr-id="divMasterTask{{Task.TaskId}}" class="div-table-row ng-scope orange" data-ng-repeat="Task in Tasks" ng-class="{orange : Task.Status==='4', yellow: Task.Status==='3'}" repeat-end="onStaffEnd()" id="divMasterTask657" style="display: table;">
+        <!-- Sequence# starts -->
+        <div class="div-table-col seq-number-fixed">
+            <a ng-attr-id="autoClick{{Task.TaskId}}" href="javascript:void(0);" class="badge-hyperlink autoclickSeqEdit" ng-attr-data-taskseq="{{Task.Sequence}}" ng-attr-data-taskid="{{Task.TaskId}}" ng-attr-data-seqdesgid="{{Task.SequenceDesignationId}}" id="autoClick657" data-taskseq="2" data-taskid="657" data-seqdesgid="10"><span class="badge badge-success badge-xstext">
+                <label ng-attr-id="SeqLabel{{Task.TaskId}}" class="ng-binding" id="SeqLabel657">2-ITSN:SS</label></span></a>
 
 
-                        <asp:TextBox ID="txtFromDate" CssClass="filter-datepicker" Width="80" runat="server"></asp:TextBox></td>
-                    <td>
-                        <asp:TextBox ID="txtToDate" CssClass="filter-datepicker" Width="80" runat="server"></asp:TextBox></td>
-                    <td>
 
-                        <%--<asp:TextBox ID="txtSearch" runat="server" onkeyup="javascript:setSearchTextKeyUpSearchTrigger(this);" Width="150"></asp:TextBox></td>--%>
-                        <asp:TextBox ID="txtSearch" runat="server" PlaceHolder="Search.." Width="150"></asp:TextBox></td>
-                    <td>
-                        <asp:ImageButton ID="btnSearch" runat="server" ImageUrl="~/img/search_btn.png" CssClass="searchbtn" Style="display: none;" OnClick="btnSearch_Click" />
-                    </td>
-                    <td style="display: none;">
-                        <asp:LinkButton ID="btnLoadMore" runat="server" Style="display: none;" Text="View More" OnClick="btnLoadMore_Click" />
-                        <a id="hypViewMore" href="javascript:void(0);" style="display:none;" data-expanded="0">View More</a>
-                    </td>
-                    <td style="width: 8%;">
-                        <%--<asp:Button ID="btnSubmit" runat="server" OnClick="btnSubmit_Click"  />--%>
-                        <a id="hypTaskListMore" href="../Sr_App/TaskList.aspx">View More</a>
-                    </td>
-                </tr>
-            </table>
-            <div id="taskGrid">
-                <asp:GridView ID="gvTasks" runat="server" EmptyDataRowStyle-ForeColor="White" EmptyDataRowStyle-HorizontalAlign="Center"
-                    EmptyDataText="No task available!" CssClass="table" Width="100%" CellSpacing="0" CellPadding="0" GridLines="Vertical"
-                    AutoGenerateColumns="False" AllowSorting="true" OnRowDataBound="gvTasks_RowDataBound" OnRowCommand="gvTasks_RowCommand"
-                    DataKeyNames="TaskId,CreatedBy" HeaderStyle-ForeColor="White"
-                    OnSorting="gvTasks_Sorting">
-                    <EmptyDataRowStyle ForeColor="White" HorizontalAlign="Center" />
-                    <HeaderStyle CssClass="trHeader " />
-                    <RowStyle CssClass="FirstRow" BorderStyle="Solid" />
-                    <AlternatingRowStyle CssClass="AlternateRow " />
-                    <Columns>
-                        <asp:BoundField DataField="InstallId" ItemStyle-CssClass="tip" HeaderText="ID#" HeaderStyle-Width="10%" SortExpression="InstallId" />
-                        <asp:TemplateField HeaderText="Task Title" SortExpression="Title">
-                            <ItemTemplate>
-                                <asp:HyperLink ID="hypTask" runat="server" Text='<%# Eval("Title")%>' Target="_self" />
-                            </ItemTemplate>
-                        </asp:TemplateField>
-                        <asp:TemplateField HeaderText="Designation" HeaderStyle-Width="15%" SortExpression="TaskDesignations">
-                            <ItemTemplate>
-                                <a id="hypDesg" style="text-decoration: none;" class="tooltip" runat="server"></a>
-                                <%-- <asp:Label ID="lblUserDesignation" runat="server" Text='<%# Eval("Designation") %>' HeaderStyle-Width="10%"></asp:Label>--%>
-                                <%-- <asp:DropDownList ID="ddlRole" runat="server">
-                                            <asp:ListItem Text="Sr.Developer"></asp:ListItem>
-                                            <asp:ListItem Text="Jr.Developer"></asp:ListItem>
-                                        </asp:DropDownList>--%>
-                            </ItemTemplate>
-                        </asp:TemplateField>
-                        <asp:TemplateField HeaderText="Assigned To" HeaderStyle-Width="12%" SortExpression="TaskAssignedUsers">
-                            <ItemTemplate>
-                                <a id="hypUsers" style="text-decoration: none;" class="tooltip" runat="server"></a>
-                                <asp:DropDownCheckBoxes ID="ddcbAssigned" runat="server" UseSelectAllNode="false"
-                                    AutoPostBack="true" OnSelectedIndexChanged="gvTasks_ddcbAssigned_SelectedIndexChanged">
-                                    <Style SelectBoxWidth="100" DropDownBoxBoxWidth="100" DropDownBoxBoxHeight="150" />
-                                    <Texts SelectBoxCaption="--Open--" />
-                                </asp:DropDownCheckBoxes>
-                                <div id="divAcceptRejectButtons" runat="server" visible="false">
-                                    <asp:LinkButton ID="lbtnAcceptTask" runat="server" Text="Accept" CommandName="accept" CommandArgument='<%# Eval("TaskId") %>' />&nbsp;
-                                    <asp:LinkButton ID="lbtnRejectTask" runat="server" Text="Reject" CommandName="reject" CommandArgument='<%# Eval("TaskId") %>' />
-                                </div>
-                                <asp:LinkButton ID="lbtnRequestStatus" runat="server" Visible="false" Text="Request" CommandName="request" CommandArgument='<%# Eval("TaskId") %>' />
-                            </ItemTemplate>
-                        </asp:TemplateField>
-                        <asp:TemplateField HeaderText="Status" HeaderStyle-Width="5%" SortExpression="Status">
-                            <ItemTemplate>
-                                <%--<asp:Label ID="lblTaskStatus" runat="server"></asp:Label>--%>
-                                <asp:DropDownList ID="ddlTaskStatus" Width="100" OnSelectedIndexChanged="gvTasks_ddlTaskStatus_SelectedIndexChanged"
-                                    AutoPostBack="true" runat="server">
-                                    <%--<asp:ListItem Text="Open" Value="1"></asp:ListItem>
-                                    <asp:ListItem Text="Assigned" Value="2"></asp:ListItem>
-                                    <asp:ListItem Text="In Progress" Value="3"></asp:ListItem>
-                                    <asp:ListItem Text="Pending" Value="4"></asp:ListItem>
-                                    <asp:ListItem Text="Re-Opened" Value="5"></asp:ListItem>
-                                    <asp:ListItem Text="Closed" Value="6"></asp:ListItem>--%>
-                                </asp:DropDownList>
-                                <asp:HiddenField ID="hdnTaskId" runat="server" Value='<%# Eval("TaskId") %>' />
-                            </ItemTemplate>
-                            <HeaderStyle Width="5%" />
-                        </asp:TemplateField>
-                        <%--<asp:TemplateField>
-                            <ItemTemplate>
-                                <asp:LinkButton ID="hypDelete" runat="server" OnClientClick="javascript: return confirm('Are you sure you want to remove this task?');" CommandName="RemoveTask" CommandArgument='<%# Eval("TaskId")%>' Text="Delete"></asp:LinkButton>
-                            </ItemTemplate>
-                        </asp:TemplateField>--%>
-                    </Columns>
-                </asp:GridView>
+        </div>
+        <!-- Sequence# ends -->
+
+        <!-- ID# and Designation starts -->
+        <div class="div-table-col seq-taskid-fixed ng-binding">
+            <a ng-href="../Sr_App/TaskGenerator.aspx?TaskId=418&amp;hstid=657" oncontextmenu="openCopyBox(this);return false;" data-installid="ITJN029-IX" parentdata-highlighter="418" data-highlighter="657" class="bluetext context-menu ng-binding" target="_blank" href="../Sr_App/TaskGenerator.aspx?TaskId=418&amp;hstid=657">ITJN029-IX</a><br>
+            IT - Sr .Net Developer                                        
+        </div>
+        <!-- ID# and Designation ends -->
+
+        <!-- Parent Task & SubTask Title starts -->
+        <div class="div-table-col seq-tasktitle-fixed ng-binding">
+            Task Generator: http://web.jmgrovebuildingsupply.com/Sr_App/TaskGenerator.aspx
+                                        <br>
+            Task generator DESCRIPTION column upgrade
+        </div>
+        <!-- Parent Task & SubTask Title ends -->
+
+        <!-- Status & Assigned To starts -->
+        <div class="div-table-col seq-taskstatus-fixed chosen-div">
+            <select id="drpStatusSubsequence657" onchange="changeTaskStatusClosed(this);" data-highlighter="657" style="width: 100%;">
+                <option ng-selected="true" value="4" selected="selected">InProgress</option>
+
+                <option ng-selected="false" style="color: lawngreen" value="3">Request-Assigned</option>
+                <option ng-selected="false" value="1">Open</option>
+
+
+
+                <option ng-selected="false" value="11">Test Commit</option>
+
+            </select>
+            <br>
+
+            <select class="ddlAssignedUsers" disabled="" id="ddcbSeqAssignedStaff657" style="width: 100%; display: none;" multiple="" ng-attr-data-assignedusers="{{Task.TaskAssignedUserIDs}}" data-chosen="1" data-placeholder="Select Users" onchange="EditSeqAssignedTaskUsers(this);" data-taskid="657" data-taskstatus="4" data-assignedusers="{&quot;Id&quot; : &quot;3697&quot;}">
+                <!-- ngRepeat: item in DesignationAssignUsers -->
+                <option ng-repeat="item in DesignationAssignUsers" value="3797" label="Jitendra J. Pancholi - ITSN-A0411" class="activeUser">Jitendra J. Pancholi - ITSN-A0411
+                </option>
+                <!-- end ngRepeat: item in DesignationAssignUsers -->
+                <option ng-repeat="item in DesignationAssignUsers" value="3697" label="Kapil K. Pancholi - ITSN-A0411" class="activeUser">Kapil K. Pancholi - ITSN-A0411
+                </option>
+                <!-- end ngRepeat: item in DesignationAssignUsers -->
+                <option ng-repeat="item in DesignationAssignUsers" value="3516" label="Shreyas H. Patel - ITSN-A0411" class="IOUser">Shreyas H. Patel - ITSN-A0411
+                </option>
+                <!-- end ngRepeat: item in DesignationAssignUsers -->
+                <option ng-repeat="item in DesignationAssignUsers" value="1096" label="Aavadesh  Patel - ITSN-A0411" class="IOUser">Aavadesh  Patel - ITSN-A0411
+                </option>
+                <!-- end ngRepeat: item in DesignationAssignUsers -->
+                <option ng-repeat="item in DesignationAssignUsers" value="894" label="Ali Shahbad - ITSN-A0411" class="IOUser">Ali Shahbad - ITSN-A0411
+                </option>
+                <!-- end ngRepeat: item in DesignationAssignUsers -->
+                <option ng-repeat="item in DesignationAssignUsers" value="1088" label="Amit Agarwal - ITSN-A0411" class="IOUser">Amit Agarwal - ITSN-A0411
+                </option>
+                <!-- end ngRepeat: item in DesignationAssignUsers -->
+                <option ng-repeat="item in DesignationAssignUsers" value="1092" label="Bhaskhar  D - ITSN-A0411" class="IOUser">Bhaskhar  D - ITSN-A0411
+                </option>
+                <!-- end ngRepeat: item in DesignationAssignUsers -->
+                <option ng-repeat="item in DesignationAssignUsers" value="1115" label="Bhavik J. vaishnani - ITSN-A0411" class="IOUser">Bhavik J. vaishnani - ITSN-A0411
+                </option>
+                <!-- end ngRepeat: item in DesignationAssignUsers -->
+                <option ng-repeat="item in DesignationAssignUsers" value="2648" label="Bismi T. Demo - ITSN-A0411" class="IOUser">Bismi T. Demo - ITSN-A0411
+                </option>
+                <!-- end ngRepeat: item in DesignationAssignUsers -->
+                <option ng-repeat="item in DesignationAssignUsers" value="997" label="Brahmeswar  . Gade - ITSN-A0411" class="IOUser">Brahmeswar  . Gade - ITSN-A0411
+                </option>
+                <!-- end ngRepeat: item in DesignationAssignUsers -->
+                <option ng-repeat="item in DesignationAssignUsers" value="3614" label="Charandeep S. Singh - ITSN-A0411" class="IOUser">Charandeep S. Singh - ITSN-A0411
+                </option>
+                <!-- end ngRepeat: item in DesignationAssignUsers -->
+                <option ng-repeat="item in DesignationAssignUsers" value="921" label="Faheem Ullah - ITSN-A0411" class="IOUser">Faheem Ullah - ITSN-A0411
+                </option>
+                <!-- end ngRepeat: item in DesignationAssignUsers -->
+                <option ng-repeat="item in DesignationAssignUsers" value="3714" label="Jigar B. Shah - ITSN-A0411" class="IOUser">Jigar B. Shah - ITSN-A0411
+                </option>
+                <!-- end ngRepeat: item in DesignationAssignUsers -->
+                <option ng-repeat="item in DesignationAssignUsers" value="1089" label="Liyo  Jose - ITSN-A0411" class="IOUser">Liyo  Jose - ITSN-A0411
+                </option>
+                <!-- end ngRepeat: item in DesignationAssignUsers -->
+                <option ng-repeat="item in DesignationAssignUsers" value="2909" label="Manisha Heman. Shinde - ITSN-A0411" class="IOUser">Manisha Heman. Shinde - ITSN-A0411
+                </option>
+                <!-- end ngRepeat: item in DesignationAssignUsers -->
+                <option ng-repeat="item in DesignationAssignUsers" value="2652" label="Mohd Mr. Rafi - ITSN-A0411" class="IOUser">Mohd Mr. Rafi - ITSN-A0411
+                </option>
+                <!-- end ngRepeat: item in DesignationAssignUsers -->
+                <option ng-repeat="item in DesignationAssignUsers" value="1179" label="Mudit Sharma - ITSN-A0411" class="IOUser">Mudit Sharma - ITSN-A0411
+                </option>
+                <!-- end ngRepeat: item in DesignationAssignUsers -->
+                <option ng-repeat="item in DesignationAssignUsers" value="2765" label="Nandkumar C. Chavan - ITSN-A0411" class="IOUser">Nandkumar C. Chavan - ITSN-A0411
+                </option>
+                <!-- end ngRepeat: item in DesignationAssignUsers -->
+                <option ng-repeat="item in DesignationAssignUsers" value="3724" label="Pawan k. tiwari - ITSN-A0411" class="IOUser">Pawan k. tiwari - ITSN-A0411
+                </option>
+                <!-- end ngRepeat: item in DesignationAssignUsers -->
+                <option ng-repeat="item in DesignationAssignUsers" value="1029" label="Ramya  Akunuri  - ITSN-A0411" class="IOUser">Ramya  Akunuri  - ITSN-A0411
+                </option>
+                <!-- end ngRepeat: item in DesignationAssignUsers -->
+                <option ng-repeat="item in DesignationAssignUsers" value="1184" label="satinder  hundal  - ITSN-A0411" class="IOUser">satinder  hundal  - ITSN-A0411
+                </option>
+                <!-- end ngRepeat: item in DesignationAssignUsers -->
+                <option ng-repeat="item in DesignationAssignUsers" value="1143" label="Shekhar Pawar - ITSN-A0411" class="IOUser">Shekhar Pawar - ITSN-A0411
+                </option>
+                <!-- end ngRepeat: item in DesignationAssignUsers -->
+                <option ng-repeat="item in DesignationAssignUsers" value="835" label="Shilpa Ms. Gupta - ITSN-A0411" class="IOUser">Shilpa Ms. Gupta - ITSN-A0411
+                </option>
+                <!-- end ngRepeat: item in DesignationAssignUsers -->
+                <option ng-repeat="item in DesignationAssignUsers" value="1095" label="Sridhar  D - ITSN-A0411" class="IOUser">Sridhar  D - ITSN-A0411
+                </option>
+                <!-- end ngRepeat: item in DesignationAssignUsers -->
+                <option ng-repeat="item in DesignationAssignUsers" value="1086" label="Vinod Pandya - ITSN-A0411" class="IOUser">Vinod Pandya - ITSN-A0411
+                </option>
+                <!-- end ngRepeat: item in DesignationAssignUsers -->
+                <option ng-repeat="item in DesignationAssignUsers" value="1109" label="Vivek Sharma - ITSN-A0411" class="IOUser">Vivek Sharma - ITSN-A0411
+                </option>
+                <!-- end ngRepeat: item in DesignationAssignUsers -->
+                <option ng-repeat="item in DesignationAssignUsers" value="2653" label="Zubair A. Khan - ITSN-A0411" class="IOUser">Zubair A. Khan - ITSN-A0411
+                </option>
+                <!-- end ngRepeat: item in DesignationAssignUsers -->
+            </select><div class="chosen-container chosen-container-multi chosen-disabled" style="width: 0px;" title="" id="ddcbSeqAssignedStaff657_chosen">
+                <ul class="chosen-choices">
+                    <li class="search-choice"><span>Kapil K. Pancholi - ITSN-A0411
+                    </span><a class="search-choice-close" data-option-array-index="1"></a></li>
+                    <li class="search-field">
+                        <input type="text" value="Select Users" class="" autocomplete="off" style="width: 25px;" disabled=""></li>
+                </ul>
+                <div class="chosen-drop">
+                    <ul class="chosen-results"></ul>
+                </div>
             </div>
-        </ContentTemplate>
-    </asp:UpdatePanel>
-</div>
+            <div class="chosen-container chosen-container-multi chosen-disabled" style="width: 0px;" title="" id="ddcbSeqAssignedStaff657_chosen">
+                <ul class="chosen-choices">
+                    <li class="search-choice"><span>Kapil K. Pancholi - ITSN-A0411
+                    </span><a class="search-choice-close" data-option-array-index="1"></a></li>
+                    <li class="search-field">
+                        <input type="text" value="Select Users" class="" autocomplete="off" style="width: 25px;" disabled=""></li>
+                </ul>
+                <div class="chosen-drop">
+                    <ul class="chosen-results"></ul>
+                </div>
+            </div>
+
+
+
+
+
+        </div>
+        <!-- Status & Assigned To ends -->
+
+        <!-- DueDate starts -->
+        <div class="div-table-col seq-taskduedate-fixed">
+            <div class="seqapprovalBoxes" id="SeqApprovalDiv657" data-adminstatusupdateddate="9/16/2017" data-adminstatusupdatedtime="9:18 PM" data-adminstatusupdatedtimezone="(EST)" data-adminstatusupdated="2017-09-16T15:48:27.19+00:00" data-admindisplayname="INS00092 - justin grove" data-adminstatususerid="780" data-leadstatusupdateddate="9/20/2017" data-leadstatusupdatedtime="6:47 PM" data-leadstatusupdatedtimezone="(EST)" data-leadstatusupdated="16" data-leadhours="16" data-leaddisplayname="901 - Yogesh Keraliya" data-leaduserid="901" data-userstatusupdateddate="" data-userstatusupdatedtime="" data-userstatusupdatedtimezone="" data-userstatusupdated="" data-userhours="" data-userdisplayname=" -  " data-useruserid="">
+                <div style="width: 55%; float: left;">
+                    <input type="checkbox" data-taskid="657" onchange="openSeqApprovalPopup(this)" id="chkngUserMaster657" ng-checked="false" ng-disabled="false" class="fz fz-user" title="User">
+                    <input type="checkbox" data-taskid="657" onchange="openSeqApprovalPopup(this)" id="chkQAMaster657" class="fz fz-QA" title="QA">
+                    <input type="checkbox" data-taskid="657" onchange="openSeqApprovalPopup(this)" id="chkAlphaUserMaster657" class="fz fz-Alpha" title="AlphaUser">
+                    <br>
+                    <input type="checkbox" data-taskid="657" onchange="openSeqApprovalPopup(this)" id="chkBetaUserMaster657" class="fz fz-Beta" title="BetaUser">
+                    <input type="checkbox" data-taskid="657" onchange="openSeqApprovalPopup(this)" id="chkngITLead657" ng-checked="true" ng-disabled="true" class="fz fz-techlead" title="IT Lead" disabled="disabled" checked="checked">
+                    <input type="checkbox" data-taskid="657" onchange="openSeqApprovalPopup(this)" id="chkngAdmin657" ng-checked="true" ng-disabled="true" class="fz fz-admin" title="Admin" disabled="disabled" checked="checked">
+                </div>
+                <div style="width: 42%; float: right;">
+                    <input type="checkbox" data-taskid="657" onchange="openSeqApprovalPopup(this)" id="chkngITLeadMaster657" class="fz fz-techlead largecheckbox" title="IT Lead"><br>
+                    <input type="checkbox" data-taskid="657" onchange="openSeqApprovalPopup(this)" id="chkngAdminMaster657" class="fz fz-admin largecheckbox" title="Admin">
+                </div>
+            </div>
+
+
+        </div>
+        <!-- DueDate ends -->
+
+        <!-- Nested row starts -->
+
+        <div class="div-table-nested" ng-class="{hide : StringIsNullOrEmpty(Task.SubSeqTasks)}">
+
+            <!-- Body section starts -->
+            <!-- ngRepeat: TechTask in correctDataforAngular(Task.SubSeqTasks) -->
+            <div class="div-table-row ng-scope yellow" ng-repeat="TechTask in correctDataforAngular(Task.SubSeqTasks)" ng-class="{orange : TechTask.Status==='4', yellow: TechTask.Status==='3'}">
+                <!-- Sequence# starts -->
+                <div class="div-table-col seq-number-fixed">
+                    <a style="text-decoration: none;" ng-show="!$first" ng-attr-data-taskid="{{TechTask.TaskId}}" href="javascript:void(0);" class="uplink ng-hide" ng-class="{hide: TechTask.Sequence == null || 0}" ng-attr-data-taskseq="{{TechTask.SubSequence}}" ng-attr-data-taskdesg="{{TechTask.SequenceDesignationId}}" onclick="swapSubSequence(this,true)" data-taskid="765" data-taskseq="4" data-taskdesg="10">?</a><a style="text-decoration: none;" ng-class="{hide: TechTask.Sequence == null || 0}" ng-attr-data-taskid="{{TechTask.TaskId}}" ng-attr-data-taskseq="{{TechTask.SubSequence}}" class="downlink" ng-attr-data-taskdesg="{{TechTask.SequenceDesignationId}}" href="javascript:void(0);" ng-show="!$last" onclick="swapSubSequence(this,false)" data-taskid="765" data-taskseq="4" data-taskdesg="10">?</a>
+                    <a ng-attr-id="autoClick{{Task.TaskId}}" href="javascript:void(0);" class="badge-hyperlink autoclickSeqEdit" ng-attr-data-taskid="{{TechTask.TaskId}}" ng-attr-data-seqdesgid="{{TechTask.SequenceDesignationId}}" id="autoClick657" data-taskid="765" data-seqdesgid="10"><span class="badge badge-error badge-xstext">
+                        <label ng-attr-id="SeqLabel{{TechTask.TaskId}}" class="ng-binding" id="SeqLabel765">2 (IV)-ITSN:SS</label></span></a>
+                    <div class="handle-counter hide" ng-class="{hide: TechTask.TaskId != HighLightTaskId}" ng-attr-id="divSeq{{TechTask.TaskId}}" id="divSeq765">
+                        <input type="text" class="textbox hide" ng-attr-data-original-val="{{ TechTask.Sequence == null &amp;&amp; 0 || TechTask.Sequence}}" ng-attr-data-original-desgid="{{TechTask.SequenceDesignationId}}" ng-attr-id="txtSeq{{TechTask.TaskId}}" value="2" data-original-val="2" data-original-desgid="10" id="txtSeq765">
+                    </div>
+                </div>
+                <!-- Sequence# ends -->
+
+                <!-- ID# and Designation starts -->
+                <div class="div-table-col seq-taskid-fixed ng-binding">
+                    <a ng-href="../Sr_App/TaskGenerator.aspx?TaskId=418&amp;hstid=765" oncontextmenu="openCopyBox(this);return false;" data-installid="ITJN029-IX-IX - c" parentdata-highlighter="418" data-highlighter="765" class="bluetext context-menu ng-binding" target="_blank" href="../Sr_App/TaskGenerator.aspx?TaskId=418&amp;hstid=765">ITJN029-IX-IX - c</a><br>
+                    IT - Sr .Net Developer
+                                        <div ng-attr-id="divSeqDesg{{TechTask.TaskId}}" ng-class="{hide: TechTask.TaskId != HighLightTaskId}" id="divSeqDesg765" class="hide">
+                                            <select class="textbox hide ng-pristine ng-untouched ng-valid ng-empty" ng-attr-data-taskid="{{TechTask.TaskId}}" ng-options="item as item.Name for item in ParentTaskDesignations track by item.Id" ng-model="DesignationSelectModel[$index]" data-taskid="765">
+                                                <option value="?" selected="selected"></option>
+                                            </select>
+                                        </div>
+                </div>
+                <!-- ID# and Designation ends -->
+
+                <!-- Parent Task & SubTask Title starts -->
+                <div class="div-table-col seq-tasktitle-fixed ng-binding">
+                    Task Generator: http://web.jmgrovebuildingsupply.com/Sr_App/TaskGenerator.aspx
+                                        <br>
+                    Recover and start working on this task - confirmation adding new ID#'s are same
+                </div>
+                <!-- Parent Task & SubTask Title ends -->
+
+                <!-- Status & Assigned To starts -->
+                <div class="div-table-col seq-taskstatus-fixed chosen-div">
+                    <select id="drpStatusSubsequenceNested765" onchange="changeTaskStatusClosed(this);" data-highlighter="765">
+
+                        <option ng-selected="false" value="4">InProgress</option>
+
+                        <option ng-selected="true" style="color: lawngreen" value="3" selected="selected">Request-Assigned</option>
+                        <option ng-selected="false" value="1">Open</option>
+
+
+
+                        <option ng-selected="false" value="11">Test Commit</option>
+
+                    </select>
+                    <br>
+                    <select disabled="" id="ddcbSeqAssignedIA765" style="width: 100%; display: none;" multiple="" ng-attr-data-assignedusers="{{TechTask.TaskAssignedUserIDs}}" data-chosen="1" data-placeholder="Select Users" onchange="EditSeqAssignedTaskUsers(this);" data-taskid="765" data-taskstatus="3" data-assignedusers="{&quot;Id&quot; : &quot;3697&quot;}">
+                        <!-- ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="3797" label="Jitendra J. Pancholi - ITSN-A0411" class="activeUser">Jitendra J. Pancholi - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="3697" label="Kapil K. Pancholi - ITSN-A0411" class="activeUser">Kapil K. Pancholi - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="3516" label="Shreyas H. Patel - ITSN-A0411" class="IOUser">Shreyas H. Patel - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1096" label="Aavadesh  Patel - ITSN-A0411" class="IOUser">Aavadesh  Patel - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="894" label="Ali Shahbad - ITSN-A0411" class="IOUser">Ali Shahbad - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1088" label="Amit Agarwal - ITSN-A0411" class="IOUser">Amit Agarwal - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1092" label="Bhaskhar  D - ITSN-A0411" class="IOUser">Bhaskhar  D - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1115" label="Bhavik J. vaishnani - ITSN-A0411" class="IOUser">Bhavik J. vaishnani - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="2648" label="Bismi T. Demo - ITSN-A0411" class="IOUser">Bismi T. Demo - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="997" label="Brahmeswar  . Gade - ITSN-A0411" class="IOUser">Brahmeswar  . Gade - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="3614" label="Charandeep S. Singh - ITSN-A0411" class="IOUser">Charandeep S. Singh - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="921" label="Faheem Ullah - ITSN-A0411" class="IOUser">Faheem Ullah - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="3714" label="Jigar B. Shah - ITSN-A0411" class="IOUser">Jigar B. Shah - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1089" label="Liyo  Jose - ITSN-A0411" class="IOUser">Liyo  Jose - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="2909" label="Manisha Heman. Shinde - ITSN-A0411" class="IOUser">Manisha Heman. Shinde - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="2652" label="Mohd Mr. Rafi - ITSN-A0411" class="IOUser">Mohd Mr. Rafi - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1179" label="Mudit Sharma - ITSN-A0411" class="IOUser">Mudit Sharma - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="2765" label="Nandkumar C. Chavan - ITSN-A0411" class="IOUser">Nandkumar C. Chavan - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="3724" label="Pawan k. tiwari - ITSN-A0411" class="IOUser">Pawan k. tiwari - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1029" label="Ramya  Akunuri  - ITSN-A0411" class="IOUser">Ramya  Akunuri  - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1184" label="satinder  hundal  - ITSN-A0411" class="IOUser">satinder  hundal  - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1143" label="Shekhar Pawar - ITSN-A0411" class="IOUser">Shekhar Pawar - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="835" label="Shilpa Ms. Gupta - ITSN-A0411" class="IOUser">Shilpa Ms. Gupta - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1095" label="Sridhar  D - ITSN-A0411" class="IOUser">Sridhar  D - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1086" label="Vinod Pandya - ITSN-A0411" class="IOUser">Vinod Pandya - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1109" label="Vivek Sharma - ITSN-A0411" class="IOUser">Vivek Sharma - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="2653" label="Zubair A. Khan - ITSN-A0411" class="IOUser">Zubair A. Khan - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                    </select><div class="chosen-container chosen-container-multi chosen-disabled" style="width: 0px;" title="" id="ddcbSeqAssignedIA765_chosen">
+                        <ul class="chosen-choices">
+                            <li class="search-choice"><span>Kapil K. Pancholi - ITSN-A0411
+                                                
+                            </span><a class="search-choice-close" data-option-array-index="1"></a></li>
+                            <li class="search-field">
+                                <input type="text" value="Select Users" class="" autocomplete="off" style="width: 25px;" disabled=""></li>
+                        </ul>
+                        <div class="chosen-drop">
+                            <ul class="chosen-results"></ul>
+                        </div>
+                    </div>
+                    <div class="chosen-container chosen-container-multi chosen-disabled" style="width: 0px;" title="" id="ddcbSeqAssignedIA765_chosen">
+                        <ul class="chosen-choices">
+                            <li class="search-choice"><span>Kapil K. Pancholi - ITSN-A0411
+                                                
+                            </span><a class="search-choice-close" data-option-array-index="1"></a></li>
+                            <li class="search-field">
+                                <input type="text" value="Select Users" class="" autocomplete="off" style="width: 25px;" disabled=""></li>
+                        </ul>
+                        <div class="chosen-drop">
+                            <ul class="chosen-results"></ul>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- Status & Assigned To ends -->
+                <div class="div-table-col seq-taskduedate-fixed">
+                    <div class="seqapprovalBoxes" id="SeqApprovalDiv765" data-adminstatusupdateddate="" data-adminstatusupdatedtime="" data-adminstatusupdatedtimezone="" data-adminstatusupdated="" data-admindisplayname=" -  " data-adminstatususerid="" data-leadstatusupdateddate="" data-leadstatusupdatedtime="" data-leadstatusupdatedtimezone="" data-leadstatusupdated="" data-leadhours="" data-leaddisplayname=" -  " data-leaduserid="" data-userstatusupdateddate="" data-userstatusupdatedtime="" data-userstatusupdatedtimezone="" data-userstatusupdated="" data-userhours="" data-userdisplayname=" -  " data-useruserid="">
+                        <div style="width: 55%; float: left;">
+                            <input type="checkbox" data-taskid="765" onchange="openSeqApprovalPopup(this)" id="chkngUserNested765" ng-checked="false" ng-disabled="false" class="fz fz-user" title="User">
+                            <input type="checkbox" data-taskid="765" onchange="openSeqApprovalPopup(this)" id="chkQANested765" class="fz fz-QA" title="QA">
+                            <input type="checkbox" data-taskid="765" onchange="openSeqApprovalPopup(this)" id="chkAlphaUserNested765" class="fz fz-Alpha" title="AlphaUser">
+                            <br>
+                            <input type="checkbox" data-taskid="765" onchange="openSeqApprovalPopup(this)" id="chkBetaUserNested765" class="fz fz-Beta" title="BetaUser">
+                            <input type="checkbox" data-taskid="765" onchange="openSeqApprovalPopup(this)" id="chkngITLeadNested765" ng-checked="false" ng-disabled="false" class="fz fz-techlead" title="IT Lead">
+                            <input type="checkbox" data-taskid="765" onchange="openSeqApprovalPopup(this)" id="chkngAdminNested765" ng-checked="false" ng-disabled="false" class="fz fz-admin" title="Admin">
+                        </div>
+                        <div style="width: 43%; float: right;">
+                            <input type="checkbox" data-taskid="765" onchange="openSeqApprovalPopup(this)" id="chkngITLeadMasterNested765" class="fz fz-techlead largecheckbox" title="IT Lead"><br>
+                            <input type="checkbox" data-taskid="765" onchange="openSeqApprovalPopup(this)" id="chkngAdminMasterNested765" class="fz fz-admin largecheckbox" title="Admin">
+                        </div>
+                    </div>
+                </div>
+                <div class="div-table-col seq-notes-fixed-top sub-task" taskid="0" taskmultilevellistid="0">
+                    <table class="notes-table" cellspacing="0" cellpadding="0">
+                        <tbody>
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- end ngRepeat: TechTask in correctDataforAngular(Task.SubSeqTasks) -->
+            <div class="div-table-row ng-scope yellow" ng-repeat="TechTask in correctDataforAngular(Task.SubSeqTasks)" ng-class="{orange : TechTask.Status==='4', yellow: TechTask.Status==='3'}">
+                <!-- Sequence# starts -->
+                <div class="div-table-col seq-number-fixed">
+                    <a style="text-decoration: none;" ng-show="!$first" ng-attr-data-taskid="{{TechTask.TaskId}}" href="javascript:void(0);" class="uplink" ng-class="{hide: TechTask.Sequence == null || 0}" ng-attr-data-taskseq="{{TechTask.SubSequence}}" ng-attr-data-taskdesg="{{TechTask.SequenceDesignationId}}" onclick="swapSubSequence(this,true)" data-taskid="766" data-taskseq="3" data-taskdesg="10">?</a><a style="text-decoration: none;" ng-class="{hide: TechTask.Sequence == null || 0}" ng-attr-data-taskid="{{TechTask.TaskId}}" ng-attr-data-taskseq="{{TechTask.SubSequence}}" class="downlink" ng-attr-data-taskdesg="{{TechTask.SequenceDesignationId}}" href="javascript:void(0);" ng-show="!$last" onclick="swapSubSequence(this,false)" data-taskid="766" data-taskseq="3" data-taskdesg="10">?</a>
+                    <a ng-attr-id="autoClick{{Task.TaskId}}" href="javascript:void(0);" class="badge-hyperlink autoclickSeqEdit" ng-attr-data-taskid="{{TechTask.TaskId}}" ng-attr-data-seqdesgid="{{TechTask.SequenceDesignationId}}" id="autoClick657" data-taskid="766" data-seqdesgid="10"><span class="badge badge-error badge-xstext">
+                        <label ng-attr-id="SeqLabel{{TechTask.TaskId}}" class="ng-binding" id="SeqLabel766">2 (III)-ITSN:SS</label></span></a>
+                    <div class="handle-counter hide" ng-class="{hide: TechTask.TaskId != HighLightTaskId}" ng-attr-id="divSeq{{TechTask.TaskId}}" id="divSeq766">
+                        <input type="text" class="textbox hide" ng-attr-data-original-val="{{ TechTask.Sequence == null &amp;&amp; 0 || TechTask.Sequence}}" ng-attr-data-original-desgid="{{TechTask.SequenceDesignationId}}" ng-attr-id="txtSeq{{TechTask.TaskId}}" value="2" data-original-val="2" data-original-desgid="10" id="txtSeq766">
+                    </div>
+                </div>
+                <!-- Sequence# ends -->
+
+                <!-- ID# and Designation starts -->
+                <div class="div-table-col seq-taskid-fixed ng-binding">
+                    <a ng-href="../Sr_App/TaskGenerator.aspx?TaskId=418&amp;hstid=766" oncontextmenu="openCopyBox(this);return false;" data-installid="ITJN029-IX-IX - d" parentdata-highlighter="418" data-highlighter="766" class="bluetext context-menu ng-binding" target="_blank" href="../Sr_App/TaskGenerator.aspx?TaskId=418&amp;hstid=766">ITJN029-IX-IX - d</a><br>
+                    IT - Sr .Net Developer
+                                        <div ng-attr-id="divSeqDesg{{TechTask.TaskId}}" ng-class="{hide: TechTask.TaskId != HighLightTaskId}" id="divSeqDesg766" class="hide">
+                                            <select class="textbox hide ng-pristine ng-untouched ng-valid ng-empty" ng-attr-data-taskid="{{TechTask.TaskId}}" ng-options="item as item.Name for item in ParentTaskDesignations track by item.Id" ng-model="DesignationSelectModel[$index]" data-taskid="766">
+                                                <option value="?" selected="selected"></option>
+                                            </select>
+                                        </div>
+                </div>
+                <!-- ID# and Designation ends -->
+
+                <!-- Parent Task & SubTask Title starts -->
+                <div class="div-table-col seq-tasktitle-fixed ng-binding">
+                    Task Generator: http://web.jmgrovebuildingsupply.com/Sr_App/TaskGenerator.aspx
+                                        <br>
+                    Recover and start working on this task - 
+                </div>
+                <!-- Parent Task & SubTask Title ends -->
+
+                <!-- Status & Assigned To starts -->
+                <div class="div-table-col seq-taskstatus-fixed chosen-div">
+                    <select id="drpStatusSubsequenceNested766" onchange="changeTaskStatusClosed(this);" data-highlighter="766">
+
+                        <option ng-selected="false" value="4">InProgress</option>
+
+                        <option ng-selected="true" style="color: lawngreen" value="3" selected="selected">Request-Assigned</option>
+                        <option ng-selected="false" value="1">Open</option>
+
+
+
+                        <option ng-selected="false" value="11">Test Commit</option>
+
+                    </select>
+                    <br>
+                    <select disabled="" id="ddcbSeqAssignedIA766" style="width: 100%; display: none;" multiple="" ng-attr-data-assignedusers="{{TechTask.TaskAssignedUserIDs}}" data-chosen="1" data-placeholder="Select Users" onchange="EditSeqAssignedTaskUsers(this);" data-taskid="766" data-taskstatus="3" data-assignedusers="{&quot;Id&quot; : &quot;3697&quot;}">
+                        <!-- ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="3797" label="Jitendra J. Pancholi - ITSN-A0411" class="activeUser">Jitendra J. Pancholi - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="3697" label="Kapil K. Pancholi - ITSN-A0411" class="activeUser">Kapil K. Pancholi - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="3516" label="Shreyas H. Patel - ITSN-A0411" class="IOUser">Shreyas H. Patel - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1096" label="Aavadesh  Patel - ITSN-A0411" class="IOUser">Aavadesh  Patel - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="894" label="Ali Shahbad - ITSN-A0411" class="IOUser">Ali Shahbad - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1088" label="Amit Agarwal - ITSN-A0411" class="IOUser">Amit Agarwal - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1092" label="Bhaskhar  D - ITSN-A0411" class="IOUser">Bhaskhar  D - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1115" label="Bhavik J. vaishnani - ITSN-A0411" class="IOUser">Bhavik J. vaishnani - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="2648" label="Bismi T. Demo - ITSN-A0411" class="IOUser">Bismi T. Demo - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="997" label="Brahmeswar  . Gade - ITSN-A0411" class="IOUser">Brahmeswar  . Gade - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="3614" label="Charandeep S. Singh - ITSN-A0411" class="IOUser">Charandeep S. Singh - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="921" label="Faheem Ullah - ITSN-A0411" class="IOUser">Faheem Ullah - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="3714" label="Jigar B. Shah - ITSN-A0411" class="IOUser">Jigar B. Shah - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1089" label="Liyo  Jose - ITSN-A0411" class="IOUser">Liyo  Jose - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="2909" label="Manisha Heman. Shinde - ITSN-A0411" class="IOUser">Manisha Heman. Shinde - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="2652" label="Mohd Mr. Rafi - ITSN-A0411" class="IOUser">Mohd Mr. Rafi - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1179" label="Mudit Sharma - ITSN-A0411" class="IOUser">Mudit Sharma - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="2765" label="Nandkumar C. Chavan - ITSN-A0411" class="IOUser">Nandkumar C. Chavan - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="3724" label="Pawan k. tiwari - ITSN-A0411" class="IOUser">Pawan k. tiwari - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1029" label="Ramya  Akunuri  - ITSN-A0411" class="IOUser">Ramya  Akunuri  - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1184" label="satinder  hundal  - ITSN-A0411" class="IOUser">satinder  hundal  - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1143" label="Shekhar Pawar - ITSN-A0411" class="IOUser">Shekhar Pawar - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="835" label="Shilpa Ms. Gupta - ITSN-A0411" class="IOUser">Shilpa Ms. Gupta - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1095" label="Sridhar  D - ITSN-A0411" class="IOUser">Sridhar  D - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1086" label="Vinod Pandya - ITSN-A0411" class="IOUser">Vinod Pandya - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1109" label="Vivek Sharma - ITSN-A0411" class="IOUser">Vivek Sharma - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="2653" label="Zubair A. Khan - ITSN-A0411" class="IOUser">Zubair A. Khan - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                    </select><div class="chosen-container chosen-container-multi chosen-disabled" style="width: 0px;" title="" id="ddcbSeqAssignedIA766_chosen">
+                        <ul class="chosen-choices">
+                            <li class="search-choice"><span>Kapil K. Pancholi - ITSN-A0411
+                                                
+                            </span><a class="search-choice-close" data-option-array-index="1"></a></li>
+                            <li class="search-field">
+                                <input type="text" value="Select Users" class="" autocomplete="off" style="width: 25px;" disabled=""></li>
+                        </ul>
+                        <div class="chosen-drop">
+                            <ul class="chosen-results"></ul>
+                        </div>
+                    </div>
+                    <div class="chosen-container chosen-container-multi chosen-disabled" style="width: 0px;" title="" id="ddcbSeqAssignedIA766_chosen">
+                        <ul class="chosen-choices">
+                            <li class="search-choice"><span>Kapil K. Pancholi - ITSN-A0411
+                                                
+                            </span><a class="search-choice-close" data-option-array-index="1"></a></li>
+                            <li class="search-field">
+                                <input type="text" value="Select Users" class="" autocomplete="off" style="width: 25px;" disabled=""></li>
+                        </ul>
+                        <div class="chosen-drop">
+                            <ul class="chosen-results"></ul>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- Status & Assigned To ends -->
+                <div class="div-table-col seq-taskduedate-fixed">
+                    <div class="seqapprovalBoxes" id="SeqApprovalDiv766" data-adminstatusupdateddate="" data-adminstatusupdatedtime="" data-adminstatusupdatedtimezone="" data-adminstatusupdated="" data-admindisplayname=" -  " data-adminstatususerid="" data-leadstatusupdateddate="" data-leadstatusupdatedtime="" data-leadstatusupdatedtimezone="" data-leadstatusupdated="" data-leadhours="" data-leaddisplayname=" -  " data-leaduserid="" data-userstatusupdateddate="1/1/2018" data-userstatusupdatedtime="11:34 AM" data-userstatusupdatedtimezone="(EST)" data-userstatusupdated="16" data-userhours="16" data-userdisplayname="3697 - Kapil Pancholi" data-useruserid="3697">
+                        <div style="width: 55%; float: left;">
+                            <input type="checkbox" data-taskid="766" onchange="openSeqApprovalPopup(this)" id="chkngUserNested766" ng-checked="true" ng-disabled="true" class="fz fz-user" title="User" disabled="disabled" checked="checked">
+                            <input type="checkbox" data-taskid="766" onchange="openSeqApprovalPopup(this)" id="chkQANested766" class="fz fz-QA" title="QA">
+                            <input type="checkbox" data-taskid="766" onchange="openSeqApprovalPopup(this)" id="chkAlphaUserNested766" class="fz fz-Alpha" title="AlphaUser">
+                            <br>
+                            <input type="checkbox" data-taskid="766" onchange="openSeqApprovalPopup(this)" id="chkBetaUserNested766" class="fz fz-Beta" title="BetaUser">
+                            <input type="checkbox" data-taskid="766" onchange="openSeqApprovalPopup(this)" id="chkngITLeadNested766" ng-checked="false" ng-disabled="false" class="fz fz-techlead" title="IT Lead">
+                            <input type="checkbox" data-taskid="766" onchange="openSeqApprovalPopup(this)" id="chkngAdminNested766" ng-checked="false" ng-disabled="false" class="fz fz-admin" title="Admin">
+                        </div>
+                        <div style="width: 43%; float: right;">
+                            <input type="checkbox" data-taskid="766" onchange="openSeqApprovalPopup(this)" id="chkngITLeadMasterNested766" class="fz fz-techlead largecheckbox" title="IT Lead"><br>
+                            <input type="checkbox" data-taskid="766" onchange="openSeqApprovalPopup(this)" id="chkngAdminMasterNested766" class="fz fz-admin largecheckbox" title="Admin">
+                        </div>
+                    </div>
+                </div>
+                <div class="div-table-col seq-notes-fixed-top sub-task" taskid="0" taskmultilevellistid="0">
+                    <table class="notes-table" cellspacing="0" cellpadding="0">
+                        <tbody>
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- end ngRepeat: TechTask in correctDataforAngular(Task.SubSeqTasks) -->
+            <div class="div-table-row ng-scope yellow" ng-repeat="TechTask in correctDataforAngular(Task.SubSeqTasks)" ng-class="{orange : TechTask.Status==='4', yellow: TechTask.Status==='3'}">
+                <!-- Sequence# starts -->
+                <div class="div-table-col seq-number-fixed">
+                    <a style="text-decoration: none;" ng-show="!$first" ng-attr-data-taskid="{{TechTask.TaskId}}" href="javascript:void(0);" class="uplink" ng-class="{hide: TechTask.Sequence == null || 0}" ng-attr-data-taskseq="{{TechTask.SubSequence}}" ng-attr-data-taskdesg="{{TechTask.SequenceDesignationId}}" onclick="swapSubSequence(this,true)" data-taskid="767" data-taskseq="5" data-taskdesg="10">?</a><a style="text-decoration: none;" ng-class="{hide: TechTask.Sequence == null || 0}" ng-attr-data-taskid="{{TechTask.TaskId}}" ng-attr-data-taskseq="{{TechTask.SubSequence}}" class="downlink" ng-attr-data-taskdesg="{{TechTask.SequenceDesignationId}}" href="javascript:void(0);" ng-show="!$last" onclick="swapSubSequence(this,false)" data-taskid="767" data-taskseq="5" data-taskdesg="10">?</a>
+                    <a ng-attr-id="autoClick{{Task.TaskId}}" href="javascript:void(0);" class="badge-hyperlink autoclickSeqEdit" ng-attr-data-taskid="{{TechTask.TaskId}}" ng-attr-data-seqdesgid="{{TechTask.SequenceDesignationId}}" id="autoClick657" data-taskid="767" data-seqdesgid="10"><span class="badge badge-error badge-xstext">
+                        <label ng-attr-id="SeqLabel{{TechTask.TaskId}}" class="ng-binding" id="SeqLabel767">2 (V)-ITSN:SS</label></span></a>
+                    <div class="handle-counter hide" ng-class="{hide: TechTask.TaskId != HighLightTaskId}" ng-attr-id="divSeq{{TechTask.TaskId}}" id="divSeq767">
+                        <input type="text" class="textbox hide" ng-attr-data-original-val="{{ TechTask.Sequence == null &amp;&amp; 0 || TechTask.Sequence}}" ng-attr-data-original-desgid="{{TechTask.SequenceDesignationId}}" ng-attr-id="txtSeq{{TechTask.TaskId}}" value="2" data-original-val="2" data-original-desgid="10" id="txtSeq767">
+                    </div>
+                </div>
+                <!-- Sequence# ends -->
+
+                <!-- ID# and Designation starts -->
+                <div class="div-table-col seq-taskid-fixed ng-binding">
+                    <a ng-href="../Sr_App/TaskGenerator.aspx?TaskId=418&amp;hstid=767" oncontextmenu="openCopyBox(this);return false;" data-installid="ITJN029-IX-IX - e" parentdata-highlighter="418" data-highlighter="767" class="bluetext context-menu ng-binding" target="_blank" href="../Sr_App/TaskGenerator.aspx?TaskId=418&amp;hstid=767">ITJN029-IX-IX - e</a><br>
+                    IT - Sr .Net Developer
+                                        <div ng-attr-id="divSeqDesg{{TechTask.TaskId}}" ng-class="{hide: TechTask.TaskId != HighLightTaskId}" id="divSeqDesg767" class="hide">
+                                            <select class="textbox hide ng-pristine ng-untouched ng-valid ng-empty" ng-attr-data-taskid="{{TechTask.TaskId}}" ng-options="item as item.Name for item in ParentTaskDesignations track by item.Id" ng-model="DesignationSelectModel[$index]" data-taskid="767">
+                                                <option value="?" selected="selected"></option>
+                                            </select>
+                                        </div>
+                </div>
+                <!-- ID# and Designation ends -->
+
+                <!-- Parent Task & SubTask Title starts -->
+                <div class="div-table-col seq-tasktitle-fixed ng-binding">
+                    Task Generator: http://web.jmgrovebuildingsupply.com/Sr_App/TaskGenerator.aspx
+                                        <br>
+                    Recover and start working on this task - Task Generator Status &amp; Filtering
+                </div>
+                <!-- Parent Task & SubTask Title ends -->
+
+                <!-- Status & Assigned To starts -->
+                <div class="div-table-col seq-taskstatus-fixed chosen-div">
+                    <select id="drpStatusSubsequenceNested767" onchange="changeTaskStatusClosed(this);" data-highlighter="767">
+
+                        <option ng-selected="false" value="4">InProgress</option>
+
+                        <option ng-selected="true" style="color: lawngreen" value="3" selected="selected">Request-Assigned</option>
+                        <option ng-selected="false" value="1">Open</option>
+
+
+
+                        <option ng-selected="false" value="11">Test Commit</option>
+
+                    </select>
+                    <br>
+                    <select disabled="" id="ddcbSeqAssignedIA767" style="width: 100%; display: none;" multiple="" ng-attr-data-assignedusers="{{TechTask.TaskAssignedUserIDs}}" data-chosen="1" data-placeholder="Select Users" onchange="EditSeqAssignedTaskUsers(this);" data-taskid="767" data-taskstatus="3" data-assignedusers="{&quot;Id&quot; : &quot;3697&quot;}">
+                        <!-- ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="3797" label="Jitendra J. Pancholi - ITSN-A0411" class="activeUser">Jitendra J. Pancholi - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="3697" label="Kapil K. Pancholi - ITSN-A0411" class="activeUser">Kapil K. Pancholi - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="3516" label="Shreyas H. Patel - ITSN-A0411" class="IOUser">Shreyas H. Patel - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1096" label="Aavadesh  Patel - ITSN-A0411" class="IOUser">Aavadesh  Patel - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="894" label="Ali Shahbad - ITSN-A0411" class="IOUser">Ali Shahbad - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1088" label="Amit Agarwal - ITSN-A0411" class="IOUser">Amit Agarwal - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1092" label="Bhaskhar  D - ITSN-A0411" class="IOUser">Bhaskhar  D - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1115" label="Bhavik J. vaishnani - ITSN-A0411" class="IOUser">Bhavik J. vaishnani - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="2648" label="Bismi T. Demo - ITSN-A0411" class="IOUser">Bismi T. Demo - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="997" label="Brahmeswar  . Gade - ITSN-A0411" class="IOUser">Brahmeswar  . Gade - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="3614" label="Charandeep S. Singh - ITSN-A0411" class="IOUser">Charandeep S. Singh - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="921" label="Faheem Ullah - ITSN-A0411" class="IOUser">Faheem Ullah - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="3714" label="Jigar B. Shah - ITSN-A0411" class="IOUser">Jigar B. Shah - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1089" label="Liyo  Jose - ITSN-A0411" class="IOUser">Liyo  Jose - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="2909" label="Manisha Heman. Shinde - ITSN-A0411" class="IOUser">Manisha Heman. Shinde - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="2652" label="Mohd Mr. Rafi - ITSN-A0411" class="IOUser">Mohd Mr. Rafi - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1179" label="Mudit Sharma - ITSN-A0411" class="IOUser">Mudit Sharma - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="2765" label="Nandkumar C. Chavan - ITSN-A0411" class="IOUser">Nandkumar C. Chavan - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="3724" label="Pawan k. tiwari - ITSN-A0411" class="IOUser">Pawan k. tiwari - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1029" label="Ramya  Akunuri  - ITSN-A0411" class="IOUser">Ramya  Akunuri  - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1184" label="satinder  hundal  - ITSN-A0411" class="IOUser">satinder  hundal  - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1143" label="Shekhar Pawar - ITSN-A0411" class="IOUser">Shekhar Pawar - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="835" label="Shilpa Ms. Gupta - ITSN-A0411" class="IOUser">Shilpa Ms. Gupta - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1095" label="Sridhar  D - ITSN-A0411" class="IOUser">Sridhar  D - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1086" label="Vinod Pandya - ITSN-A0411" class="IOUser">Vinod Pandya - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1109" label="Vivek Sharma - ITSN-A0411" class="IOUser">Vivek Sharma - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="2653" label="Zubair A. Khan - ITSN-A0411" class="IOUser">Zubair A. Khan - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                    </select><div class="chosen-container chosen-container-multi chosen-disabled" style="width: 0px;" title="" id="ddcbSeqAssignedIA767_chosen">
+                        <ul class="chosen-choices">
+                            <li class="search-choice"><span>Kapil K. Pancholi - ITSN-A0411
+                                                
+                            </span><a class="search-choice-close" data-option-array-index="1"></a></li>
+                            <li class="search-field">
+                                <input type="text" value="Select Users" class="" autocomplete="off" style="width: 25px;" disabled=""></li>
+                        </ul>
+                        <div class="chosen-drop">
+                            <ul class="chosen-results"></ul>
+                        </div>
+                    </div>
+                    <div class="chosen-container chosen-container-multi chosen-disabled" style="width: 0px;" title="" id="ddcbSeqAssignedIA767_chosen">
+                        <ul class="chosen-choices">
+                            <li class="search-choice"><span>Kapil K. Pancholi - ITSN-A0411
+                                                
+                            </span><a class="search-choice-close" data-option-array-index="1"></a></li>
+                            <li class="search-field">
+                                <input type="text" value="Select Users" class="" autocomplete="off" style="width: 25px;" disabled=""></li>
+                        </ul>
+                        <div class="chosen-drop">
+                            <ul class="chosen-results"></ul>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- Status & Assigned To ends -->
+                <div class="div-table-col seq-taskduedate-fixed">
+                    <div class="seqapprovalBoxes" id="SeqApprovalDiv767" data-adminstatusupdateddate="" data-adminstatusupdatedtime="" data-adminstatusupdatedtimezone="" data-adminstatusupdated="" data-admindisplayname=" -  " data-adminstatususerid="" data-leadstatusupdateddate="" data-leadstatusupdatedtime="" data-leadstatusupdatedtimezone="" data-leadstatusupdated="" data-leadhours="" data-leaddisplayname=" -  " data-leaduserid="" data-userstatusupdateddate="" data-userstatusupdatedtime="" data-userstatusupdatedtimezone="" data-userstatusupdated="" data-userhours="" data-userdisplayname=" -  " data-useruserid="">
+                        <div style="width: 55%; float: left;">
+                            <input type="checkbox" data-taskid="767" onchange="openSeqApprovalPopup(this)" id="chkngUserNested767" ng-checked="false" ng-disabled="false" class="fz fz-user" title="User">
+                            <input type="checkbox" data-taskid="767" onchange="openSeqApprovalPopup(this)" id="chkQANested767" class="fz fz-QA" title="QA">
+                            <input type="checkbox" data-taskid="767" onchange="openSeqApprovalPopup(this)" id="chkAlphaUserNested767" class="fz fz-Alpha" title="AlphaUser">
+                            <br>
+                            <input type="checkbox" data-taskid="767" onchange="openSeqApprovalPopup(this)" id="chkBetaUserNested767" class="fz fz-Beta" title="BetaUser">
+                            <input type="checkbox" data-taskid="767" onchange="openSeqApprovalPopup(this)" id="chkngITLeadNested767" ng-checked="false" ng-disabled="false" class="fz fz-techlead" title="IT Lead">
+                            <input type="checkbox" data-taskid="767" onchange="openSeqApprovalPopup(this)" id="chkngAdminNested767" ng-checked="false" ng-disabled="false" class="fz fz-admin" title="Admin">
+                        </div>
+                        <div style="width: 43%; float: right;">
+                            <input type="checkbox" data-taskid="767" onchange="openSeqApprovalPopup(this)" id="chkngITLeadMasterNested767" class="fz fz-techlead largecheckbox" title="IT Lead"><br>
+                            <input type="checkbox" data-taskid="767" onchange="openSeqApprovalPopup(this)" id="chkngAdminMasterNested767" class="fz fz-admin largecheckbox" title="Admin">
+                        </div>
+                    </div>
+                </div>
+                <div class="div-table-col seq-notes-fixed-top sub-task" taskid="0" taskmultilevellistid="0">
+                    <table class="notes-table" cellspacing="0" cellpadding="0">
+                        <tbody>
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- end ngRepeat: TechTask in correctDataforAngular(Task.SubSeqTasks) -->
+            <div class="div-table-row ng-scope yellow" ng-repeat="TechTask in correctDataforAngular(Task.SubSeqTasks)" ng-class="{orange : TechTask.Status==='4', yellow: TechTask.Status==='3'}">
+                <!-- Sequence# starts -->
+                <div class="div-table-col seq-number-fixed">
+                    <a style="text-decoration: none;" ng-show="!$first" ng-attr-data-taskid="{{TechTask.TaskId}}" href="javascript:void(0);" class="uplink" ng-class="{hide: TechTask.Sequence == null || 0}" ng-attr-data-taskseq="{{TechTask.SubSequence}}" ng-attr-data-taskdesg="{{TechTask.SequenceDesignationId}}" onclick="swapSubSequence(this,true)" data-taskid="10763" data-taskseq="1" data-taskdesg="10">?</a><a style="text-decoration: none;" ng-class="{hide: TechTask.Sequence == null || 0}" ng-attr-data-taskid="{{TechTask.TaskId}}" ng-attr-data-taskseq="{{TechTask.SubSequence}}" class="downlink ng-hide" ng-attr-data-taskdesg="{{TechTask.SequenceDesignationId}}" href="javascript:void(0);" ng-show="!$last" onclick="swapSubSequence(this,false)" data-taskid="10763" data-taskseq="1" data-taskdesg="10">?</a>
+                    <a ng-attr-id="autoClick{{Task.TaskId}}" href="javascript:void(0);" class="badge-hyperlink autoclickSeqEdit" ng-attr-data-taskid="{{TechTask.TaskId}}" ng-attr-data-seqdesgid="{{TechTask.SequenceDesignationId}}" id="autoClick657" data-taskid="10763" data-seqdesgid="10"><span class="badge badge-error badge-xstext">
+                        <label ng-attr-id="SeqLabel{{TechTask.TaskId}}" class="ng-binding" id="SeqLabel10763">2 (I)-ITSN:SS</label></span></a>
+                    <div class="handle-counter hide" ng-class="{hide: TechTask.TaskId != HighLightTaskId}" ng-attr-id="divSeq{{TechTask.TaskId}}" id="divSeq10763">
+                        <input type="text" class="textbox hide" ng-attr-data-original-val="{{ TechTask.Sequence == null &amp;&amp; 0 || TechTask.Sequence}}" ng-attr-data-original-desgid="{{TechTask.SequenceDesignationId}}" ng-attr-id="txtSeq{{TechTask.TaskId}}" value="2" data-original-val="2" data-original-desgid="10" id="txtSeq10763">
+                    </div>
+                </div>
+                <!-- Sequence# ends -->
+
+                <!-- ID# and Designation starts -->
+                <div class="div-table-col seq-taskid-fixed ng-binding">
+                    <a ng-href="../Sr_App/TaskGenerator.aspx?TaskId=418&amp;hstid=10763" oncontextmenu="openCopyBox(this);return false;" data-installid="ITJN029-IX-IX - a" parentdata-highlighter="418" data-highlighter="10763" class="bluetext context-menu ng-binding" target="_blank" href="../Sr_App/TaskGenerator.aspx?TaskId=418&amp;hstid=10763">ITJN029-IX-IX - a</a><br>
+                    IT - Sr .Net Developer
+                                        <div ng-attr-id="divSeqDesg{{TechTask.TaskId}}" ng-class="{hide: TechTask.TaskId != HighLightTaskId}" id="divSeqDesg10763" class="hide">
+                                            <select class="textbox hide ng-pristine ng-untouched ng-valid ng-empty" ng-attr-data-taskid="{{TechTask.TaskId}}" ng-options="item as item.Name for item in ParentTaskDesignations track by item.Id" ng-model="DesignationSelectModel[$index]" data-taskid="10763">
+                                                <option value="?" selected="selected"></option>
+                                            </select>
+                                        </div>
+                </div>
+                <!-- ID# and Designation ends -->
+
+                <!-- Parent Task & SubTask Title starts -->
+                <div class="div-table-col seq-tasktitle-fixed ng-binding">
+                    Task Generator: http://web.jmgrovebuildingsupply.com/Sr_App/TaskGenerator.aspx
+                                        <br>
+                    Recover and start working on this task
+                </div>
+                <!-- Parent Task & SubTask Title ends -->
+
+                <!-- Status & Assigned To starts -->
+                <div class="div-table-col seq-taskstatus-fixed chosen-div">
+                    <select id="drpStatusSubsequenceNested10763" onchange="changeTaskStatusClosed(this);" data-highlighter="10763">
+
+                        <option ng-selected="false" value="4">InProgress</option>
+
+                        <option ng-selected="true" style="color: lawngreen" value="3" selected="selected">Request-Assigned</option>
+                        <option ng-selected="false" value="1">Open</option>
+
+
+
+                        <option ng-selected="false" value="11">Test Commit</option>
+
+                    </select>
+                    <br>
+                    <select disabled="" id="ddcbSeqAssignedIA10763" style="width: 100%; display: none;" multiple="" ng-attr-data-assignedusers="{{TechTask.TaskAssignedUserIDs}}" data-chosen="1" data-placeholder="Select Users" onchange="EditSeqAssignedTaskUsers(this);" data-taskid="10763" data-taskstatus="3" data-assignedusers="{&quot;Id&quot; : &quot;3697&quot;}">
+                        <!-- ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="3797" label="Jitendra J. Pancholi - ITSN-A0411" class="activeUser">Jitendra J. Pancholi - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="3697" label="Kapil K. Pancholi - ITSN-A0411" class="activeUser">Kapil K. Pancholi - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="3516" label="Shreyas H. Patel - ITSN-A0411" class="IOUser">Shreyas H. Patel - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1096" label="Aavadesh  Patel - ITSN-A0411" class="IOUser">Aavadesh  Patel - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="894" label="Ali Shahbad - ITSN-A0411" class="IOUser">Ali Shahbad - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1088" label="Amit Agarwal - ITSN-A0411" class="IOUser">Amit Agarwal - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1092" label="Bhaskhar  D - ITSN-A0411" class="IOUser">Bhaskhar  D - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1115" label="Bhavik J. vaishnani - ITSN-A0411" class="IOUser">Bhavik J. vaishnani - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="2648" label="Bismi T. Demo - ITSN-A0411" class="IOUser">Bismi T. Demo - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="997" label="Brahmeswar  . Gade - ITSN-A0411" class="IOUser">Brahmeswar  . Gade - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="3614" label="Charandeep S. Singh - ITSN-A0411" class="IOUser">Charandeep S. Singh - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="921" label="Faheem Ullah - ITSN-A0411" class="IOUser">Faheem Ullah - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="3714" label="Jigar B. Shah - ITSN-A0411" class="IOUser">Jigar B. Shah - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1089" label="Liyo  Jose - ITSN-A0411" class="IOUser">Liyo  Jose - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="2909" label="Manisha Heman. Shinde - ITSN-A0411" class="IOUser">Manisha Heman. Shinde - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="2652" label="Mohd Mr. Rafi - ITSN-A0411" class="IOUser">Mohd Mr. Rafi - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1179" label="Mudit Sharma - ITSN-A0411" class="IOUser">Mudit Sharma - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="2765" label="Nandkumar C. Chavan - ITSN-A0411" class="IOUser">Nandkumar C. Chavan - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="3724" label="Pawan k. tiwari - ITSN-A0411" class="IOUser">Pawan k. tiwari - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1029" label="Ramya  Akunuri  - ITSN-A0411" class="IOUser">Ramya  Akunuri  - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1184" label="satinder  hundal  - ITSN-A0411" class="IOUser">satinder  hundal  - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1143" label="Shekhar Pawar - ITSN-A0411" class="IOUser">Shekhar Pawar - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="835" label="Shilpa Ms. Gupta - ITSN-A0411" class="IOUser">Shilpa Ms. Gupta - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1095" label="Sridhar  D - ITSN-A0411" class="IOUser">Sridhar  D - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1086" label="Vinod Pandya - ITSN-A0411" class="IOUser">Vinod Pandya - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="1109" label="Vivek Sharma - ITSN-A0411" class="IOUser">Vivek Sharma - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                        <option ng-repeat="item in DesignationAssignUsers" value="2653" label="Zubair A. Khan - ITSN-A0411" class="IOUser">Zubair A. Khan - ITSN-A0411
+                                                
+                        </option>
+                        <!-- end ngRepeat: item in DesignationAssignUsers -->
+                    </select><div class="chosen-container chosen-container-multi chosen-disabled" style="width: 0px;" title="" id="ddcbSeqAssignedIA10763_chosen">
+                        <ul class="chosen-choices">
+                            <li class="search-choice"><span>Kapil K. Pancholi - ITSN-A0411
+                                                
+                            </span><a class="search-choice-close" data-option-array-index="1"></a></li>
+                            <li class="search-field">
+                                <input type="text" value="Select Users" class="" autocomplete="off" style="width: 25px;" disabled=""></li>
+                        </ul>
+                        <div class="chosen-drop">
+                            <ul class="chosen-results"></ul>
+                        </div>
+                    </div>
+                    <div class="chosen-container chosen-container-multi chosen-disabled" style="width: 0px;" title="" id="ddcbSeqAssignedIA10763_chosen">
+                        <ul class="chosen-choices">
+                            <li class="search-choice"><span>Kapil K. Pancholi - ITSN-A0411
+                                                
+                            </span><a class="search-choice-close" data-option-array-index="1"></a></li>
+                            <li class="search-field">
+                                <input type="text" value="Select Users" class="" autocomplete="off" style="width: 25px;" disabled=""></li>
+                        </ul>
+                        <div class="chosen-drop">
+                            <ul class="chosen-results"></ul>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- Status & Assigned To ends -->
+                <div class="div-table-col seq-taskduedate-fixed">
+                    <div class="seqapprovalBoxes" id="SeqApprovalDiv10763" data-adminstatusupdateddate="11/30/2017" data-adminstatusupdatedtime="5:58 PM" data-adminstatusupdatedtimezone="(EST)" data-adminstatusupdated="2017-11-30T12:28:01.257+00:00" data-admindisplayname="INS00092 - justin grove" data-adminstatususerid="780" data-leadstatusupdateddate="11/30/2017" data-leadstatusupdatedtime="5:55 PM" data-leadstatusupdatedtimezone="(EST)" data-leadstatusupdated="7" data-leadhours="7" data-leaddisplayname="901 - Yogesh Keraliya" data-leaduserid="901" data-userstatusupdateddate="" data-userstatusupdatedtime="" data-userstatusupdatedtimezone="" data-userstatusupdated="" data-userhours="" data-userdisplayname=" -  " data-useruserid="">
+                        <div style="width: 55%; float: left;">
+                            <input type="checkbox" data-taskid="10763" onchange="openSeqApprovalPopup(this)" id="chkngUserNested10763" ng-checked="false" ng-disabled="false" class="fz fz-user" title="User">
+                            <input type="checkbox" data-taskid="10763" onchange="openSeqApprovalPopup(this)" id="chkQANested10763" class="fz fz-QA" title="QA">
+                            <input type="checkbox" data-taskid="10763" onchange="openSeqApprovalPopup(this)" id="chkAlphaUserNested10763" class="fz fz-Alpha" title="AlphaUser">
+                            <br>
+                            <input type="checkbox" data-taskid="10763" onchange="openSeqApprovalPopup(this)" id="chkBetaUserNested10763" class="fz fz-Beta" title="BetaUser">
+                            <input type="checkbox" data-taskid="10763" onchange="openSeqApprovalPopup(this)" id="chkngITLeadNested10763" ng-checked="true" ng-disabled="true" class="fz fz-techlead" title="IT Lead" disabled="disabled" checked="checked">
+                            <input type="checkbox" data-taskid="10763" onchange="openSeqApprovalPopup(this)" id="chkngAdminNested10763" ng-checked="true" ng-disabled="true" class="fz fz-admin" title="Admin" disabled="disabled" checked="checked">
+                        </div>
+                        <div style="width: 43%; float: right;">
+                            <input type="checkbox" data-taskid="10763" onchange="openSeqApprovalPopup(this)" id="chkngITLeadMasterNested10763" class="fz fz-techlead largecheckbox" title="IT Lead"><br>
+                            <input type="checkbox" data-taskid="10763" onchange="openSeqApprovalPopup(this)" id="chkngAdminMasterNested10763" class="fz fz-admin largecheckbox" title="Admin">
+                        </div>
+                    </div>
+                </div>
+                <div class="div-table-col seq-notes-fixed-top sub-task" taskid="0" taskmultilevellistid="0">
+                    <table class="notes-table" cellspacing="0" cellpadding="0">
+                        <tbody>
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- end ngRepeat: TechTask in correctDataforAngular(Task.SubSeqTasks) -->
+            <!-- Body section ends -->
+
+        </div>
+
+        <!-- Nested row ends -->
+
+    </div>
+</div>--%>
 
 <div id="divModal" title="Task : Title" style="background: #efeeee url(../img/form-bg.png) repeat-x top; display: none;"
     runat="server" visible="false">
@@ -826,7 +1853,7 @@
 
     function setAutoSearch() {
 
-        $("#<%=txtSearch.ClientID%>").catcomplete({
+<%--        $("#<%=txtSearch.ClientID%>").catcomplete({
             delay: 500,
             source: function (request, response) {
                 $.ajax({
@@ -856,7 +1883,7 @@
                 $("#<%=txtSearch.ClientID%>").val(ui.item.value);
                 TriggerSearch();
             }
-        });
+        });--%>
         }
 
         function createCategorisedAutoSearch() {
@@ -928,7 +1955,7 @@
         }
 
         function checkDatePickerDatesNTriggerSearch() {
-            var fromdate, todate;
+            <%--var fromdate, todate;
             fromdate = $('#<%= txtFromDate.ClientID %>').val();
                 todate = $('#<%= txtToDate.ClientID %>').val();
                 if (fromdate.length > 0 && todate.length > 0) {
@@ -936,7 +1963,7 @@
                 }
                 else if (fromdate.length == 0 && todate.length == 0) {
                     TriggerSearch();
-                }
+                }--%>
             }
 
             //function SetHeaderSectionHeight() {
@@ -950,7 +1977,7 @@
             //}
 
             function TriggerSearch() {
-                $('#<%=btnSearch.ClientID %>').click();
+                <%--$('#<%=btnSearch.ClientID %>').click();--%>
 
             }
 
@@ -975,9 +2002,9 @@
 
     function bindtasklistExpandCollapse() {
         $('.tasklist').hover(function () {
-            $(this).stop(true, true).animate({ 'maxHeight': 600 }, 2000);
+            $(this).stop(true, true).animate({ 'maxHeight': 600 }, 500);
         }, function () {
-            $(this).stop(true, true).animate({ 'maxHeight': 165 }, 2000)
+            $(this).stop(true, true).animate({ 'maxHeight': 256 }, 500)
         });
     }
 

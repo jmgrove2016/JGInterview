@@ -13,11 +13,12 @@ namespace JG_Prospect.Sr_App
     public partial class ITDashboardCalendar : System.Web.UI.Page
     {
         public static bool IsSuperUser = false;
+        public int UserDesignationId = 0;
 
         protected void Page_Load(object sender, EventArgs e)
         {
             IsSuperUser = CommonFunction.CheckAdminAndItLeadMode();
-
+            UserDesignationId = JGSession.DesignationId;
             //if (IsSuperUser)
             //{
             //    lblalertpopup.Visible = true;

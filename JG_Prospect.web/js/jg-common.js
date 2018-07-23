@@ -125,8 +125,7 @@ function SetCKEditorForPageContent(Id, AutosavebuttonId) {
 
     arrCKEditor.push(editor);
 }
-
-function SetCKEditorForChildren(Id) {
+function SetCKEditorForRomanDesc(Id) {
 
     var $target = $('#' + Id);
     var taskid = $('#' + Id).attr('data-taskid');
@@ -141,7 +140,7 @@ function SetCKEditorForChildren(Id) {
         {
             // Show toolbar on startup (optional).
             //startupFocus: true,
-            startupFocus: true,
+            startupFocus: false,
             enterMode: CKEDITOR.ENTER_BR,
             on: {
                 blur: function (event) {
@@ -149,7 +148,7 @@ function SetCKEditorForChildren(Id) {
                     //updateDesc(GetCKEditorContent(Id));
                 },
                 fileUploadResponse: function (event) {
-                    
+
                 }
 
             },
@@ -198,7 +197,112 @@ function SetCKEditorForChildren(Id) {
     CKEDITOR.instances[Id].updateElement();
 
     arrCKEditor.push(editor);
-    
+
+
+    function ckeditorKeyPress(event) {
+        switch (event.data.keyCode) {
+            case 13: //enter key
+                //var desc = GetCKEditorContent('subtaskDesc' + taskid);
+                //CKEDITOR.instances[Id].setData('');
+                //OnSaveSubTask(taskid, desc);
+                break;
+            default:
+                if (timeoutId != undefined) {
+                    console.log('removing timer: ' + timeoutId);
+                    clearTimeout(timeoutId);
+                }
+
+                timeoutId = setTimeout(function () {
+                    // Runs 1 second (1000 ms) after the last change    
+                    var desc = GetCKEditorContent('subtaskDesc' + taskid);
+                    if (desc != undefined && desc.trim() != '') {
+                        console.log('saving desc...');
+                        CKEDITOR.instances[Id].setData('');
+                        OnRomanSave(taskid, desc);
+                    }
+                    else
+                        console.log('not saving empty desc');
+                }, 30000);
+                console.log('adding timer: ' + timeoutId);
+                break;
+        }
+        //trigger an imitation key event here and it lets you catch the enter key
+        //outside the ckeditor
+    }
+}
+function SetCKEditorForChildren(Id) {
+
+    var $target = $('#' + Id);
+    var taskid = $('#' + Id).attr('data-taskid');
+
+    // The inline editor should be enabled on an element with "contenteditable" attribute set to "true".
+    // Otherwise CKEditor will start in read-only mode.
+
+    $target.attr('contenteditable', true);
+    var editor = CKEDITOR.instances[Id];
+
+    CKEDITOR.inline(Id,
+        {
+            // Show toolbar on startup (optional).
+            //startupFocus: true,
+            startupFocus: true,
+            enterMode: CKEDITOR.ENTER_BR,
+            on: {
+                blur: function (event) {
+                    event.editor.updateElement();
+                    //updateDesc(GetCKEditorContent(Id));
+                },
+                fileUploadResponse: function (event) {
+
+                }
+
+            },
+            on: {
+                'key': ckeditorKeyPress
+            }
+        });
+
+    CKEDITOR.instances[Id].on('fileUploadResponse', function (event) {
+        // Prevent the default response handler.
+        event.stop();
+
+        // Ger XHR and response.
+        var data = event.data,
+            xhr = data.fileLoader.xhr,
+            response = xhr.responseText.split('|');
+
+        var jsonarray = JSON.parse(response[0]);
+
+        attachImagesByCKEditor(event.data.fileLoader.fileName, jsonarray.fileName);
+
+        if (jsonarray && jsonarray.uploaded != "1") {
+            // Error occurred during upload.                
+            event.cancel();
+        } else {
+            data.url = jsonarray.url;
+        }
+
+        RefreshData = false;
+        var data = {
+            FileName: jsonarray.fileName
+        };
+        CurrentFileName = jsonarray.fileName;
+        CurrentEditor = CKEDITOR.instances[Id];
+        SaveChildAttchmentToDB(taskid);
+    });
+    //Save when leaves editing
+    CKEDITOR.instances[Id].on('blur', function () {
+        //CKEDITOR.instances[Id].updateElement();        
+
+        //OnSaveSubTask(taskid, GetCKEditorContent('subtaskDesc' + taskid));
+        //CKEDITOR.instances[Id].setData('');
+    });
+
+    //Auto Save after 30 seconds
+    CKEDITOR.instances[Id].updateElement();
+
+    arrCKEditor.push(editor);
+
 
     function ckeditorKeyPress(event) {
         switch (event.data.keyCode) {
@@ -214,11 +318,11 @@ function SetCKEditorForChildren(Id) {
                     console.log('removing timer: ' + timeoutId);
                     clearTimeout(timeoutId);
                 }
-                
+
                 timeoutId = setTimeout(function () {
                     // Runs 1 second (1000 ms) after the last change    
                     var desc = GetCKEditorContent('subtaskDesc' + taskid);
-                    if (desc != undefined && desc.trim() != '') {                                    
+                    if (desc != undefined && desc.trim() != '') {
                         console.log('saving desc...');
                         CKEDITOR.instances[Id].setData('');
                         OnSaveSubTask(taskid, desc);
@@ -311,7 +415,7 @@ function SetCKEditorForSubTask(Id) {
 
 
     function ckeditorKeyPress(event) {
-        if(Id == 'txteditChild') {
+        if (Id == 'txteditChild') {
             if (timeoutId != undefined) {
                 console.log('removing timer: ' + timeoutId);
                 clearTimeout(timeoutId);
@@ -332,7 +436,11 @@ function SetCKEditorForSubTask(Id) {
         }
     }
 }
-
+function clearCKEditor(Id) {
+    var $target = $('#' + Id);
+    $target.attr('contenteditable', true);
+    CKEDITOR.instances[Id].setData('');
+}
 function SetCKEditorForTaskPopup(Id) {
 
     var $target = $('#' + Id);
@@ -381,7 +489,7 @@ function SetCKEditorForTaskPopup(Id) {
             };
             CurrentFileName = jsonarray.fileName;
             CurrentEditor = CKEDITOR.instances[Id];
-            SaveAttchmentToDBPopup();            
+            SaveAttchmentToDBPopup();
         }
         else {
             alert('Please save the task before adding any attachment.');
@@ -466,7 +574,7 @@ function SetCKEditorForChildrenPopup(Id) {
 
             CurrentFileName = jsonarray.fileName;
             CurrentEditor = CKEDITOR.instances[Id];
-            SaveAttchmentToDBPopup();            
+            SaveAttchmentToDBPopup();
         }
         else {
             alert('Please save the task before adding any attachment.');
@@ -584,8 +692,11 @@ function HidePopup(varControlID) {
 /********************************************* Dropzone (File upload on drag - drop) ******************************************************/
 var arrDropzone = new Array();
 
-function GetWorkFileDropzone(strDropzoneSelector, strPreviewSelector, strHiddenFieldIdSelector, strButtonIdSelector) {
+function GetWorkFileDropzone(strDropzoneSelector, strPreviewSelector, strHiddenFieldIdSelector, strButtonIdSelector, isHTMLbutton) {
     var strAcceptedFiles = '';
+    if (typeof (enabledisable) == 'function')
+        enabledisable(false);
+
     if ($(strDropzoneSelector).attr("data-accepted-files")) {
         strAcceptedFiles = $(strDropzoneSelector).attr("data-accepted-files");
     }
@@ -620,10 +731,20 @@ function GetWorkFileDropzone(strDropzoneSelector, strPreviewSelector, strHiddenF
                     $(file.previewTemplate).append('<span class="server_file">' + filename[0] + '</span>');
                     AddAttachmenttoViewState(filename[0] + '@' + file.name, strHiddenFieldIdSelector);
                     if (typeof (strButtonIdSelector) != 'undefined' && strButtonIdSelector.length > 0) {
-                        // saves attachment.
-                        $(strButtonIdSelector).click();
+                        // saves attachment. 
+                        if (typeof (isHTMLbutton) != 'undefined' && isHTMLbutton == true) {
+                            if (this.getUploadingFiles().length === 0 && this.getQueuedFiles().length === 0) {
+                                $(strButtonIdSelector).trigger('click');
+                            }
+                        }
+                        else {
+                            $(strButtonIdSelector).click();
+                        }
+
                         //this.removeFile(file);
                     }
+                    if (typeof (enabledisable) == 'function')
+                        enabledisable(true);
                 });
 
                 //when file is removed from dropzone element, remove its corresponding server side file.
@@ -708,7 +829,7 @@ function ChosenDropDown(options) {
 function CallJGWebService(strWebMethod, objPostDataJSON, OnSuccessCallBack, OnErrorCallBack) {
     ShowAjaxLoader();
     $.ajax
-    (
+        (
         {
             url: '../WebServices/JGWebService.asmx/' + strWebMethod,
             contentType: 'application/json; charset=utf-8;',
@@ -733,7 +854,7 @@ function CallJGWebService(strWebMethod, objPostDataJSON, OnSuccessCallBack, OnEr
                 }
             }
         }
-    );
+        );
 }
 
 /********************************************* General Functions ******************************************************/
@@ -872,13 +993,36 @@ function ScrollToChild(target, childId, parentId) {
     if (target.length > 0) {
         var myElement = document.getElementById('ChildEdit' + childId);
         var topPos = myElement.offsetTop;
-        document.getElementById('TaskContainer' + parentId).scrollTop = topPos-35;
+        document.getElementById('TaskContainer' + parentId).scrollTop = topPos - 35;
 
         var offset = target.offset();
         if (typeof (offset) != 'undefined' && offset != null) {
             $('html, body').animate({
-                scrollTop: offset.top-20
+                scrollTop: offset.top - 20
             }, 1000);
         }
+    }
+}
+
+function tConvert(time) {
+    // Check correct time format and split into components
+    time = time.toString().match(/^([01]\d|2[0-3])(:)([0-5]\d)(:[0-5]\d)?$/) || [time];
+
+    if (time.length > 1) { // If time format correct
+        time = time.slice(1);  // Remove full string match value
+        time[5] = +time[0] < 12 ? 'AM' : 'PM'; // Set AM/PM
+        time[0] = +time[0] % 12 || 12; // Adjust hours
+    }
+    return time.join(''); // return adjusted time or original string
+}
+
+function hidePlaceholder(sender) {
+    $(sender).prev().hide(100);
+}
+function showPlaceHolder(sender) {
+    if ($(sender).val().length == 0) {
+        $(sender).prev().show(100);
+    } else {
+        $(sender).prev().hide(100);
     }
 }

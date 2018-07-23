@@ -11,6 +11,7 @@ using JG_Prospect.Common.RestServiceJSONParser;
 using JG_Prospect.Utilits;
 using Newtonsoft.Json;
 using JG_Prospect.Chat.Hubs;
+using JG_Prospect.Common.modal;
 
 namespace JG_Prospect.Sr_App
 {
@@ -18,31 +19,48 @@ namespace JG_Prospect.Sr_App
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            var page = HttpContext.Current.Handler as Page;
+            if(page is ViewApplicantUser)
+            {
+                NavMenuLeft.Visible = false;
+                divTask.Visible = false;
+            }
 
             if (Session["loginid"] != null)
             {
-                lbluser.Text = Session["Username"].ToString() + " " + Session["LastName"].ToString();
-                lblDesignation.Text = JGSession.Designation;
-                imgProfile.ImageUrl = JGSession.UserProfileImg;
-                hLnkEditProfil.Text = JGSession.UserInstallId;
-                if (JGSession.LoginUserID != null)
-                    hLnkEditProfil.NavigateUrl = "/Sr_App/CreateSalesUser.aspx?ID=" + JGSession.LoginUserID;
-                else
-                    hLnkEditProfil.NavigateUrl = "#";
+                // branch location on header
+                BranchLocation loc = InstallUserBLL.Instance.GetUserBranchLocation(JGSession.UserId);
+                if (loc != null)
+                {
+                    BranchAddress1.InnerText = loc.BranchAddress1;
+                    BranchAddress2.InnerText = loc.BranchAddress2;
+                    Department.InnerText = loc.Department;
+                    Phone.InnerText = loc.PhoneNumber;
+                    Email.InnerText = loc.Email;
 
-                if ((string)Session["usertype"] == "SSE")
-                {
-                    Li_Jr_app.Visible = false;
+                    lbluser.Text = Session["Username"].ToString() + " " + Session["LastName"].ToString();
+                    lblDesignation.Text = JGSession.Designation;
+                    imgProfile.ImageUrl = JGSession.UserProfileImg;
+                    hLnkEditProfil.Text = JGSession.UserInstallId;
+                    if (JGSession.LoginUserID != null)
+                        hLnkEditProfil.NavigateUrl = "/Sr_App/CreateSalesUser.aspx?ID=" + JGSession.LoginUserID;
+                    else
+                        hLnkEditProfil.NavigateUrl = "#";
+
+                    if ((string)Session["usertype"] == "SSE")
+                    {
+                        Li_Jr_app.Visible = false;
+                    }
+                    if ((string)Session["loginid"] == JGConstant.JUSTIN_LOGIN_ID)
+                    {
+                        // Li_Installer.Visible = true;
+                    }
+                    else
+                    {
+                        // Li_Installer.Visible = false;
+                    } 
                 }
-                if ((string)Session["loginid"] == JGConstant.JUSTIN_LOGIN_ID)
-                {
-                    // Li_Installer.Visible = true;
-                }
-                else
-                {
-                    // Li_Installer.Visible = false;
-                }
-                SetEmailCountersAccess();
+                //SetEmailCountersAccess();
             }
             else
             {
@@ -57,7 +75,7 @@ namespace JG_Prospect.Sr_App
         {
             // Remove user from ChatUser
             //ChatHub chatHub = new Chat.Hubs.ChatHub();
-            
+
             HttpCookie auth_cookie = Request.Cookies[Cookies.UserId];
             if (auth_cookie != null)
             {
@@ -76,13 +94,15 @@ namespace JG_Prospect.Sr_App
         /// </summary>
         private void UpdateAudiTrailForLogout()
         {
-            Common.modal.UserAuditTrail objUserAudit = new Common.modal.UserAuditTrail();
+            if (!string.IsNullOrEmpty(SessionKey.Key.GuIdAtLogin.ToString()))
+            {
+                Common.modal.UserAuditTrail objUserAudit = new Common.modal.UserAuditTrail();
 
-            objUserAudit.LogOutTime = DateTime.Now;
-            objUserAudit.LogInGuID = Session[SessionKey.Key.GuIdAtLogin.ToString()].ToString();
+                objUserAudit.LogOutTime = DateTime.Now;
+                objUserAudit.LogInGuID = Session[SessionKey.Key.GuIdAtLogin.ToString()].ToString();
 
-            UserAuditTrailBLL.Instance.UpdateUserLogOutTime(objUserAudit);
-
+                UserAuditTrailBLL.Instance.UpdateUserLogOutTime(objUserAudit);
+            }
         }
 
         protected void lbtWeather_Click(object sender, EventArgs e)
@@ -99,20 +119,20 @@ namespace JG_Prospect.Sr_App
 
         // Created By: Yogesh Keraliya
         // TODO: If user is admin then only show email link as of now.
-        private void SetEmailCountersAccess()
-        {
-            //if (JGSession.UserLoginId == CommonFunction.PreConfiguredAdminUserId)
-            //{
-            hypEmail.HRef = "javascript:window.open('/webmail/checkemail.aspx','mywindow','width=900,height=600')";
-            this.Page.ClientScript.RegisterStartupScript(this.Page.GetType(), "EmailCount", "SetEmailCounts();", true);
-            idPhoneLink.Visible = true;
+        //private void SetEmailCountersAccess()
+        //{
+        //    //if (JGSession.UserLoginId == CommonFunction.PreConfiguredAdminUserId)
+        //    //{
+        //    hypEmail.HRef = "javascript:window.open('/webmail/checkemail.aspx','mywindow','width=900,height=600')";
+        //    this.Page.ClientScript.RegisterStartupScript(this.Page.GetType(), "EmailCount", "SetEmailCounts();", true);
+        //    idPhoneLink.Visible = true;
 
-            //}
-            //else
-            //{
-            //    idPhoneLink.Visible = false;
-            //}
-        }
+        //    //}
+        //    //else
+        //    //{
+        //    //    idPhoneLink.Visible = false;
+        //    //}
+        //}
 
     }
 }

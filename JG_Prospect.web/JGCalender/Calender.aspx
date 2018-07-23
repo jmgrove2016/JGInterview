@@ -119,10 +119,10 @@
     <form id="form1" runat="server">
         <asp:HiddenField ID="hdnCustomerIds" runat="server" />
         <div style="width: 100%;">
-            <table>
+            <table style="width:100%">
                 <tr>
                     <td>
-                        <table>
+                        <table style="width:100%">
                             <tr>
                                 <td style="width: 1200px;">
 

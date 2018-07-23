@@ -89,6 +89,11 @@ namespace JG_Prospect.Sr_App
                         ddlCategory.SelectedValue = objHTMLTemplatesMaster.Category.Value.ToString();
                     }
                     trMasterCopy.Visible = true;
+
+                    if (this.HTMLTemplate == HTMLTemplates.Offer_Made_Attachment_Template)
+                    {
+                        tblPayRates.Visible = true;
+                    }
                 }
             }
 

@@ -10,6 +10,7 @@ using JG_Prospect.DAL.Database;
 using JG_Prospect.Common;
 using JG_Prospect.Common.modal;
 using System.Configuration;
+using static JG_Prospect.Common.JGCommon;
 
 namespace JG_Prospect.DAL
 {
@@ -25,7 +26,7 @@ namespace JG_Prospect.DAL
         public static UserDAL Instance
         {
             get { return m_UserDAL; }
-            private set { ;}
+            private set {; }
         }
 
         private DataSet returndata;
@@ -209,6 +210,46 @@ namespace JG_Prospect.DAL
             }
         }
 
+        public void UpdatePhoneScript(int id, string title, string desc)
+        {
+            try
+            {
+                SqlDatabase database = MSSQLDataBase.Instance.GetDefaultDatabase();
+                {
+                    DbCommand command = database.GetStoredProcCommand("UpdatePhoneScript");
+                    command.CommandType = CommandType.StoredProcedure;
+                    database.AddInParameter(command, "@Id", DbType.Int32, id);
+                    database.AddInParameter(command, "@Title", DbType.String, title);
+                    database.AddInParameter(command, "@Script", DbType.String, desc);
+                    database.ExecuteScalar(command);
+                    int res = Convert.ToInt32(database.GetParameterValue(command, "@result"));
+                }
+            }
+            catch (Exception ex)
+            {
+                //LogManager.Instance.WriteToFlatFile(ex);
+            }
+        }
+        public void UpdatePhoneScriptFAQ(int id, string title, string desc)
+        {
+            try
+            {
+                SqlDatabase database = MSSQLDataBase.Instance.GetDefaultDatabase();
+                {
+                    DbCommand command = database.GetStoredProcCommand("UpdatePhoneScriptFAQ");
+                    command.CommandType = CommandType.StoredProcedure;
+                    database.AddInParameter(command, "@Id", DbType.Int32, id);
+                    database.AddInParameter(command, "@Title", DbType.String, title);
+                    database.AddInParameter(command, "@Script", DbType.String, desc);
+                    database.ExecuteScalar(command);
+                    int res = Convert.ToInt32(database.GetParameterValue(command, "@result"));
+                }
+            }
+            catch (Exception ex)
+            {
+                //LogManager.Instance.WriteToFlatFile(ex);
+            }
+        }
         public bool UpdateUser(user objuser, int id)
         {
             try
@@ -418,7 +459,7 @@ namespace JG_Prospect.DAL
                 {
                     returndata = new DataSet();
 
-                    DbCommand command = database.GetSqlStringCommand("SELECT * from tblInstallusers WHERE Id="+id);
+                    DbCommand command = database.GetSqlStringCommand("SELECT * from tblInstallusers WHERE Id=" + id);
                     command.CommandType = CommandType.Text;
                     returndata = database.ExecuteDataSet(command);
 
@@ -486,7 +527,7 @@ namespace JG_Prospect.DAL
         }
 
 
-        public bool changepassword(int loginid, string password,bool IsCustomer)//, string usertype, string password)
+        public bool changepassword(int loginid, string password, bool IsCustomer)//, string usertype, string password)
         {
             try
             {
@@ -1537,5 +1578,76 @@ namespace JG_Prospect.DAL
             }
         }
 
+        public List<PhoneScript> GetPhoneScripts(int? id = null)
+        {
+            try
+            {
+                List<PhoneScript> list = new List<PhoneScript>();
+                SqlDatabase database = MSSQLDataBase.Instance.GetDefaultDatabase();
+                {
+                    returndata = new DataSet();
+                    DbCommand command = database.GetStoredProcCommand("GetPhoneScripts");
+                    database.AddInParameter(command, "@Id", DbType.Int32, id);
+                    command.CommandType = CommandType.StoredProcedure;
+                    returndata = database.ExecuteDataSet(command);
+                    if (returndata != null && returndata.Tables[0] != null && returndata.Tables[0].Rows.Count > 0)
+                    {
+                        foreach (DataRow item in returndata.Tables[0].Rows)
+                        {
+                            list.Add(new PhoneScript
+                            {
+                                Id = Convert.ToInt32(item["Id"].ToString()),
+                                Type = Convert.ToInt32(item["Type"].ToString()),
+                                SubType = Convert.ToInt32(item["SubType"].ToString()),
+                                Title = item["Title"].ToString(),
+                                DescriptionPlain = item["Description"].ToString(),
+                                FAQTitle = item["FAQTitle"].ToString(),
+                                FAQDescription = item["FAQDescription"].ToString()
+                            });
+                        }
+                    }
+                    return list;
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+                //LogManager.Instance.WriteToFlatFile(ex);
+            }
+        }
+
+        public List<UserDesignation> GetUserDesignation(int? id = null)
+        {
+            try
+            {
+                List<UserDesignation> list = new List<UserDesignation>();
+                SqlDatabase database = MSSQLDataBase.Instance.GetDefaultDatabase();
+                {
+                    returndata = new DataSet();
+                    DbCommand command = database.GetStoredProcCommand("GetUserDesignations");
+                    database.AddInParameter(command, "@Id", DbType.Int32, id);
+                    command.CommandType = CommandType.StoredProcedure;
+                    returndata = database.ExecuteDataSet(command);
+                    if (returndata != null && returndata.Tables[0] != null && returndata.Tables[0].Rows.Count > 0)
+                    {
+                        foreach (DataRow item in returndata.Tables[0].Rows)
+                        {
+                            list.Add(new UserDesignation
+                            {
+                                Id = Convert.ToInt32(item["Id"].ToString()),
+                                DepartmentId = Convert.ToInt32(item["DepartmentId"].ToString()),
+                                DesignationCode = item["DesignationCode"].ToString(),
+                                DesignationName = item["DesignationName"].ToString()
+                            });
+                        }
+                    }
+                    return list;
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
     }
 }

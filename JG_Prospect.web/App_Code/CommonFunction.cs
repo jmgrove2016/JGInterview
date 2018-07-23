@@ -240,7 +240,13 @@ namespace JG_Prospect.App_Code
                 if (!autoLogin)
                 {
                     // redirect user to login page, only when session renewal is not requested.
-                    string strRenewSessionKey = HttpContext.Current.Request.Params.Cast<string>().FirstOrDefault(s => s.Contains("_hdnRenewSession"));
+                    string strRenewSessionKey = string.Empty;
+
+                    if (HttpContext.Current.Request != null && HttpContext.Current.Request.Params.Count > 0)
+                    {
+                        strRenewSessionKey = HttpContext.Current.Request.Params.Cast<string>().FirstOrDefault(s => s.Contains("_hdnRenewSession")); 
+                    }
+
                     if (string.IsNullOrEmpty(strRenewSessionKey) || HttpContext.Current.Request.Params[strRenewSessionKey] == "0")
                     {
                         HttpContext.Current.Response.Redirect("~/login.aspx?returnurl=" + HttpContext.Current.Request.Url.PathAndQuery);
@@ -263,6 +269,10 @@ namespace JG_Prospect.App_Code
             {
                 switch (JGSession.Designation.ToUpper())
                 {
+                    //To add/edit Tasks
+                    case "IT - SR .NET DEVELOPER":
+                    case "IT - SR. PHP DEVELOPER":
+
                     case "ADMIN": // admin
                     case "ADMIN-SALES":
                     case "ADMIN RECRUITER":
@@ -1099,6 +1109,61 @@ namespace JG_Prospect.App_Code
             return objPage.ResolveUrl(iconFile);
         }
 
+        public static Enums.ResourceType GetFileType(string FileName)
+        {
+            string fileExtension = Path.GetExtension(FileName).ToLower();
+
+            Enums.ResourceType resourceType;
+
+            switch (fileExtension)
+            {
+                case ".zip":
+                case ".rar":
+                    resourceType = Enums.ResourceType.CompreesedFolder;
+                    break;
+                case ".mp3":
+                case ".wav":
+                case ".m4a":
+                    resourceType = Enums.ResourceType.Audio;
+                    break;
+                case ".wmv":
+                case ".avi":
+                case ".mov":
+                case ".mpg":
+                case ".mp4":
+                    resourceType = Enums.ResourceType.Video;                    
+                    break;
+                case ".pdf":
+                    resourceType = Enums.ResourceType.PDF;                   
+                    break;
+                case ".xlsx":
+                case ".xls":
+                    resourceType = Enums.ResourceType.Excel;
+                    break;
+                case ".pptx":
+                case ".ppt":
+                    resourceType = Enums.ResourceType.Presentation;
+                    break;
+                case ".txt":
+                case ".rtf":
+                case ".docx":
+                case ".doc":
+                    resourceType = Enums.ResourceType.Word;
+                    break;
+                case ".png":
+                case ".jpg":
+                case ".jpeg":
+                case ".bmp":
+                case ".gif":
+                    resourceType = Enums.ResourceType.Image;
+                    break;
+                default:
+                    resourceType = Enums.ResourceType.Other;
+                    break;
+            }
+            return resourceType;
+        }
+
         public static string CreatePassword(int length)
         {
             const string valid = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
@@ -1311,6 +1376,7 @@ namespace JG_Prospect.App_Code
                     }
                 }
             }
+            catch (Exception exp) { }
             finally
             {
                 lockerErrors.ReleaseWriterLock();
@@ -1551,6 +1617,24 @@ namespace JG_Prospect.App_Code
                     break;
                 case "29":
                     prefix = "ITFRXD";
+                    break;
+                case "1028":
+                    prefix = "ITMN";
+                    break;
+                case "1029":
+                    prefix = "ITMPH";
+                    break;
+                case "1030":
+                    prefix = "ITMSE";
+                    break;
+                case "1031":
+                    prefix = "ITJBA";
+                    break;
+                case "1032":
+                    prefix = "ITSBA";
+                    break;
+                case "1033":
+                    prefix = "ITMXD";
                     break;
                 default:
                     prefix = "TSK";
@@ -2081,6 +2165,38 @@ namespace JG_Prospect
             set
             {
                 HttpContext.Current.Session["UserInstallId"] = value;
+            }
+        }
+
+        public static string PortalEmail
+        {
+            get
+            {
+                if (HttpContext.Current.Session["PortalEmail"] == null)
+                {
+                    return string.Empty;
+                }
+                return Convert.ToString(HttpContext.Current.Session["PortalEmail"]);
+            }
+            set
+            {
+                HttpContext.Current.Session["PortalEmail"] = value;
+            }
+        }
+
+        public static string PortalEmailPassword
+        {
+            get
+            {
+                if (HttpContext.Current.Session["PortalEmailPassword"] == null)
+                {
+                    return string.Empty;
+                }
+                return Convert.ToString(HttpContext.Current.Session["PortalEmailPassword"]);
+            }
+            set
+            {
+                HttpContext.Current.Session["PortalEmailPassword"] = value;
             }
         }
     }
