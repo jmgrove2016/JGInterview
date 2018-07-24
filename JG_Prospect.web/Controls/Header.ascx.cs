@@ -18,11 +18,15 @@ namespace JG_Prospect.Controls
             {
                 // branch location on header
                 BranchLocation loc = InstallUserBLL.Instance.GetUserBranchLocation(JGSession.UserId);
-                BranchAddress1.InnerText = loc.BranchAddress1;
-                BranchAddress2.InnerText = loc.BranchAddress2;
-                Department.InnerText = loc.Department;
-                Phone.InnerText = loc.PhoneNumber;
-                Email.InnerText = loc.Email;
+                if(loc != null)
+                {
+                    BranchAddress1.InnerText = loc.BranchAddress1;
+                    BranchAddress2.InnerText = loc.BranchAddress2;
+                    Department.InnerText = loc.Department;
+                    Phone.InnerText = loc.PhoneNumber;
+                    Email.InnerText = loc.Email;
+                }
+                
 
                 lbluser.Text = Session["Username"].ToString().Trim();
                 string AdminId = ConfigurationManager.AppSettings["AdminUserId"].ToString();

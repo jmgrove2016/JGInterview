@@ -230,6 +230,12 @@ namespace JG_Prospect.MCQTest
                         populateExams();
                         //populateLabel();
                         //populatePerformanceArea();
+                        bool isAllExamGiven = AptitudeTestBLL.Instance.IsAllExamGivenByUserId(UserID);
+                        if (isAllExamGiven)
+                        {
+                            btnTakeTest.Visible = false;
+                            btnCancelTest.Visible = false;
+                        }
                     }
             }
         }
@@ -318,17 +324,25 @@ namespace JG_Prospect.MCQTest
 
                 lblMarks.Text = String.Concat("Marks Obtained: ", DataBinder.Eval(e.Item.DataItem, "MarksEarned").ToString(), "/", DataBinder.Eval(e.Item.DataItem, "TotalMarks").ToString());
                 lblPercentage.Text = String.Concat("Percentage Obtained: ", DataBinder.Eval(e.Item.DataItem, "Aggregate").ToString());
-
-                if (Convert.ToInt32(DataBinder.Eval(e.Item.DataItem, "ExamPerformanceStatus").ToString()) > 0)
+                if(DataBinder.Eval(e.Item.DataItem, "ExamPerformanceStatus") == null || DataBinder.Eval(e.Item.DataItem, "ExamPerformanceStatus").ToString() == "")
                 {
-                    lblResult.CssClass = "greentext";
-                    lblResult.Text = "Pass";
+                    lblResult.CssClass = "redtext";
+                    lblResult.Text = "pending";
                 }
                 else
                 {
-                    lblResult.CssClass = "redtext";
-                    lblResult.Text = "Fail";
+                    if (Convert.ToInt32(DataBinder.Eval(e.Item.DataItem, "ExamPerformanceStatus").ToString()) > 0)
+                    {
+                        lblResult.CssClass = "greentext";
+                        lblResult.Text = "Pass";
+                    }
+                    else
+                    {
+                        lblResult.CssClass = "redtext";
+                        lblResult.Text = "Fail";
+                    }
                 }
+                
             }
         }
 
@@ -963,10 +977,12 @@ namespace JG_Prospect.MCQTest
 
                     this.NextExamSeq = this.NextExamSeq + 1;
                 }
-
-                SetExamSectionViews();
-                LoadQuestionsForExam();
-                LoadNextQuestion();
+                if(!AptitudeTestBLL.Instance.IsExamGivenByUserByExamId(UserID, CurrentExamID))
+                {
+                    SetExamSectionViews();
+                    LoadQuestionsForExam();
+                    LoadNextQuestion();
+                }
             }
         }
 

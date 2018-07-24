@@ -43,6 +43,15 @@ namespace JG_Prospect.BLL
         {
             return AptitudeTestDAL.Instance.GetExamsResultByUserID(userID, ref isAllExamGiven);
         }
+
+        public bool IsAllExamGivenByUserId(int userID)
+        {
+            return AptitudeTestDAL.Instance.IsAllExamGivenByUserId(userID);
+        }
+        public bool IsExamGivenByUserByExamId(int userID, int examId)
+        {
+            return AptitudeTestDAL.Instance.IsExamGivenByUserByExamId(userID, examId);
+        }
         public string GetExamNameByExamID(string ExamId)
         {
             return AptitudeTestDAL.Instance.GetExamNameByExamID(ExamId);

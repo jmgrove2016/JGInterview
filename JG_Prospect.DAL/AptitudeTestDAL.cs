@@ -108,6 +108,53 @@ namespace JG_Prospect.DAL
             return aggregateResult;
         }
 
+        public bool IsExamGivenByUserByExamId(int userID, int examId)
+        {
+            bool isExamGiven = false;
+            try
+            {
+                SqlDatabase database = MSSQLDataBase.Instance.GetDefaultDatabase();
+                {
+                    DbCommand command = database.GetStoredProcCommand("usp_isExamsGivenByUser");
+                    command.CommandType = CommandType.StoredProcedure;
+                    database.AddInParameter(command, "@UserID", DbType.Int64, userID);
+                    database.AddInParameter(command, "@examId", DbType.Int64, examId);
+                    database.AddOutParameter(command, "@ExamGiven", DbType.Boolean, 1);
+                    database.ExecuteNonQuery(command);
+                    isExamGiven = Convert.ToBoolean(database.GetParameterValue(command, "@ExamGiven"));
+                }
+                
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return isExamGiven;
+        }
+        public bool IsAllExamGivenByUserId(int userID)
+        {
+            bool isExamGiven = false;
+            try
+            {
+                SqlDatabase database = MSSQLDataBase.Instance.GetDefaultDatabase();
+                {
+                    DbCommand command = database.GetStoredProcCommand("usp_isAllExamsGivenByUserId");
+                    command.CommandType = CommandType.StoredProcedure;
+                    database.AddInParameter(command, "@UserID", DbType.Int64, userID);
+                    database.AddOutParameter(command, "@ExamGiven", DbType.Boolean, 1);
+                    database.ExecuteNonQuery(command);
+                    isExamGiven = Convert.ToBoolean(database.GetParameterValue(command, "@ExamGiven"));
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return isExamGiven;
+        }
         public DataTable GetcorrectAnswerByQuestionID(int questionID)
         {
             string SQL = "select *, (select top 1 OptionText FROM MCQ_Option where OptionID=ma.OptionID AND QuestionID=ma.QuestionID) AS AnswerText from MCQ_CorrectAnswer ma where ma.QuestionId = " + questionID.ToString();

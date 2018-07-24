@@ -827,9 +827,9 @@ namespace JG_Prospect
                                 else if (JGSession.UserStatus.HasValue && JGSession.UserStatus.Value == JGConstant.InstallUserStatus.InterviewDateExpired)
                                 {
                                     if (isProfileUpdateRequired)
-                                        strRedirectUrl = String.Concat("screening-intermediate.aspx", "?returnurl=/ViewApplicantUser.aspx?Id=", JGSession.LoginUserID, "&Exp=1");
+                                        strRedirectUrl = String.Concat("screening-intermediate.aspx", "?returnurl=/postapptitude.aspx?Id=", JGSession.LoginUserID, "&DId=" + JGSession.DesignationId);
                                     else
-                                        strRedirectUrl = "~/ViewApplicantUser.aspx?Id=" + JGSession.LoginUserID + "&Exp=1";
+                                        strRedirectUrl = "~/postapptitude.aspx?Id=" + JGSession.LoginUserID + "&DId=" + JGSession.DesignationId;
                                 }
                                 // if user has passed exam and didn't assigned sequence he should be redirect to view applicant page for auto sequence assignment.
                                 else if (JGSession.UserStatus.HasValue && JGSession.UserStatus.Value == JGConstant.InstallUserStatus.InterviewDate && ds.Tables[0].Rows[0]["AssignedSequence"].ToString() == "0")
@@ -1146,9 +1146,9 @@ namespace JG_Prospect
                             else if (JGSession.UserStatus.HasValue && JGSession.UserStatus.Value == JGConstant.InstallUserStatus.InterviewDateExpired)
                             {
                                 if (isProfileUpdateRequired)
-                                    strRedirectUrl = String.Concat("screening-intermediate.aspx", "?returnurl=/ViewApplicantUser.aspx?Id=", JGSession.LoginUserID, "&Exp=1");
+                                    strRedirectUrl = String.Concat("screening-intermediate.aspx", "?returnurl=/postapptitude.aspx?Id=", JGSession.LoginUserID, "&DId=" + JGSession.DesignationId);
                                 else
-                                    strRedirectUrl = "~/ViewApplicantUser.aspx?Id=" + JGSession.LoginUserID + "&Exp=1";
+                                    strRedirectUrl = "~/postapptitude.aspx?Id=" + JGSession.LoginUserID + "&DId=" + JGSession.DesignationId;
                             }
                             // if user has passed exam and didn't assigned sequence he should be redirect to view applicant page for auto sequence assignment.
                             else if (JGSession.UserStatus.HasValue && JGSession.UserStatus.Value == JGConstant.InstallUserStatus.InterviewDate && ds.Tables[0].Rows[0]["AssignedSequence"].ToString() == "0")
