@@ -902,15 +902,27 @@ namespace JG_Prospect.Sr_App
                         dtResignation.Text = ds.Tables[0].Rows[0][45].ToString();
                         ddlWorkerCompCode.SelectedValue = ds.Tables[0].Rows[0][46].ToString();
                         dtReviewDate.Text = ds.Tables[0].Rows[0][47].ToString();
-                        if (!String.IsNullOrEmpty(ds.Tables[0].Rows[0]["EmpType"].ToString()))
-                        {
-                            System.Web.UI.WebControls.ListItem lstEmpType = ddlEmpType.Items.FindByValue(ds.Tables[0].Rows[0]["EmpType"].ToString());
 
-                            if (lstEmpType != null)
+                        if(ds.Tables[0].Rows.Count>0)
+                        {
+                            string employeeType = ds.Tables[0].Rows[0]["EmpType"].ToString();
+                            if (employeeType!="")
                             {
-                                ddlEmpType.SelectedIndex = ddlEmpType.Items.IndexOf(lstEmpType);
+                                System.Web.UI.WebControls.ListItem lstEmpType = ddlEmpType.Items.FindByValue(employeeType.ToString());
+
+                                if (lstEmpType != null)
+                                {
+                                    ddlEmpType.SelectedIndex = ddlEmpType.Items.IndexOf(lstEmpType);
+                                }                               
+                                System.Web.UI.WebControls.ListItem lstEmpTypeText = ddlEmpType.Items.FindByText(employeeType.ToString());
+
+                                if (lstEmpTypeText != null)
+                                {
+                                    ddlEmpType.SelectedIndex = ddlEmpType.Items.IndexOf(lstEmpTypeText);
+                                }
                             }
                         }
+                       
                         dtLastDate.Text = ds.Tables[0].Rows[0][49].ToString();
                         txtPayRates.Text = ds.Tables[0].Rows[0][50].ToString();
                         //ddlExtraEarning.SelectedValue = ;
