@@ -914,10 +914,55 @@ namespace JG_Prospect
             else if (e.CommandName == "DeleteSalesUser")
             {
                 List<int> lstIds = new List<int>() { Convert.ToInt32(e.CommandArgument.ToString()) };
-                if (InstallUserBLL.Instance.DeleteInstallUsers(lstIds))
+                List<int> lstIDsTobeDeleted = new List<int>(); // List added to filter only the deactivated IDs to delete
+                bool isProceedtoDelete = false; // bool to proceed delete or not
+                DataSet userData = new DataSet(); // Data set to fetch Data from Installuser
+
+                try
                 {
-                    ScriptManager.RegisterStartupScript(this, this.GetType(), "AlertBox", "alert('User Deleted Successfully');", true);
-                    GetSalesUsersStaticticsAndData();
+                    if (lstIds.Count() == 1) // Logic to delete only one record, the record coming from Delete Link button
+                    {
+                        userData = InstallUserBLL.Instance.getuserdetails(lstIds[0]);
+
+                        foreach (DataRow dataRow in userData.Tables[0].Rows)
+                        {
+                            if (dataRow["Status"].ToString() == "3") // Checking the status of the record is in deactive status
+                            {
+                                lstIDsTobeDeleted.Add(Convert.ToInt16(dataRow["Id"].ToString()));
+                                isProceedtoDelete = true;
+                            }
+                            else
+                                ScriptManager.RegisterStartupScript(this, this.GetType(), "AlertBox",
+                                    "alert('Only Deactivated users can be deleted');", true);
+                        }
+                    }
+                    else // logic to delete records from Delete selected link button
+                    {
+                        userData = InstallUserBLL.Instance.GetUsersByIDs(lstIds);
+
+                        foreach (DataRow dataRow in userData.Tables[0].Rows)
+                        {
+                            if (dataRow["Status"].ToString() == "3") // Checking the status of the record is in deactive status
+                            {
+                                lstIDsTobeDeleted.Add(Convert.ToInt16(dataRow["Id"].ToString()));
+                                isProceedtoDelete = true;
+                            }
+                        }
+                    }
+
+                    if (isProceedtoDelete)
+                    {
+                        if (InstallUserBLL.Instance.DeleteInstallUsers(lstIDsTobeDeleted))
+                        {
+                            ScriptManager.RegisterStartupScript(this, this.GetType(), "AlertBox",
+                                "alert('User Deleted Successfully');", true);
+                            GetSalesUsersStaticticsAndData();
+                        }
+                    }
+                }
+                catch
+                {
+
                 }
             }
             else if (e.CommandName == "ShowPicture")

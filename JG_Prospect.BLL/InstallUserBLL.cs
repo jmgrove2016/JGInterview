@@ -927,5 +927,10 @@ namespace JG_Prospect.BLL
         {
             return InstallUserDAL.Instance.GetBranchLocationsDataSet();
         }
+
+        public DataSet GetUsersByIDs(List<int> userIds = null)
+        {
+            return InstallUserDAL.Instance.GetUsersByIds(userIds);
+        }
     }
 }
