@@ -1444,7 +1444,7 @@
                             <PagerStyle HorizontalAlign="Right" CssClass="pagination-ys" />
                             <Columns>
                                 <asp:TemplateField HeaderText="Action <br/> Picture" HeaderStyle-HorizontalAlign="Center" ItemStyle-HorizontalAlign="Center" HeaderStyle-Width="1%"
-                                    ItemStyle-Width="1%">
+                                    ItemStyle-Width="1%" SortExpression="picture">
                                     <ItemTemplate>
                                         <asp:HiddenField runat="server" ID="bmId" Value='<%#Eval("bookmarkedUser")%>' />
                                         <asp:HiddenField runat="server" Value='<%#Eval("Id")%>' ID="hdId" />
@@ -1454,13 +1454,12 @@
                                         <%-- <asp:Image CssClass="starimg"  ID="starblankimg"  runat="server" ImageUrl= "../img/star.png"    ></asp:Image> --%>
                                         <%-- <asp:ImageButton ID="starredimg" CssClass="starimg" runat="server" ImageUrl="~/img/starred.png" OnClientClick=<%# "GotoStarUser('" + Eval("Id") + "','1')" %>></asp:ImageButton>--%>
                                         <a href='<%# String.Concat("ViewSalesUser.aspx?ID=", Eval("Id")) %>'>
-                                            <asp:Image Style="width: 100%; margin-top: -20px" ID="imgprofile" runat="server"></asp:Image></a>
-                                        <asp:LinkButton ID="lbltest" Text="Edit" CommandName="EditSalesUser" runat="server" CommandArgument='<%#Eval("Id")%>'></asp:LinkButton>
+                                            <asp:Image Style="width: 100%; margin-top: -20px;" ID="imgprofile" runat="server"></asp:Image></a>
+                                         
                                         <%--<asp:LinkButton ID="lbltest" Text="Edit" CommandName="EditSalesUser" runat="server" Visible='<%# Eval("picture").ToString()!="" && Eval("picture")!= null ? true :  false %>' CommandArgument='<%#Eval("Id")%>'></asp:LinkButton>--%>
                                         <%-- <asp:LinkButton ID="lnkDeactivate" Text="Deactivate" CommandName="DeactivateSalesUser" runat="server" OnClientClick="return confirm('Are you sure you want to deactivate this user?')"
                                             CommandArgument='<%#Eval("Id")%>'></asp:LinkButton>--%>
-                                        <asp:LinkButton ID="lnkDelete" Text="Delete" CommandName="DeleteSalesUser" runat="server" OnClientClick="return confirm('Are you sure you want to delete this user?')"
-                                            CommandArgument='<%#Eval("Id")%>'></asp:LinkButton>
+                                        
                                     </ItemTemplate>
                                 </asp:TemplateField>
                                 <asp:TemplateField ShowHeader="True" HeaderText="ID# <br/>  Designation<br/> F&LName" HeaderStyle-HorizontalAlign="Center" ItemStyle-HorizontalAlign="Center" HeaderStyle-Width="1%" ItemStyle-Width="1%" ControlStyle-ForeColor="Black"

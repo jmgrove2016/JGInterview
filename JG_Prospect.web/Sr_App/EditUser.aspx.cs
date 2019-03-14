@@ -444,11 +444,10 @@ namespace JG_Prospect
                     DropDownList ddlStatus = (e.Row.FindControl("ddlStatus") as DropDownList);//Find the DropDownList in the Row
                     DropDownList ddlEmployeeType = (e.Row.FindControl("ddlEmployeeType") as DropDownList);//Find the DropDownList in the Row
                     DropDownList ddlContactType = (e.Row.FindControl("ddlContactType") as DropDownList);
-                    HyperLink hypTechTask = e.Row.FindControl("hypTechTask") as HyperLink;
-                    LinkButton lnkDelete = e.Row.FindControl("lnkDelete") as LinkButton;
+                    HyperLink hypTechTask = e.Row.FindControl("hypTechTask") as HyperLink; 
                     Image img = e.Row.FindControl("imgprofile") as Image;
                     HiddenField hdimg = e.Row.FindControl("hdimgsource") as HiddenField;
-                    LinkButton lbltestChk = (e.Row.FindControl("lbltest") as LinkButton);
+                    
                     DropDownList elePhoneTypeDisplay = (e.Row.FindControl("ddlPhoneTypeDisplay") as DropDownList);
                     DropDownList elePhoneType = (e.Row.FindControl("ddlPhoneType") as DropDownList);
                     int id = Convert.ToInt32(grdUsers.DataKeys[e.Row.RowIndex].Values[0]);
@@ -462,8 +461,7 @@ namespace JG_Prospect
 
                         if (File.Exists(pathvalue))
                         {
-                            img.ImageUrl = "~/Employee/ProfilePictures/" + hdimg.Value;
-                            lbltestChk.Visible = true;
+                            img.ImageUrl = "~/Employee/ProfilePictures/" + hdimg.Value; 
                         }
                         else
                         {
@@ -728,16 +726,7 @@ namespace JG_Prospect
                                 break;
                         }
                     }
-
-
-                    if (JGSession.DesignationId == (int)JGConstant.DesignationType.Admin || JGSession.DesignationId == (int)JGConstant.DesignationType.IT_Lead)
-                    {
-                        lnkDelete.Visible = true;
-                    }
-                    else
-                    {
-                        lnkDelete.Visible = false;
-                    }
+                     
                 }
             }
             catch (Exception ex)
@@ -911,15 +900,7 @@ namespace JG_Prospect
                     GetSalesUsersStaticticsAndData();
                 }
             }
-            else if (e.CommandName == "DeleteSalesUser")
-            {
-                List<int> lstIds = new List<int>() { Convert.ToInt32(e.CommandArgument.ToString()) };
-                if (InstallUserBLL.Instance.DeleteInstallUsers(lstIds))
-                {
-                    ScriptManager.RegisterStartupScript(this, this.GetType(), "AlertBox", "alert('User Deleted Successfully');", true);
-                    GetSalesUsersStaticticsAndData();
-                }
-            }
+             
             else if (e.CommandName == "ShowPicture")
             {
                 string ImagePath = "";
