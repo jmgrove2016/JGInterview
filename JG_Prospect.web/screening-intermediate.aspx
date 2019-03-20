@@ -9,9 +9,6 @@
     </style>
 </asp:Content>
 
-
-
-
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <div class="right_panel">
         <%--    <asp:ScriptManager ID="scmPopup" runat="server" ScriptMode="Auto">
@@ -33,10 +30,10 @@
                     <asp:CheckBox ID="chkRegComplete" runat="server" Checked="true" />
                     Registration Complete</td>
                 <td>
-                    <asp:CheckBox ID="chkNotifiedAboutOpportunity"  runat="server" />
+                    <asp:CheckBox ID="chkNotifiedAboutOpportunity" runat="server" />
                     Notified About Opportunity</td>
                 <td>
-                    <asp:CheckBox ID="chkApplicationApproval"  runat="server" />
+                    <asp:CheckBox ID="chkApplicationApproval" runat="server" />
                     Application Approval</td>
             </tr>
             <tr>
@@ -44,7 +41,7 @@
                     <asp:CheckBox ID="chkApplicationInProgress" runat="server" Checked="true" />
                     Application In Progress</td>
                 <td>
-                    <asp:CheckBox ID="chkAccountSetup" runat="server"  />
+                    <asp:CheckBox ID="chkAccountSetup" runat="server" />
                     Account Setup</td>
                 <td>
                     <asp:CheckBox ID="chkServiceProviderFullyOnBoard" runat="server" />
@@ -68,14 +65,15 @@
                         <table class="profiletable">
                             <tr>
                                 <td>Position applying for: <span class="errortext">*</span><br />
-                                    <asp:DropDownList ID="ddlPositionAppliedFor" CssClass="emp-ddl" TabIndex="1" AppendDataBoundItems="true" runat="server" ClientIDMode="Static" AutoPostBack="false">
+                                    <asp:DropDownList ID="ddlPositionAppliedFor" CssClass="emp-ddl" TabIndex="1" AppendDataBoundItems="true" runat="server" ClientIDMode="Static"
+                                        AutoPostBack="false" ValidationGroup="vgUpProf">
                                     </asp:DropDownList><br />
                                     <asp:RequiredFieldValidator ID="rfvPositionApplied" runat="server" ControlToValidate="ddlPositionAppliedFor"
                                         ValidationGroup="vgUpProf" CssClass="errortext" Display="Dynamic" ErrorMessage="Required" SetFocusOnError="true"
                                         InitialValue="0"></asp:RequiredFieldValidator>
                                 </td>
                                 <td>Source: <span class="errortext">*</span><br />
-                                    <asp:DropDownList ID="ddlSource" CssClass="emp-ddl" runat="server" AutoPostBack="false" TabIndex="2">
+                                    <asp:DropDownList ID="ddlSource" CssClass="emp-ddl" runat="server" AutoPostBack="false" TabIndex="2" ValidationGroup="vgUpProf">
                                     </asp:DropDownList><br />
                                     <asp:RequiredFieldValidator ID="rfvSource" runat="server" ControlToValidate="ddlSource" SetFocusOnError="true"
                                         ValidationGroup="vgUpProf" CssClass="errortext" Display="Dynamic" ErrorMessage="Required"
@@ -86,7 +84,8 @@
                                 <td>
                                     <div>
                                         <div class="parallerinput-left" style="width: 80%; display: inline-table">
-                                            <asp:TextBox ID="txtfirstname" CssClass="emp-txtbox" Placeholder="First Name*" runat="server" MaxLength="40" autocomplete="off" EnableViewState="false" AutoCompleteType="None" TabIndex="3"></asp:TextBox><br />
+                                            <asp:TextBox ID="txtfirstname" CssClass="emp-txtbox" Placeholder="First Name*" runat="server" MaxLength="40" autocomplete="off"
+                                                EnableViewState="false" AutoCompleteType="None" TabIndex="3" ValidationGroup="vgUpProf"></asp:TextBox><br />
                                             <asp:RequiredFieldValidator ID="rfvFirstName" runat="server" ControlToValidate="txtfirstname" SetFocusOnError="true"
                                                 ValidationGroup="vgUpProf" CssClass="errortext" Display="Dynamic" ErrorMessage="Required"></asp:RequiredFieldValidator>
                                         </div>
@@ -99,35 +98,33 @@
                                 </td>
                                 <td>
                                     <asp:TextBox ID="txtlastname" CssClass="emp-txtbox" Placeholder="Last Name*" runat="server" MaxLength="40" autocomplete="off"
-                                        TabIndex="5"></asp:TextBox>
+                                        TabIndex="5" ValidationGroup="vgUpProf"></asp:TextBox>
                                     <br />
                                     <asp:RequiredFieldValidator ID="rfvLastName" runat="server" ControlToValidate="txtlastname" SetFocusOnError="true"
                                         ValidationGroup="vgUpProf" CssClass="errortext" Display="Dynamic" ErrorMessage="Required"></asp:RequiredFieldValidator>
                                 </td>
                             </tr>
                             <tr>
-
                                 <td>
-                                    <asp:DropDownList ID="ddlCountry" CssClass="emp-ddl" runat="server" TabIndex="6"></asp:DropDownList><br />
+                                    <asp:DropDownList ID="ddlCountry" CssClass="emp-ddl" runat="server" TabIndex="6" ValidationGroup="vgUpProf"></asp:DropDownList><br />
                                     <asp:RequiredFieldValidator ID="rfvCountry" runat="server" ControlToValidate="ddlCountry" SetFocusOnError="true"
                                         ValidationGroup="vgUpProf" CssClass="errortext" Display="Dynamic" ErrorMessage="Required"
                                         InitialValue="0"></asp:RequiredFieldValidator>
                                 </td>
                                 <td>
-                                    <asp:TextBox ID="txtZip" CssClass="emp-txtbox" Placeholder="Zip*" runat="server" MaxLength="10" TabIndex="7"></asp:TextBox><br />
+                                    <asp:TextBox ID="txtZip" CssClass="emp-txtbox" Placeholder="Zip*" runat="server" MaxLength="10" TabIndex="7" ValidationGroup="vgUpProf"></asp:TextBox><br />
                                     <asp:RequiredFieldValidator ID="rfvZip" runat="server" ControlToValidate="txtZip" SetFocusOnError="true"
                                         ValidationGroup="vgUpProf" CssClass="errortext" Display="Dynamic" ErrorMessage="Required"></asp:RequiredFieldValidator>
                                 </td>
                             </tr>
                             <tr>
-
                                 <td>
-                                    <asp:TextBox ID="txtCity" CssClass="emp-txtbox" Placeholder="City*" runat="server" MaxLength="50" TabIndex="8"></asp:TextBox>
+                                    <asp:TextBox ID="txtCity" CssClass="emp-txtbox" Placeholder="City*" runat="server" MaxLength="50" TabIndex="8" ValidationGroup="vgUpProf"></asp:TextBox>
                                     <asp:RequiredFieldValidator ID="rfvCity" runat="server" ControlToValidate="txtCity" SetFocusOnError="true"
                                         ValidationGroup="vgUpProf" CssClass="errortext" Display="Dynamic" ErrorMessage="Required"></asp:RequiredFieldValidator>
                                 </td>
                                 <td>
-                                    <asp:TextBox ID="txtState" CssClass="emp-txtbox" Placeholder="State*" runat="server" MaxLength="50" TabIndex="9"></asp:TextBox>
+                                    <asp:TextBox ID="txtState" CssClass="emp-txtbox" Placeholder="State*" runat="server" MaxLength="50" TabIndex="9" ValidationGroup="vgUpProf"></asp:TextBox>
                                     <br />
                                     <asp:RequiredFieldValidator ID="rfvState" runat="server" ControlToValidate="txtState" SetFocusOnError="true"
                                         ValidationGroup="vgUpProf" CssClass="errortext" Display="Dynamic" ErrorMessage="Required"></asp:RequiredFieldValidator>
@@ -135,26 +132,26 @@
                             </tr>
                             <tr>
                                 <td>
-                                    <asp:TextBox ID="txtAddress" CssClass="emp-mltxtbox" Rows="4" Width="90%" Placeholder="Address*" runat="server" TextMode="MultiLine" TabIndex="10"></asp:TextBox>
+                                    <asp:TextBox ID="txtAddress" CssClass="emp-mltxtbox" Rows="4" Width="90%" Placeholder="Address*" runat="server" TextMode="MultiLine" TabIndex="10" ValidationGroup="vgUpProf"></asp:TextBox>
                                     <asp:RequiredFieldValidator ID="rfvAddress" runat="server" ControlToValidate="txtAddress" SetFocusOnError="true"
                                         ValidationGroup="vgUpProf" CssClass="errortext" Display="Dynamic" ErrorMessage="Required"></asp:RequiredFieldValidator>
                                 </td>
                                 <td>Reason for leaving your current job(if applicable) : <span class="errortext">*</span><br />
-                                    <asp:TextBox ID="txtReasontoLeave" Rows="4" CssClass="emp-mltxtbox" runat="server" Width="90%" MaxLength="50" TextMode="MultiLine" TabIndex="11"></asp:TextBox><br />
+                                    <asp:TextBox ID="txtReasontoLeave" Rows="4" CssClass="emp-mltxtbox" runat="server" Width="90%" MaxLength="50" TextMode="MultiLine" TabIndex="11" ValidationGroup="vgUpProf"></asp:TextBox><br />
                                     <asp:RequiredFieldValidator ID="rfvReasontoLeave" SetFocusOnError="true" runat="server" ControlToValidate="txtReasontoLeave"
                                         ValidationGroup="vgUpProf" CssClass="errortext" Display="Dynamic" ErrorMessage="Required"></asp:RequiredFieldValidator>
                                 </td>
                             </tr>
                             <tr>
                                 <td>
-                                    <asp:TextBox ID="txtPhone" CssClass="emp-txtbox" ValidationGroup="vgQuickSave" TabIndex="12"
-                                        placeholder="Phone * - Ex. (111)-111-1111" runat="server" data-mask="(000)-000-0000"></asp:TextBox><br />
+                                    <asp:TextBox ID="txtPhone" CssClass="emp-txtbox" ValidationGroup="vgUpProf" TabIndex="12"
+                                        placeholder="Phone * - Ex. (111)-111-1111" runat="server" data-mask="(000)-000-0000" ></asp:TextBox><br />
                                     <asp:HiddenField ID="hdnPhone" runat="server" />
                                     <label id="error-msg" class="errortext hide">Invalid phone number</label><asp:RequiredFieldValidator ID="rfvPhone" runat="server" ControlToValidate="txtPhone"
                                         ValidationGroup="vgUpProf" CssClass="errortext" SetFocusOnError="true" Display="Dynamic" ErrorMessage="Required"></asp:RequiredFieldValidator>
                                 </td>
                                 <td>
-                                    <asp:TextBox ID="txtEmail" CssClass="emp-txtbox" ValidationGroup="vgQuickSave" Placeholder="Email*" TabIndex="13" runat="server"></asp:TextBox><br />
+                                    <asp:TextBox ID="txtEmail" CssClass="emp-txtbox" ValidationGroup="vgUpProf" Placeholder="Email*" TabIndex="13" runat="server"></asp:TextBox><br />
                                     <asp:RequiredFieldValidator ID="rfvEmail" runat="server" ControlToValidate="txtEmail" SetFocusOnError="true"
                                         ValidationGroup="vgUpProf" CssClass="errortext" Display="Dynamic" ErrorMessage="Required"></asp:RequiredFieldValidator>
                                     <asp:RegularExpressionValidator ID="revEmail" runat="server" SetFocusOnError="true" ControlToValidate="txtEmail" ErrorMessage="Invalid Email" CssClass="errortext" ValidationExpression="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*"> </asp:RegularExpressionValidator>
@@ -181,15 +178,14 @@
                                         </tr>
                                     </table>
                                 </td>
-
                             </tr>
                             <tr>
                                 <td>
-                                    <asp:TextBox ID="txtStartDate" CssClass="emp-txtbox date" Placeholder="Available Start Date*" TabIndex="18" onkeypress="return false" runat="server"></asp:TextBox><br />
+                                    <asp:TextBox ID="txtStartDate" CssClass="emp-txtbox date" Placeholder="Available Start Date*" TabIndex="18" onkeypress="return false" runat="server" ValidationGroup="vgUpProf"></asp:TextBox><br />
                                     <asp:RequiredFieldValidator ID="rfvStartDate" runat="server" ControlToValidate="txtStartDate" SetFocusOnError="true" ValidationGroup="vgUpProf" CssClass="errortext" Display="Dynamic" ErrorMessage="Required"></asp:RequiredFieldValidator>
                                 </td>
                                 <td>Job Type: <span class="errortext">*</span><br />
-                                    <asp:DropDownList ID="ddlEmpType" CssClass="emp-ddl" runat="server" TabIndex="19" AutoPostBack="false">
+                                    <asp:DropDownList ID="ddlEmpType" CssClass="emp-ddl" runat="server" TabIndex="19" AutoPostBack="false" ValidationGroup="vgUpProf">
                                         <asp:ListItem Text="Select" Value="0"></asp:ListItem>
                                         <asp:ListItem Text="Part Time - Remote" Value="1"></asp:ListItem>
                                         <asp:ListItem Text="Full Time - Remote" Value="2"></asp:ListItem>
@@ -209,7 +205,7 @@
                                 <td>Salary Requirements<span class="errortext">*</span>
                                     <div>
                                         <div class="parallerinput-left" style="width: 78%; display: inline-table">
-                                            <asp:TextBox ID="txtSalaryRequirments" CssClass="emp-txtbox" TabIndex="20" runat="server"></asp:TextBox>
+                                            <asp:TextBox ID="txtSalaryRequirments" CssClass="emp-txtbox" TabIndex="20" runat="server" ValidationGroup="vgUpProf"></asp:TextBox>
                                             <br />
                                             <asp:RequiredFieldValidator ID="rfvSalary" runat="server" ControlToValidate="txtSalaryRequirments" SetFocusOnError="true" ValidationGroup="vgUpProf" CssClass="errortext" Display="Dynamic" ErrorMessage="Required"></asp:RequiredFieldValidator>
                                         </div>
@@ -219,7 +215,7 @@
                                     </div>
 
                                 </td>
-                                <td>Are you currently employed?<span class="errortext">*</span><asp:RadioButtonList ID="rblEmployed" RepeatDirection="Horizontal" RepeatLayout="Flow" TabIndex="21" runat="server">
+                                <td>Are you currently employed?<span class="errortext">*</span><asp:RadioButtonList ID="rblEmployed" RepeatDirection="Horizontal" RepeatLayout="Flow" TabIndex="21" runat="server" ValidationGroup="vgUpProf">
                                     <asp:ListItem Text="Yes" Value="1"></asp:ListItem>
                                     <asp:ListItem Text="No" Value="0"></asp:ListItem>
                                 </asp:RadioButtonList>
@@ -228,14 +224,14 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td>Will you be able to pass a drug test and background check?<span class="errortext">*</span><asp:RadioButtonList ID="rblDrugTest" RepeatDirection="Horizontal" RepeatLayout="Flow" TabIndex="22" runat="server">
+                                <td>Will you be able to pass a drug test and background check?<span class="errortext">*</span><asp:RadioButtonList ID="rblDrugTest" RepeatDirection="Horizontal" RepeatLayout="Flow" TabIndex="22" runat="server" ValidationGroup="vgUpProf">
                                     <asp:ListItem Text="Yes" Value="1"></asp:ListItem>
                                     <asp:ListItem Text="No" Value="0"></asp:ListItem>
                                 </asp:RadioButtonList>
                                     <br />
                                     <asp:RequiredFieldValidator ID="rfvDrug" runat="server" SetFocusOnError="true" ControlToValidate="rblDrugTest" ValidationGroup="vgUpProf" CssClass="errortext" Display="Dynamic" ErrorMessage="Required"></asp:RequiredFieldValidator>
                                 </td>
-                                <td>Have you ever plead guilty to a Felony or been convicted of crime?<span class="errortext">*</span><asp:RadioButtonList ID="rblFelony" RepeatDirection="Horizontal" RepeatLayout="Flow" TabIndex="23" runat="server">
+                                <td>Have you ever plead guilty to a Felony or been convicted of crime?<span class="errortext">*</span><asp:RadioButtonList ID="rblFelony" RepeatDirection="Horizontal" RepeatLayout="Flow" TabIndex="23" runat="server" ValidationGroup="vgUpProf">
                                     <asp:ListItem Text="Yes" Value="1"></asp:ListItem>
                                     <asp:ListItem Text="No" Value="0"></asp:ListItem>
                                 </asp:RadioButtonList>
@@ -244,14 +240,14 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td>Have you previously worked for JMGrove?<span class="errortext">*</span><asp:RadioButtonList ID="rblWorkedForJMG" RepeatDirection="Horizontal" RepeatLayout="Flow" TabIndex="24" runat="server">
+                                <td>Have you previously worked for JMGrove?<span class="errortext">*</span><asp:RadioButtonList ID="rblWorkedForJMG" RepeatDirection="Horizontal" RepeatLayout="Flow" TabIndex="24" runat="server" ValidationGroup="vgUpProf">
                                     <asp:ListItem Text="Yes" Value="1"></asp:ListItem>
                                     <asp:ListItem Text="No" Value="0"></asp:ListItem>
                                 </asp:RadioButtonList><br />
                                     <asp:RequiredFieldValidator ID="rfvWorked" runat="server" SetFocusOnError="true" ControlToValidate="rblWorkedForJMG" ValidationGroup="vgUpProf" CssClass="errortext" Display="Dynamic" ErrorMessage="Required"></asp:RequiredFieldValidator>
                                 </td>
                                 <td>
-                                    <asp:TextBox ID="txtMessageToRecruiter" Rows="4" Width="90%" CssClass="emp-mltxtbox" Placeholder="Message to Recruiter*" runat="server" TextMode="MultiLine" RepeatDirection="Horizontal" RepeatLayout="Flow" TabIndex="25"></asp:TextBox>
+                                    <asp:TextBox ID="txtMessageToRecruiter" Rows="4" Width="90%" CssClass="emp-mltxtbox" Placeholder="Message to Recruiter*" runat="server" TextMode="MultiLine" RepeatDirection="Horizontal" RepeatLayout="Flow" TabIndex="25" ValidationGroup="vgUpProf"></asp:TextBox>
                                     <br />
                                     <asp:RequiredFieldValidator ID="rfvMSGRec" runat="server" SetFocusOnError="true" ControlToValidate="txtMessageToRecruiter" ValidationGroup="vgUpProf" CssClass="errortext" Display="Dynamic" ErrorMessage="Required"></asp:RequiredFieldValidator>
                                 </td>
@@ -273,7 +269,6 @@
                                         <asp:Image ID="imgProfilePic" Height="100" Width="100" runat="server" />
                                         <asp:HiddenField ID="hdnprofilePic" runat="server" />
                                         <br />
-                                        <%--<asp:CustomValidator ID="cvValidProfilePic" runat="server" EnableClientScript="true" ErrorMessage="Profile picture required" CssClass="errortext" ValidationGroup="vgUpProf" ClientValidationFunction="validateProfilePic" Display="Dynamic"> </asp:CustomValidator>--%>
                                         <asp:CustomValidator ID="cvProfilePic" runat="server" SetFocusOnError="true" EnableClientScript="true" CssClass="errortext" ValidationGroup="vgUpProf" ClientValidationFunction="validateProfilePic" Display="Dynamic"> </asp:CustomValidator>
 
                                         <br />
@@ -398,7 +393,7 @@
                             lng: position.coords.longitude
                         };
                         getCountryFromLocation(pos);
-                    }, function () {});
+                    }, function () { });
                 }
             }
 
@@ -406,10 +401,10 @@
                 var geocoder = new window.google.maps.Geocoder();
                 geocoder.geocode({ 'location': pos }, function (results, status) {
                     if (status === window.google.maps.GeocoderStatus.OK) {
-                        results[0]['address_components'].forEach(function(addressComponents) {
+                        results[0]['address_components'].forEach(function (addressComponents) {
                             for (var property in addressComponents) {
                                 if (addressComponents.hasOwnProperty(property)) {
-                                    if (Array.isArray(addressComponents[property]) && addressComponents[property].includes('country')){
+                                    if (Array.isArray(addressComponents[property]) && addressComponents[property].includes('country')) {
                                         var country = addressComponents['short_name'];
                                         $(txtPhone).intlTelInput("setCountry", country);
                                     }
