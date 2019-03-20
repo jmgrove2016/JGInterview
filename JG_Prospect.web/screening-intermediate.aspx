@@ -50,7 +50,7 @@
                     <asp:CheckBox ID="chkServiceProviderFullyOnBoard" runat="server" />
                     Service Provider Fully On-Board</td>
             </tr>
-            
+
         </table>
 
         <div id="profileMaster">
@@ -92,8 +92,6 @@
                                         </div>
                                         <div class="parallerinput-right" style="width: 9%; display: inline-table">
                                             <asp:TextBox ID="txtMiddleInitial" Placeholder="I*" runat="server" CssClass="emp-txtbox emp-txtboxsmall" MaxLength="3" TabIndex="4"></asp:TextBox>
-                                            <asp:RequiredFieldValidator ID="rfvMiddleInitial" runat="server" ControlToValidate="txtMiddleInitial" SetFocusOnError="true"
-                                                ValidationGroup="vgUpProf" CssClass="errortext" Display="Dynamic" ErrorMessage="Required"></asp:RequiredFieldValidator>
                                             <br />
                                         </div>
                                     </div>
@@ -414,14 +412,14 @@
                                 if (results[0]['address_components'][component]['types'][i] == "country") {
                                     var country = results[0]['address_components'][component]['short_name'];
                                     if ($(txtPhone).val() == '') {
-                                        $(txtPhone).intlTelInput("setCountry", country);
-                                    }
+                                    $(txtPhone).intlTelInput("setCountry", country);
                                 }
                             }
                         }
-                    } else {
                     }
-                });
+                    } else {
+            }
+                 });
             }
             function SetPhoneValidation(telInput, errorMsg) {
                 // initialise plugin
@@ -453,7 +451,7 @@
                     setTimeout(function () { getUserConutry(); }, 300);
                 }
                 else {
-                    telInput.intlTelInput("setCountry", $(ddlCountry).val().toLowerCase());
+                telInput.intlTelInput("setCountry", $(ddlCountry).val().toLowerCase());
                 }
                 // listen to the telephone input for changes
                 telInput.on("countrychange", function (e, countryData) {
