@@ -318,6 +318,8 @@
             var txtZip = "#<%= txtZip.ClientID %>";
             var txtCity = "#<%= txtCity.ClientID %>";
             var txtState = "#<%= txtState.ClientID %>";
+            var prm = Sys.WebForms.PageRequestManager.getInstance();
+
             $(function () {
                 Initialize();
                 var btnSaveId = "#<%= btnSaveProfile.ClientID %>";
@@ -332,7 +334,7 @@
                     }
                 })
             });
-            var prm = Sys.WebForms.PageRequestManager.getInstance();
+
             if (prm != null) {
                 // debugger;
                 prm.add_beginRequest(function (sender, e) {
@@ -344,8 +346,8 @@
                     $(".progress").hide();
                 });
             };
+
             function Initialize() {
-                //setTimeout(function () {  }, 300);
                 $(txtStartDate).datepicker();
                 SetPhoneValidation($(txtPhone), $("#error-msg"));
                 setTimeout(function () {
@@ -358,11 +360,7 @@
                     }
                 });
             }
-            function closeScreeningPopup(URLtoRedirect) {
-                $('#profileMaster').addClass('hide');
-                $('#divWait').removeClass('hide');
-                window.top.location.href = URLtoRedirect;
-            }
+
             function getAddressDetails(country, zip, txtCity, txtState) {
                 $(txtZip).addClass("loading");
                 var str = zip + ',' + country;
@@ -391,7 +389,8 @@
                     }
                 });
             }
-            function getUserConutry() {
+
+            function getUserCountry() {
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(function (position) {
                         var pos = {
@@ -399,28 +398,28 @@
                             lng: position.coords.longitude
                         };
                         getCountryFromLocation(pos);
-                    }, function () {
-                    });
+                    }, function () {});
                 }
             }
+
             function getCountryFromLocation(pos) {
-                var geocoder = new google.maps.Geocoder();
+                var geocoder = new window.google.maps.Geocoder();
                 geocoder.geocode({ 'location': pos }, function (results, status) {
-                    if (status == google.maps.GeocoderStatus.OK) {
-                        for (var component in results[0]['address_components']) {
-                            for (var i in results[0]['address_components'][component]['types']) {
-                                if (results[0]['address_components'][component]['types'][i] == "country") {
-                                    var country = results[0]['address_components'][component]['short_name'];
-                                    if ($(txtPhone).val() == '') {
-                                    $(txtPhone).intlTelInput("setCountry", country);
+                    if (status === window.google.maps.GeocoderStatus.OK) {
+                        results[0]['address_components'].forEach(function(addressComponents) {
+                            for (var property in addressComponents) {
+                                if (addressComponents.hasOwnProperty(property)) {
+                                    if (Array.isArray(addressComponents[property]) && addressComponents[property].includes('country')){
+                                        var country = addressComponents['short_name'];
+                                        $(txtPhone).intlTelInput("setCountry", country);
+                                    }
                                 }
                             }
-                        }
+                        });
                     }
-                    } else {
+                });
             }
-                 });
-            }
+
             function SetPhoneValidation(telInput, errorMsg) {
                 // initialise plugin
                 telInput.intlTelInput({
@@ -447,12 +446,8 @@
                 });
                 // on keyup / change flag: reset
                 telInput.on("keyup change", reset);
-                if ($(txtPhone).val() == '') {
-                    setTimeout(function () { getUserConutry(); }, 300);
-                }
-                else {
+                setTimeout(function () { getUserCountry(); }, 300);
                 telInput.intlTelInput("setCountry", $(ddlCountry).val().toLowerCase());
-                }
                 // listen to the telephone input for changes
                 telInput.on("countrychange", function (e, countryData) {
                     $(ddlCountry).val(countryData.iso2.toUpperCase());
@@ -463,6 +458,7 @@
                 });
 
             }
+
             function validateProfilePic(sender, args) {
                 var valid = false;
                 var fileExtension = ['jpeg', 'jpg', 'gif', 'png'];
@@ -495,6 +491,7 @@
                 //alert('profile pic is : ' +  valid);
                 args.IsValid = valid;
             }
+
             function validateResume(sender, args) {
                 var valid = false;
                 var fileExtension = ['jpeg', 'jpg', 'gif', 'png', 'pdf', 'doc', 'txt', 'docx'];
@@ -527,6 +524,7 @@
                 //alert('resume is : ' + valid);
                 args.IsValid = valid;
             }
+
             function validateExtensionFileSize(fileExtension, fileUpload, maxFileSize) {
                 var valid = false;
                 var extension = fileUpload[0].files[0].name.substring(fileUpload[0].files[0].name.lastIndexOf('.') + 1).toLowerCase();
@@ -540,9 +538,6 @@
             }
         </script>
     </div>
-    <%-- <div id="screeningPopup" class="modal hide">
-        <iframe id="ifScreening" style="width: 100%; overflow: auto; height: 100%;"></iframe>
-    </div>--%>
 
     <style>
         .profiletitle h2 {
@@ -630,23 +625,3 @@
         }
     </style>
 </asp:Content>
-<%--<script type="text/javascript">
-        var screeningDialog;
-        function showScreeningPopup(urlToRedirect) {
-            console.log("return url is: " + urlToRedirect);
-            $("#ifScreening").attr('src', "screening-popup.aspx?returnurl=" + urlToRedirect);
-            $('#screeningPopup').removeClass('hide');
-          screeningDialog =  $('#screeningPopup').dialog({
-                modal: false,
-                height: 700,
-                width: 1000,
-                title: "Your attention required...",
-                closeOnEscape: false,
-                open: function (event, ui) {
-                    $(".ui-dialog-titlebar-close", ui.dialog | ui).hide();
-                }
-            }).parent().appendTo($("#formScreening"));
-            $('#screeningPopup').show();
-            return true;
-        }
-    </script>--%>
