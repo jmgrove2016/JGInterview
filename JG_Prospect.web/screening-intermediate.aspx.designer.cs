@@ -10,7 +10,7 @@
 namespace JG_Prospect {
     
     
-    public partial class screening_intermediate {
+    public partial class ScreeningIntermediate {
         
         /// <summary>
         /// chkRegComplete control.
@@ -400,6 +400,15 @@ namespace JG_Prospect {
         protected global::System.Web.UI.WebControls.TextBox txtSalaryRequirments;
         
         /// <summary>
+        /// ddlSalaryAux control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddlSalaryAux;
+        
+        /// <summary>
         /// rfvSalary control.
         /// </summary>
         /// <remarks>
@@ -416,6 +425,15 @@ namespace JG_Prospect {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList ddlCurrency;
+        
+        /// <summary>
+        /// ddlCurrencyAux control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddlCurrencyAux;
         
         /// <summary>
         /// rblEmployed control.

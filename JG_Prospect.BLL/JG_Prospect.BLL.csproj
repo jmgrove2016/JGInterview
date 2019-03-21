@@ -123,6 +123,10 @@
     <Compile Include="VendorBLL.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\JG_Prospect.BO\JG_Prospect.BO.csproj">
+      <Project>{7B8C8F62-E856-49F2-B93B-99BC9C285B96}</Project>
+      <Name>JG_Prospect.BO</Name>
+    </ProjectReference>
     <ProjectReference Include="..\JG_Prospect.Common\JG_Prospect.Common.csproj">
       <Project>{a445bb8a-2c2e-4144-93e8-6e6d79eda646}</Project>
       <Name>JG_Prospect.Common</Name>

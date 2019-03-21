@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JG_Prospect.BLL", "JG_Prosp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JG_Prospect.Common", "JG_Prospect.Common\JG_Prospect.Common.csproj", "{A445BB8A-2C2E-4144-93E8-6E6D79EDA646}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JG_Prospect.BO", "JG_Prospect.BO\JG_Prospect.BO.csproj", "{7B8C8F62-E856-49F2-B93B-99BC9C285B96}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{A445BB8A-2C2E-4144-93E8-6E6D79EDA646}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A445BB8A-2C2E-4144-93E8-6E6D79EDA646}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A445BB8A-2C2E-4144-93E8-6E6D79EDA646}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B8C8F62-E856-49F2-B93B-99BC9C285B96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B8C8F62-E856-49F2-B93B-99BC9C285B96}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B8C8F62-E856-49F2-B93B-99BC9C285B96}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B8C8F62-E856-49F2-B93B-99BC9C285B96}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

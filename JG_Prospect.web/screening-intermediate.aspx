@@ -1,4 +1,4 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/JGApplicant.Master" AutoEventWireup="true" CodeBehind="screening-intermediate.aspx.cs" Inherits="JG_Prospect.screening_intermediate" %>
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/JGApplicant.Master" AutoEventWireup="true" CodeBehind="screening-intermediate.aspx.cs" Inherits="JG_Prospect.ScreeningIntermediate" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
     <link href="css/intTel/intlTelInput.css" rel="stylesheet" />
@@ -11,9 +11,6 @@
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <div class="right_panel">
-        <%--    <asp:ScriptManager ID="scmPopup" runat="server" ScriptMode="Auto">
-        </asp:ScriptManager>--%>
-
         <h1>JMGrove Employment Application - Stage 1 (Complete Your Profile)</h1>
         <div class="w3-light-grey">
             <div class="w3-grey">0%</div>
@@ -145,7 +142,7 @@
                             <tr>
                                 <td>
                                     <asp:TextBox ID="txtPhone" CssClass="emp-txtbox" ValidationGroup="vgUpProf" TabIndex="12"
-                                        placeholder="Phone * - Ex. (111)-111-1111" runat="server" data-mask="(000)-000-0000" ></asp:TextBox><br />
+                                        placeholder="Phone * - Ex. (111)-111-1111" runat="server" data-mask="(000)-000-0000"></asp:TextBox><br />
                                     <asp:HiddenField ID="hdnPhone" runat="server" />
                                     <label id="error-msg" class="errortext hide">Invalid phone number</label><asp:RequiredFieldValidator ID="rfvPhone" runat="server" ControlToValidate="txtPhone"
                                         ValidationGroup="vgUpProf" CssClass="errortext" SetFocusOnError="true" Display="Dynamic" ErrorMessage="Required"></asp:RequiredFieldValidator>
@@ -206,11 +203,14 @@
                                     <div>
                                         <div class="parallerinput-left" style="width: 78%; display: inline-table">
                                             <asp:TextBox ID="txtSalaryRequirments" CssClass="emp-txtbox" TabIndex="20" runat="server" ValidationGroup="vgUpProf"></asp:TextBox>
+                                            <asp:DropDownList ID="ddlSalaryAux" runat="server" style="display: none"></asp:DropDownList>
                                             <br />
                                             <asp:RequiredFieldValidator ID="rfvSalary" runat="server" ControlToValidate="txtSalaryRequirments" SetFocusOnError="true" ValidationGroup="vgUpProf" CssClass="errortext" Display="Dynamic" ErrorMessage="Required"></asp:RequiredFieldValidator>
                                         </div>
                                         <div class="parallerinput-right" style="width: 16%; display: inline-table">
-                                            <asp:DropDownList ID="ddlCurrency" CssClass="emp-ddl" runat="server" TabIndex="6"></asp:DropDownList><br />
+                                            <asp:DropDownList ID="ddlCurrency" CssClass="emp-ddl" runat="server" TabIndex="6"></asp:DropDownList>
+                                            <asp:DropDownList ID="ddlCurrencyAux" runat="server" style="display: none"></asp:DropDownList>
+                                            <br />
                                         </div>
                                     </div>
 
@@ -304,7 +304,11 @@
         <script type="text/javascript">
             var txtStartDate = "#<%= txtStartDate.ClientID %>";
             var txtPhone = "#<%= txtPhone.ClientID %>";
-            var ddlCountry = "#<%= ddlCountry.ClientID%> ";
+            var ddlCountry = "#<%= ddlCountry.ClientID%>";
+            var ddlCurrencyAux = "#<%= ddlCurrencyAux.ClientID %>";
+            var ddlCurrency = "#<%= ddlCurrency.ClientID %>";
+            var txtSalary = "#<%= txtSalaryRequirments.ClientID %>";
+            var ddlSalaryAux = "#<%= ddlSalaryAux.ClientID %>";
             var hdnProfilePic = "#<%= hdnprofilePic.ClientID %>";
             var hdnPhone = "#<%= hdnPhone.ClientID %>";
             var fupProfilePic = "#<%= fupProfilePic.ClientID %>";
@@ -446,6 +450,24 @@
                 // listen to the telephone input for changes
                 telInput.on("countrychange", function (e, countryData) {
                     $(ddlCountry).val(countryData.iso2.toUpperCase());
+
+                    $(ddlCurrencyAux).val(countryData.iso2.toUpperCase());
+                    //Obtaining CurrencyId
+                    $(ddlCurrency).val($(ddlCurrencyAux + " option:selected").text());
+
+                    if ($(txtSalary).val() !== '') {
+                        //Obtaining Iso language code
+                        $(ddlSalaryAux).val(countryData.iso2.toUpperCase());
+                        var isoLanguageCode = $(ddlSalaryAux + " option:selected").text();
+                        var salary = $(txtSalary).val();
+                        salary = salary.replace(/[.,]/g, '');
+                        $(txtSalary).val(salary);
+                        if (isoLanguageCode !== '') {
+                            //Formating using the city corresponding ISO language code, only works with integer.
+                            //TODO: Make this work with decimals.
+                            $(txtSalary).val(Number(salary).toLocaleString(isoLanguageCode));
+                        }
+                    }
                 });
                 // listen to the address dropdown for changes
                 $(ddlCountry).change(function () {

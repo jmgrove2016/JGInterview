@@ -1,44 +1,35 @@
-﻿using System;
-using System.Data;
-
-using System.Data.Common;
+﻿using JG_Prospect.DAL.Database;
 using Microsoft.Practices.EnterpriseLibrary.Data.Sql;
-using JG_Prospect.DAL.Database;
+using System;
+using System.Data;
+using System.Data.Common;
 
 
 namespace JG_Prospect.DAL
 {
     public class CountryDAL
     {
-        private static CountryDAL m_CountryDAL = new CountryDAL();
-        public static CountryDAL Instance
-        {
-            get { return m_CountryDAL; }
-            private set {; }
-        }
-
+        public static CountryDAL Instance { get; } = new CountryDAL();
         private DataSet returndata;
 
-
-        public DataSet GetDepartmentsByFilter(int? DepartmentID)
+        public DataSet GetDepartmentsByFilter(int? departmentId)
         {
             try
             {
                 SqlDatabase database = MSSQLDataBase.Instance.GetDefaultDatabase();
                 {
                     returndata = new DataSet();
-                    DbCommand command = database.GetStoredProcCommand("SP_GetAllCountry");                    
+                    DbCommand command = database.GetStoredProcCommand("SP_GetAllCountry");
                     command.CommandType = CommandType.StoredProcedure;
                     returndata = database.ExecuteDataSet(command);
 
                     return returndata;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }
         }
-
     }
 }

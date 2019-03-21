@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -9,11 +8,12 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using JG_Prospect.App_Code;
 using JG_Prospect.BLL;
+using JG_Prospect.BO;
 using JG_Prospect.Common.modal;
 
 namespace JG_Prospect
 {
-    public partial class screening_intermediate : System.Web.UI.Page
+    public partial class ScreeningIntermediate : Page
     {
         #region "-- varibles --"
         private Int32 UserId
@@ -36,7 +36,7 @@ namespace JG_Prospect
             }
         }
 
-        private String ReturnURL
+        private String ReturnUrl
         {
             get
             {
@@ -57,14 +57,14 @@ namespace JG_Prospect
         }
 
         #endregion
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!Page.IsPostBack)
             {
                 if (Request.QueryString.Count > 0 && !String.IsNullOrEmpty(Request.QueryString["returnurl"]))
                 {
-                    this.ReturnURL = Page.ResolveClientUrl(HttpUtility.UrlDecode(String.Concat("~/", Request.QueryString["returnurl"].ToString())));
-                    //Page.ClientScript.RegisterStartupScript(this.GetType(), "Javascript", String.Concat("javascript:alert('Profile has not been saved.');"), true);
+                    this.ReturnUrl = Page.ResolveClientUrl(HttpUtility.UrlDecode(String.Concat("~/", Request.QueryString["returnurl"].ToString())));
                 }
                 LoadDropDownData();
                 LoadUserData();
@@ -103,8 +103,7 @@ namespace JG_Prospect
 
         private void LoadDropDownData()
         {
-            DataSet dsDesignation = new DataSet();
-            dsDesignation = DesignationBLL.Instance.GetAllDesignationsForHumanResource();
+            var dsDesignation = DesignationBLL.Instance.GetAllDesignationsForHumanResource();
             if (dsDesignation != null && dsDesignation.Tables.Count > 0)
             {
                 ddlPositionAppliedFor.DataSource = dsDesignation.Tables[0];
@@ -115,24 +114,19 @@ namespace JG_Prospect
 
             ddlPositionAppliedFor.Items.Insert(0, new ListItem("Select Position", "0"));
 
-            DataSet dsSource;
-            //dsTrade = InstallUserBLL.Instance.getTrades();
-            dsSource = InstallUserBLL.Instance.GetSource();
+            var dsSource = InstallUserBLL.Instance.GetSource();
 
             if (dsSource != null && dsSource.Tables[0].Rows.Count > 0)
             {
                 ddlSource.DataSource = dsSource.Tables[0];
                 ddlSource.DataTextField = "Source";
                 ddlSource.DataValueField = "Id";
-                //ddlSource.DataValueField = "Source";
                 ddlSource.DataBind();
                 ddlSource.Items.Insert(0, new ListItem("Select Source", "0"));
                 ddlSource.SelectedIndex = 0;
             }
 
-            DataSet dsCountry;
-
-            dsCountry = CountryBLL.Instance.GetAllCountry();
+            var dsCountry = CountryBLL.Instance.GetAllCountry();
 
             if (dsCountry != null && dsCountry.Tables[0].Rows.Count > 0)
             {
@@ -150,6 +144,21 @@ namespace JG_Prospect
                 ddlCurrency.DataTextField = "Name";
                 ddlCurrency.DataValueField = "CurrencyId";
                 ddlCurrency.DataBind();
+            }
+
+            IEnumerable<CurrencyCountryBO> currencyCountries = CurrencyBLL.Instance.GetAllCurrencyCountryCode();
+
+            if (currencyCountries.Any())
+            {
+                ddlCurrencyAux.DataSource = currencyCountries;
+                ddlCurrencyAux.DataTextField = "CurrencyId";
+                ddlCurrencyAux.DataValueField = "CountryCode";
+                ddlCurrencyAux.DataBind();
+
+                ddlSalaryAux.DataSource = currencyCountries;
+                ddlSalaryAux.DataTextField = "IsoLanguageCode";
+                ddlSalaryAux.DataValueField = "CountryCode";
+                ddlSalaryAux.DataBind();
             }
         }
 
@@ -350,15 +359,15 @@ namespace JG_Prospect
 
             InstallUserBLL.Instance.UpdateUserProfile(objInstallUser);
 
-            if (!String.IsNullOrEmpty(this.ReturnURL))
+            if (!String.IsNullOrEmpty(this.ReturnUrl))
             {
-                Response.Redirect(this.ReturnURL);
+                Response.Redirect(this.ReturnUrl);
             }
             else
             {
                 ScriptManager.RegisterStartupScript(upnlProfile, upnlProfile.GetType()
                                                      , "Javascript", String.Concat("javascript:alert('Profile updated successfully.');"), true);
-                
+
             }
 
         }
